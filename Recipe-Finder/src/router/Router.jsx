@@ -1,6 +1,7 @@
 import { useRoutes } from 'react-router-dom';
 import MainLayout from '../Layouts/MainLayout';
 import DashboardLayout from '../Admin/Layouts/Dashboard';
+import ResetPassword from '../Pages/ResetPassword';
 import DashboardContent from '../Admin/Components/DashboardContent';
 import IsAuthenticatedGuard from '../Guards/IsAuthenticatedGuard';
 import IsAdminGuard from '../Guards/isAdminGuard';
@@ -10,6 +11,10 @@ export default function Router() {
     {
       path: '/',
       element: <MainLayout />,
+    },
+    {
+      path: '/reset-password',
+      element: <ResetPassword />
     },
     {
       path: '/admin',
