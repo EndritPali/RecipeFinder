@@ -1,0 +1,39 @@
+@use './Variables.scss' as *;
+
+.account-modal-login {
+    max-width: 30% !important;
+    
+    .ant-modal-content {
+
+        .auth-header{
+            span{
+                font-weight: 500;
+            }
+        }
+
+        .ant-form-vertical {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 50px 0;
+            padding-top: 20px;
+            gap: 50px;
+
+            .user-form-item {
+                width: 100%;
+                .ant-form-item-row {
+                    width: 100%;
+
+                    .ant-form-item-control {
+                        width: 100%;
+                    }
+                    
+                    .ant-input {
+                        padding: 7px 5px;
+                    }
+                }
+            }
+        }
+    }
+
+}

@@ -1,0 +1,139 @@
+@use '../../Scss/Variables.scss' as *;
+
+.content-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    gap: 32px;
+
+
+    .ant-table-wrapper {
+        min-height: 100vh;
+        width: 100%;
+
+        .ant-spin-container {
+
+            .ant-table {
+                border-radius: 10px;
+            }
+        }
+    }
+
+    .grid-view {
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+
+
+        .recipe-card {
+            position: relative;
+
+            .ant-card-meta-title {
+                font-size: 20px;
+                font-weight: bold;
+            }
+
+            .ant-card-actions {
+                & li:nth-child(2) span {
+                    color: red;
+                }
+            }
+
+            .ant-card-body {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .ant-card-cover {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 50%;
+                padding: 10px;
+
+                img {
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                }
+            }
+
+            .ant-card-meta-description {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+
+                .date {
+                    position: absolute;
+                    top: 5px;
+                    left: 5px;
+                    font-size: 12px;
+                    padding: 2px 3px;
+                }
+
+                .author {
+                    font-size: 12px;
+                }
+
+                .category {
+                    border: 1px solid $primary-color;
+                    color: $primary-color;
+                    padding: 2px 5px;
+                    font-size: 11px;
+                    font-weight: bold;
+                }
+
+                .role {
+                    border: 1px solid $primary-color;
+                    color: $primary-color;
+                    padding: 2px 5px;
+                    font-size: 11px;
+                    font-weight: bold;
+                }
+            }
+        }
+    }
+
+    .btn-space {
+        button {
+            padding: 5px;
+            background: transparent;
+            cursor: pointer;
+
+            &.delete-btn {
+                color: red;
+                border: 1.5px solid red;
+                border-radius: 5px;
+            }
+
+            &.edit-btn {
+                color: $light-gray;
+                border: 1.5px solid $light-gray;
+                border-radius: 5px;
+            }
+        }
+    }
+
+    .ant-pagination {
+        position: relative;
+
+        .ant-pagination-total-text {
+            position: absolute;
+            left: 10px;
+        }
+    }
+}

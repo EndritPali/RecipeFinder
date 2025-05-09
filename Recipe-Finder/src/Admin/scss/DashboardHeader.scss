@@ -1,0 +1,78 @@
+@use '../../Scss/Variables.scss' as *;
+
+.dropdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    li {
+        cursor: pointer;
+    }
+
+    .logout p {
+        color: red;
+    }
+}
+
+.dashboard-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    background-color: $primary-color;
+    position: fixed;
+    width: 100%;
+    z-index: 3;
+
+    .ant-scroll-number {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    &__profile-notifications {
+        background-color: rgba(0, 0, 0, 0.25);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+
+        svg {
+            color: #fff;
+            font-weight: 500;
+            font-size: 18px;
+        }
+    }
+
+    &__logo {
+        h1 {
+            font-size: 25px;
+            font-weight: bold;
+
+            span {
+                font-weight: 500;
+            }
+        }
+    }
+
+    &__profile {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+
+        .ant-avatar {
+            cursor: pointer;
+        }
+    }
+}
+
+.ant-popover {
+    z-index: 999;
+}

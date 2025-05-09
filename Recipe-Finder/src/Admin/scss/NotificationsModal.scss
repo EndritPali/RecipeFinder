@@ -1,0 +1,13 @@
+@use '../../Scss/Variables.scss' as *;
+
+
+.ant-modal.notifications-modal {
+    width: 50% !important;
+
+    .list-buttons {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        
+    }
+}

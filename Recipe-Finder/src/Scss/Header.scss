@@ -1,0 +1,142 @@
+@use './Variables.scss' as *;
+
+* {
+    font-family: 'urbanist', sans-serif;
+}
+
+
+.header {
+    background: $primary-color;
+    padding: 45px 102px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    .header__search--mobile {
+        display: none;
+    }
+
+    .header__logo-box {
+        display: none;
+    }
+
+    h1 {
+        font-size: 40px;
+        font-weight: 500;
+        margin: 0;
+        line-height: 21px;
+        letter-spacing: 1px;
+    }
+
+    span {
+        font-weight: bold;
+    }
+
+    .header__widgets {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
+
+        button {
+            background-color: transparent;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+
+            img {
+                height: 30px;
+                width: 30px;
+            }
+        }
+    }
+}
+
+// tablet width
+@media screen and (min-width: $mobile-size) and (max-width: $tablet-size) {
+    .header {
+        padding: 45px 62px;
+
+        .header__search--mobile {
+            display: none;
+        }
+
+        .header__logo-box {
+            display: none;
+        }
+    }
+}
+
+// mobile width
+@media screen and (max-width: $mobile-size) {
+    .header {
+        flex-direction: column;
+        padding: 15px 15px;
+        gap: 16px;
+
+        .header__search--mobile {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            background-color: #fff;
+            padding: 8px 8px;
+            border-radius: 5px;
+            width: 100%;
+
+            i {
+                color: $light-gray;
+                margin-right: 8px;
+                font-size: 24px;
+            }
+
+            input {
+                border: none;
+                background-color: transparent;
+
+                &::placeholder {
+                    line-height: 21px;
+                    font-size: 16px;
+                    font-weight: 500;
+                    color: $light-gray;
+                }
+            }
+        }
+
+        .header__logo {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 100%;
+
+            .header__logo-box {
+                display: block;
+                position: absolute;
+                left: 0;
+                padding: 8px 5px;
+
+                i {
+                    font-size: 22px;
+                }
+            }
+        }
+
+
+        h1 {
+            font-size: 26px;
+        }
+
+
+        .header__widgets {
+            display: none;
+        }
+    }
+
+}

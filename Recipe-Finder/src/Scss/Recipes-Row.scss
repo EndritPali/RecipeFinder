@@ -1,0 +1,106 @@
+@use './Variables.scss' as *;
+
+.recipes-row {
+    padding: 65px 55px;
+    padding-bottom: 50px;
+
+    .recipes-row__header {
+        padding: 0 45px;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
+
+        h2 {
+            font-size: 26px;
+            font-weight: bold;
+            line-height: 31px;
+            padding-bottom: 5px;
+        }
+
+        h3 {
+            font-weight: 600;
+            color: $primary-color;
+            line-height: 24px;
+            font-size: 20px;
+        }
+
+        .recipes-row__header-link a {
+            color: $light-gray;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+        }
+    }
+
+    .recipes-row__content {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: flex-start;
+        width: 100%;
+        gap: 3px;
+    }
+}
+
+
+@media screen and (max-width: $mobile-size) {
+
+    .recipes-row {
+        padding: 15px 15px;
+        padding-right: 8px;
+        padding-bottom: 0;
+
+        .recipes-row__content {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .recipes-row__header {
+            padding: 0;
+            padding-right: 7px;
+
+            h2 {
+                font-size: 24px;
+                line-height: 29px;
+                padding-bottom: 0;
+            }
+
+            h3 {
+                font-size: 18px;
+                line-height: 22px;
+            }
+        }
+    }
+
+}
+
+@media screen and (min-width: $mobile-size) and (max-width: $tablet-size) {
+
+    .recipes-row {
+        padding: 40px 15px;
+        padding-bottom: 0;
+
+        // .recipes-row__content {
+        //     justify-content: center;
+        // }
+
+        .recipes-row__header {
+            padding: 0 50px;
+        }
+
+    }
+}
+
+// small tablets
+
+@media screen and (min-width: $mobile-size) and (max-width: 830px) {
+    .recipes-row {
+        padding: 40px 35px;
+        padding-bottom: 0;
+
+
+    }
+}

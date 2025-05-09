@@ -1,0 +1,46 @@
+@use '../../Scss/Variables.scss' as *;
+
+
+form {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    .content {
+        display: flex;
+        flex-direction: row;
+        padding: 8px 13px;
+        border-bottom: 1.5px solid $bright-gray;
+        gap: 15px;
+        width: 100%;
+    }
+
+    &:last-child {
+        .content {
+            border-bottom: 0;
+        }
+    }
+
+    .content-action-buttons {
+        .btns{
+            padding-right: 13px;
+            display: flex;
+            flex-direction: row;
+            gap: 13px;
+        }
+        
+        button {
+            border:  1px solid $light-gray;
+            border-radius: 5px;
+            background-color: transparent;
+            padding: 3px;
+            cursor: pointer;
+
+            svg {
+                font-size: 16px;
+                color: $light-gray;
+            }
+        }
+    }
+}

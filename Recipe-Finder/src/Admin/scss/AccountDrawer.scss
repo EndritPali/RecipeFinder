@@ -1,0 +1,58 @@
+@use '../../Scss/Variables.scss' as *;
+
+
+.ant-drawer-right {
+
+    .ant-drawer-content-wrapper {
+        width: 750px !important;
+    }
+
+    .user {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 16px;
+
+        .user-profile-pic {
+
+            .ant-avatar {
+                height: 70px;
+                width: 70px;
+                border-radius: 50%;
+                object-fit: cover;
+
+                svg {
+                    font-size: 2rem;
+                }
+            }
+        }
+    }
+
+
+    .ant-drawer-header {
+        .ant-drawer-header-title {
+            display: flex;
+            flex-direction: row-reverse;
+        }
+    }
+
+    .ant-drawer-body {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        background-color: $bright-gray;
+    }
+
+    .ant-card-head {
+        background-color: $primary-color;
+        color: #fff;
+        padding-left: 12px;
+    }
+
+    .ant-card-body {
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+    }
+
+}

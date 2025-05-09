@@ -1,0 +1,232 @@
+@use './Variables.scss' as *;
+
+.recipe-banner {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 8px 30px 8px 8px;
+    min-width: 100%;
+    box-shadow: 0 4px 40px 0 rgba(0, 0, 0, 10%);
+    border-radius: 10px;
+
+    .recipe-banner__img {
+        height: 98px;
+        min-width: 180px;
+        
+        img {
+            border-radius: 10px;
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .recipe-banner__info {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+
+        .recipe-banner__intro {
+            padding-left: 25px;
+            padding-right: 19px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        h2 {
+            line-height: 29px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        h3 {
+            font-size: 18px;
+            color: $primary-color;
+            font-weight: 500;
+
+            i {
+                margin-right: 8px;
+            }
+        }
+
+        .recipe-banner__rating {
+            background: $primary-color;
+            color: #fff;
+            font-size: 12px;
+            padding: 5px 7px;
+            border-radius: 7.5px;
+            font-weight: 600;
+            display: flex;
+
+            i {
+                font-size: 10px;
+            }
+
+            p {
+                font-family: 'poppins', sans-serif;
+                display: inline-flex;
+                align-items: center;
+                line-height: 11px;
+            }
+        }
+    }
+}
+
+@media screen and (min-width: $mobile-size) and (max-width: $tablet-size) {
+    .recipe-banner {
+        min-width: 345px;
+        padding: 18px 19px;
+        padding-right: 0;
+        justify-content: flex-start;
+
+        .recipe-banner__info {
+
+
+
+            .recipe-banner__intro {
+                padding-left: 16px !important;
+                padding-right: 0 !important;
+                gap: 6px;
+
+                h2 {
+                    font-size: 18px;
+                }
+
+                h3 {
+                    font-size: 14px;
+                    color: $primary-color;
+                    font-weight: 500;
+
+                    i {
+                        margin-right: 4px;
+                    }
+                }
+            }
+
+
+            .recipe-banner__rating {
+                display: none;
+            }
+        }
+    }
+
+    .recipe-banner__img {
+        height: 80px !important;
+
+        img {
+            width: 106px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+    }
+
+
+}
+
+
+@media screen and (max-width: $mobile-size) {
+    .recipe-banner {
+        min-width: 100%;
+        padding: 8px 8px;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+
+
+        .recipe-banner__info {
+
+
+
+            .recipe-banner__intro {
+                padding-left: 16px !important;
+                padding-right: 0 !important;
+                gap: 6px;
+
+                h2 {
+                    font-size: 18px;
+                }
+
+                h3 {
+                    font-size: 14px;
+                    color: $primary-color;
+                    font-weight: 500;
+
+                    i {
+                        margin-right: 4px;
+                    }
+
+                }
+            }
+
+
+            .recipe-banner__rating {
+                display: none;
+            }
+        }
+
+        .recipe-banner__img {
+            height: 72px;
+            min-width: auto;
+
+            img {
+                width: 106px;
+                height: 72px;
+                object-fit: cover;
+                border-radius: 10px;
+            }
+        }
+    }
+
+
+
+
+}
+
+
+// awkward middle ground
+@media screen and (min-width: 1100px) and (max-width: 1350px) {
+    .recipe-banner {
+
+
+        .recipe-banner__info {
+
+            .recipe-banner__intro {
+                padding-left: 16px !important;
+                padding-right: 0 !important;
+                gap: 6px;
+
+                h2 {
+                    font-size: 18px;
+                }
+
+                h3 {
+                    font-size: 14px;
+                    color: $primary-color;
+                    font-weight: 500;
+                }
+            }
+
+
+            .recipe-banner__rating {
+                display: none;
+            }
+        }
+    }
+
+
+}
+
+//// large screen size
+//// @media screen and (min-width: 1450px) {
+////   .recipe-banner{
+////     min-width: 660px;
+////     justify-content: flex-start;
+////   }
+//// }

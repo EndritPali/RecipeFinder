@@ -1,0 +1,39 @@
+@use '../Scss/Variables.scss' as *;
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body{
+    background-color: $light-gray-bg;
+}
+
+
+
+@media screen and (max-width: $mobile-size) {
+
+    .recipe-grid {
+        display: none;
+    }
+
+    .mobile-footer {
+        display: flex;
+    }
+}
+
+@media screen and (min-width: $mobile-size) {
+
+    .recipe-grid {
+        display: block;
+    }
+
+    .recipe-grid-mobile {
+        display: none;
+    }
+
+    .mobile-footer {
+        display: none !important;
+    }
+}

@@ -1,0 +1,78 @@
+@use './Variables.scss' as *;
+
+.comments__wrapper {
+    padding: 50px 100px;
+    padding-top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+
+    .comments__section {
+        gap: 15px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .comments__header {
+        padding-bottom: 40px;
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 29px;
+        }
+
+        .comments__header-arrow {
+            display: none;
+        }
+    }
+}
+
+@media screen and (min-width: $mobile-size) and (max-width: $tablet-size) {
+    .comments__wrapper {
+        padding: 80px 65px;
+        padding-bottom: 40px;
+    }
+}
+
+@media screen and (max-width: $mobile-size) {
+
+    .comments__wrapper {
+        padding: 25px 16px;
+        padding-bottom: 70px;
+
+        .comments__section {
+            gap: 8px;
+        }
+
+        .comments__header {
+            padding-bottom: 25px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+
+            h2 {
+                font-size: 22px;
+                line-height: 26px;
+            }
+
+            .comments__header-arrow {
+                height: 25px;
+                width: 25px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+
+                i {
+                    color: $light-gray;
+                    font-size: 18px;
+                }
+            }
+        }
+    }
+}
