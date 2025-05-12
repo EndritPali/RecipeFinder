@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\RecipeCategoryController;
@@ -43,6 +44,7 @@ Route::prefix('auth')->group(function () {
 
 Route::middleware('auth.token')->get('/me', fn(Request $request) => response()->json($request->user()));
 Route::post('/auth/password-reset/submit', [PasswordResetController::class, 'submitResetRequest']);
+Route::apiResource('comments', CommentController::class);
 
 Route::middleware(['auth.token', 'role:User,Admin'])->group(function () {
     Route::get('/admin', fn() => response()->json(['message' => 'Dashboard']));

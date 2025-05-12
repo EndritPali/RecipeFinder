@@ -10,23 +10,19 @@ import '../scss/DashboardHeader.scss';
 
 export default function DashboardHeader() {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const [user, setUser] = useState(null);
-    const [pendingRequests, setPendingRequests] = useState(0);
     const [userBasicInfo, setUserBasicInfo] = useState({});
     const [userFullInfo, setUserFullInfo] = useState(null);
+    const [pendingRequests, setPendingRequests] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
 
     const showDrawer = () => setIsDrawerOpen(true);
     const closeDrawer = () => setIsDrawerOpen(false);
 
-    const handleOpenModal = () => {
-        setIsModalOpen(true);
-    };
-
+    const handleOpenModal = () => setIsModalOpen(true);
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        fetchPendingRequestsCount();
+        fetchPendingRequestsCount(); 
     };
 
     const handleLogout = async () => {
@@ -41,7 +37,7 @@ export default function DashboardHeader() {
             message.success('Logged out successfully');
             navigate('/');
         } catch (error) {
-            message.error(error);
+            message.error('Logout failed. Please try again.'), error;
         }
     };
 
@@ -60,12 +56,12 @@ export default function DashboardHeader() {
             }
         };
 
-        Promise.all([fetchUserData(),]);
+        fetchUserData();
     }, []);
 
     const mainuser = {
         ...userBasicInfo,
-        role: userFullInfo?.role || 'Loading...'
+        role: userFullInfo?.role || 'Loading...',
     };
 
     const fetchPendingRequestsCount = useCallback(async () => {
@@ -77,7 +73,7 @@ export default function DashboardHeader() {
                 api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
                 const response = await api.get('/auth/password-reset/pending');
 
-                if (response.data?.data && Array.isArray(response.data.data)) {
+                if (Array.isArray(response.data?.data)) {
                     setPendingRequests(response.data.data.length);
                 } else {
                     setPendingRequests(0);
@@ -89,19 +85,8 @@ export default function DashboardHeader() {
     }, [mainuser.role]);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            try {
-                setUser(JSON.parse(storedUser));
-            } catch {
-                setUser(null);
-            }
-        }
-    }, []);
-
-    useEffect(() => {
         fetchPendingRequestsCount();
-        const interval = setInterval(fetchPendingRequestsCount, 30000);
+        const interval = setInterval(fetchPendingRequestsCount, 30000); 
         return () => clearInterval(interval);
     }, [fetchPendingRequestsCount]);
 
@@ -124,16 +109,18 @@ export default function DashboardHeader() {
                 </div>
 
                 <div className="dashboard-header__profile">
-                    {mainuser.role === 'Admin' ? (<div className="dashboard-header__profile-notifications" onClick={handleOpenModal}>
-                        <Badge count={pendingRequests}>
-                            <BellOutlined />
-                        </Badge>
-                    </div>) : ('')}
+                    {mainuser.role === 'Admin' && (
+                        <div className="dashboard-header__profile-notifications" onClick={handleOpenModal}>
+                            <Badge count={pendingRequests}>
+                                <BellOutlined />
+                            </Badge>
+                        </div>
+                    )}
 
                     <Popover content={dropdown} trigger="click">
                         <Avatar icon={<UserOutlined />} />
                     </Popover>
-                    <h5>{user?.username || 'User'}</h5>
+                    <h5>{userBasicInfo.username || 'User'}</h5>
                 </div>
             </div>
 

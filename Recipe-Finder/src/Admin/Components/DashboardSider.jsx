@@ -129,7 +129,6 @@ export default function DashboardSider() {
           icon={collapsed ? <RightOutlined /> : <LeftOutlined />}
           onClick={() => setCollapsed(!collapsed)}
           style={{
-            color: '#fff',
             width: '100%',
             background: 'transparent',
           }}

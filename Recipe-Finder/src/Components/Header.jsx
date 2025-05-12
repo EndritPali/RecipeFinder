@@ -4,12 +4,12 @@ import User from '../assets/User.svg';
 import Heart from '../assets/Heart.svg';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Dropdown, Menu } from 'antd';
+import { Dropdown} from 'antd';
 import AccountModal from '../Templates/AccountModal';
 
 export default function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState('login'); 
+  const [modalMode, setModalMode] = useState('login');
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export default function Header() {
   }, []);
 
   const handleOpenModal = (mode) => {
-    setModalMode(mode); 
+    setModalMode(mode);
     setIsModalOpen(true);
   };
   const handleCloseModal = () => setIsModalOpen(false);
@@ -61,7 +61,7 @@ export default function Header() {
         open={isModalOpen}
         onOk={handleCloseModal}
         onCancel={handleCloseModal}
-        mode={modalMode}  
+        mode={modalMode}
       />
     </>
   );

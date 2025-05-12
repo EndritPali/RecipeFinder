@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Button, Input, Space, Radio, } from 'antd';
+import { Button, Input, Space, Radio } from 'antd';
 import { PlusCircleOutlined, UnorderedListOutlined, AppstoreOutlined, SearchOutlined, UserAddOutlined } from '@ant-design/icons';
-import '../scss/DashboardFilter.scss'
+import '../scss/DashboardFilter.scss';
 import RecipeModal from '../Templates/RecipeModal';
 import CreateUserModal from '../Templates/UserModal';
 
@@ -32,13 +32,13 @@ export default function DashboardFilter({ view, setView, searchTerm, setSearchTe
                 </div>
 
                 <div className="filter-section">
-                    <Space className='search-bar'>
+                    <Space className="search-bar">
                         <SearchOutlined />
                         <Input
                             placeholder={isUsersPage ? 'Search by username' : 'Search by title'}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                        ></Input>
+                        />
                     </Space>
 
                     <div className="filter-buttons">
@@ -60,5 +60,5 @@ export default function DashboardFilter({ view, setView, searchTerm, setSearchTe
                 <RecipeModal open={isModalOpen} onOk={handleOk} onCancel={handleCancel} mode="create" />
             )}
         </>
-    )
+    );
 }

@@ -1,6 +1,6 @@
 import '../Scss/Comment-Template.scss'
 
-export default function CommentsTemplate({ profile, name, comment, likes }) {
+export default function CommentsTemplate({ profile, name, comment, likes, date }) {
     return (
         <>
             <div className="comment">
@@ -12,7 +12,7 @@ export default function CommentsTemplate({ profile, name, comment, likes }) {
                     <p className='comment__text'>{comment}</p>
                     <div className="comment__likes">
                         <i className="far fa-heart"> <span>{likes}</span></i>
-                        <p>1 month ago</p>
+                        <p>{date}</p>
                     </div>
                 </div>
                 <div className="comment__info comment__info--secondary">

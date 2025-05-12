@@ -1,11 +1,10 @@
 import { useMemo, useState } from 'react';
 import { useFetchRecipes } from '../hooks/useFetchRecipes';
-import RecipeBanner from "../Templates/RecipeBanner"
+import RecipeBanner from "../Templates/RecipeBanner";
 import RecipeDetailsModal from '../Templates/RecipeDetailsModal';
-import '../Scss/Recipe-grid-Mobile.scss'
+import '../Scss/Recipe-grid-Mobile.scss';
 
 export default function RecipeGridMobile() {
-
     const { recipes } = useFetchRecipes();
 
     const filteredRecipes = useMemo(() =>
@@ -18,7 +17,7 @@ export default function RecipeGridMobile() {
         return filteredRecipes[Math.floor(Math.random() * filteredRecipes.length)];
     }, [filteredRecipes]);
 
-    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRecipe, setSelectedRecipe] = useState(null);
 
     const handleOpenModal = (recipe) => {
@@ -30,16 +29,19 @@ export default function RecipeGridMobile() {
         setIsModalOpen(false);
         setSelectedRecipe(null);
     };
+
     return (
         <>
             <div className="recipe-grid-mobile">
+
                 <div className="recipe-grid-mobile__card recipe-grid-mobile__card--first">
                     <h2>Learn how to become a master chef right now!</h2>
                     <button>Login</button>
                 </div>
+
                 <div className="recipe-grid-mobile__header">
                     <div className="recipe-grid-mobile__header-primary">
-                        <h3>with benefits</h3>
+                        <h3>With benefits</h3>
                     </div>
                     <div className="recipe-grid-mobile__header-link">
                         <a href="#">See all</a>
@@ -53,7 +55,8 @@ export default function RecipeGridMobile() {
                             key={recipe.key}
                             header={recipe.recipetitle}
                             subheader={recipe.shortdescription}
-                            rating={recipe.rating} />
+                            rating={recipe.rating}
+                        />
                     ))}
                 </div>
 
@@ -70,7 +73,9 @@ export default function RecipeGridMobile() {
                             <div className="recipe-grid-mobile__bar-ico">
                                 <i className="far fa-heart"></i>
                             </div>
-                            <button onClick={() => handleOpenModal(randomRecipe)}>Start cook</button>
+                            <button onClick={() => handleOpenModal(randomRecipe)}>
+                                Start cook
+                            </button>
                         </div>
                         <div className="recipe-grid-mobile__info">
                             <h2>Weekly pick</h2>
@@ -87,5 +92,5 @@ export default function RecipeGridMobile() {
                 recipe={selectedRecipe}
             />
         </>
-    )
+    );
 }
