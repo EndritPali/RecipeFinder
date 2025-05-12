@@ -1,10 +1,15 @@
 import { Form, Input } from "antd";
-import { useState } from "react";
 import '../scss/DrawerInputs.scss';
 
-export default function DrawerInput({ icon, header, information, children, isEditing }) {
-  const [value, setValue] = useState(information);
-
+export default function DrawerInput({
+  icon,
+  header,
+  information,
+  children,
+  isEditing,
+  value,
+  onValueChange
+}) {
   return (
     <Form layout="vertical">
       <div className="content">
@@ -13,7 +18,11 @@ export default function DrawerInput({ icon, header, information, children, isEdi
         <div className="content-data">
           <h5>{header}</h5>
           {isEditing ? (
-            <Input value={value} onChange={(e) => setValue(e.target.value)} />
+            <Input
+              value={value !== undefined ? value : information}
+              onChange={(e) => onValueChange && onValueChange(e.target.value)}
+              type={header.toLowerCase().includes('password') ? 'password' : 'text'}
+            />
           ) : (
             <p>{information}</p>
           )}

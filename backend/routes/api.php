@@ -42,13 +42,19 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::middleware('auth.token')->get('/me', fn(Request $request) => response()->json($request->user()));
+Route::post('/auth/password-reset/submit', [PasswordResetController::class, 'submitResetRequest']);
 
 Route::middleware(['auth.token', 'role:User,Admin'])->group(function () {
     Route::get('/admin', fn() => response()->json(['message' => 'Dashboard']));
     Route::get('/my-recipes', [RecipeController::class, 'myRecipes']);
     Route::apiResource('recipes', RecipeController::class)->only(['destroy', 'update', 'store']);
 
-    Route::middleware(['role:Admin'])->group(function () {
-        Route::apiResource('user', UserController::class);
-    });
+    // Move this outside of the Admin-only nested group
+    Route::apiResource('user', UserController::class)->only(['update']);
+});
+
+Route::middleware(['auth.token', 'role:Admin'])->group(function () {
+    Route::apiResource('user', UserController::class)->except('update');
+    Route::get('/auth/password-reset/pending', [PasswordResetController::class, 'getPendingRequests']);
+    Route::post('/auth/password-reset/process', [PasswordResetController::class, 'processResetRequest']);
 });

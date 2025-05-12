@@ -106,7 +106,7 @@ export default function AccountModal({ open, onOk, onCancel, mode = 'login' }) {
 
                     {isRegistering ? ('') : (
                         <Form.Item>
-                            <a href="/reset-password" target='blank'>Forgot password?</a>
+                            <a href="/reset-password">Forgot password?</a>
                         </Form.Item>
                     )}
                 </Form>
