@@ -1,12 +1,16 @@
 import '../Scss/Comment-Template.scss'
+import { Avatar } from 'antd'
+import { UserOutlined } from '@ant-design/icons';
 
-export default function CommentsTemplate({ profile, name, comment, likes, date }) {
+export default function CommentsTemplate({ name, comment, likes, date }) {
     return (
         <>
             <div className="comment">
                 <div className="comment__info comment__info--primary">
                     <div className="comment__profile">
-                        <img src={profile} alt="profile-pic" />
+                        <Avatar>
+                            <UserOutlined />
+                        </Avatar>
                         <h4>{name}</h4>
                     </div>
                     <p className='comment__text'>{comment}</p>

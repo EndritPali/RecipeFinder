@@ -27,13 +27,27 @@
         .comments__header-arrow {
             display: none;
         }
+
+    }
+
+    .create-comment-button {
+        margin-top: 10px;
+        background-color: $primary-color;
+        color: #fff;
+        border: 1px solid $primary-color;
+
+        &:disabled {
+            background-color: $bright-gray ;
+            color: $light-gray;
+            border: 1px solid $light-gray;
+        }
     }
 }
 
 @media screen and (min-width: $mobile-size) and (max-width: $tablet-size) {
     .comments__wrapper {
         padding: 80px 65px;
-        padding-bottom: 40px;
+        padding-bottom: 50px;
     }
 }
 
@@ -41,7 +55,7 @@
 
     .comments__wrapper {
         padding: 25px 16px;
-        padding-bottom: 70px;
+        padding-bottom: 100px;
 
         .comments__section {
             gap: 8px;

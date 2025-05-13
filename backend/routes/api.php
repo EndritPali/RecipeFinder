@@ -44,12 +44,13 @@ Route::prefix('auth')->group(function () {
 
 Route::middleware('auth.token')->get('/me', fn(Request $request) => response()->json($request->user()));
 Route::post('/auth/password-reset/submit', [PasswordResetController::class, 'submitResetRequest']);
-Route::apiResource('comments', CommentController::class);
+Route::apiResource('comments', CommentController::class)->only(['index', 'show']);
 
 Route::middleware(['auth.token', 'role:User,Admin'])->group(function () {
     Route::get('/admin', fn() => response()->json(['message' => 'Dashboard']));
     Route::get('/my-recipes', [RecipeController::class, 'myRecipes']);
     Route::apiResource('recipes', RecipeController::class)->only(['destroy', 'update', 'store']);
+    Route::apiResource('comments', CommentController::class)->only(['destroy', 'update', 'store']);
 
     // Move this outside of the Admin-only nested group
     Route::apiResource('user', UserController::class)->only(['update']);

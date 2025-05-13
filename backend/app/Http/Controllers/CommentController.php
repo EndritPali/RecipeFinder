@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CommentResource;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,7 @@ class CommentController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $comments
+            'data' => CommentResource::collection($comments)
         ]);
     }
 
@@ -29,13 +30,12 @@ class CommentController extends Controller
 
         $validated = $request->validate([
             'description' => 'required|string|max:1000',
-            'posted_at' => 'required|date',
         ]);
 
         $comment = Comment::create([
             'user_id'    => $user->id,
             'description' => $validated['description'],
-            'posted_at'   => $validated['posted_at'],
+            'posted_at'   => now(),
         ]);
 
         return response()->json([
