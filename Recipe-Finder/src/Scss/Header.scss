@@ -57,6 +57,16 @@
     }
 }
 
+.search-suggestion {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.search-suggestion img {
+    border-radius: 4px;
+}
+
 // tablet width
 @media screen and (min-width: $mobile-size) and (max-width: $tablet-size) {
     .header {

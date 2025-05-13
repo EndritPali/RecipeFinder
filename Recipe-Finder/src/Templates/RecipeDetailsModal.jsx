@@ -13,7 +13,6 @@ export default function RecipeDetailsModal({ open, onOk, onCancel, recipe }) {
             title="Recipe Info"
             className="details-modal"
         >
-
             <div
                 className="details-modal__header"
                 style={{
@@ -36,26 +35,30 @@ export default function RecipeDetailsModal({ open, onOk, onCancel, recipe }) {
             </div>
 
             <Card title="Preparation:">
-                <p>{recipe.preparation}</p>
+                <p>{recipe.preparation || 'No preparation details available'}</p>
             </Card>
 
             <Card title="Ingredients:">
-                <ul>
-                    {recipe.ingredients.map((ingredient, index) => (
-                        <li key={index}>{ingredient}</li>
-                    ))}
-                </ul>
+                {recipe.ingredients && Array.isArray(recipe.ingredients) ? (
+                    <ul>
+                        {recipe.ingredients.map((ingredient, index) => (
+                            <li key={index}>{ingredient}</li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>No ingredients listed</p>
+                )}
             </Card>
 
             <div className="details-modal-general-info">
                 <Card title="Preparation time:">
-                    <p>{recipe.preptime} Hours</p>
+                    <p>{recipe.preptime ? `${recipe.preptime} Hours` : 'Not specified'}</p>
                 </Card>
                 <Card title="Cooking time:">
-                    <p>{recipe.cooktime} Hours</p>
+                    <p>{recipe.cooktime ? `${recipe.cooktime} Hours` : 'Not specified'}</p>
                 </Card>
                 <Card title="Servings:">
-                    <p>{recipe.servings}</p>
+                    <p>{recipe.servings || 'Not specified'}</p>
                 </Card>
             </div>
         </Modal>

@@ -1,8 +1,8 @@
 @use './Variables.scss' as *;
 
-.details-modal {
+.ant-modal.details-modal {
     min-width: 85% !important;
-    
+
     .ant-modal-content {
 
         .ant-modal-body {
@@ -100,7 +100,11 @@
 }
 
 @media screen and (max-width: $mobile-size) {
-    .details-modal-general-info{
-        flex-wrap: wrap;
+    .ant-modal.details-modal {
+        width: 100% !important;
+
+        .details-modal-general-info {
+            flex-wrap: wrap;
+        }
     }
 }

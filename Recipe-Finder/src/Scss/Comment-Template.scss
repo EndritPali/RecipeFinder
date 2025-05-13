@@ -190,6 +190,31 @@
                 width: 100%;
                 text-align: center;
             }
+
+
+            button {
+                border: none;
+                background-color: transparent;
+                box-shadow: none;
+                color: $light-gray;
+                font-size: 14px;
+                width: 100%;
+                padding: 0;
+
+
+                &:hover {
+                    background-color: transparent;
+                    box-shadow: none;
+                }
+
+                &.btn-edit:hover {
+                    color: $primary-color;
+                }
+
+                &.btn-delete:hover {
+                    color: $apple-red;
+                }
+            }
         }
 
     }
