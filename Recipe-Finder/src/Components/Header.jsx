@@ -4,7 +4,7 @@ import User from '../assets/User.svg';
 import Heart from '../assets/Heart.svg';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Dropdown} from 'antd';
+import { Dropdown } from 'antd';
 import AccountModal from '../Templates/AccountModal';
 
 export default function Header() {
@@ -28,7 +28,7 @@ export default function Header() {
   const menuItems = user ? [
     { key: 'username', label: user.username },
     { key: 'divider', type: 'divider' },
-    { key: 'admin', label: <Link to="/admin">Admin Panel</Link> },
+    { key: 'admin', label: <Link to="/admin">Dashboard</Link> },
   ] : [
     { key: 'login', label: 'Login', onClick: () => handleOpenModal('login') },
     { key: 'divider', type: 'divider' },

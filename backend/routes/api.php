@@ -51,6 +51,7 @@ Route::middleware(['auth.token', 'role:User,Admin'])->group(function () {
     Route::get('/my-recipes', [RecipeController::class, 'myRecipes']);
     Route::apiResource('recipes', RecipeController::class)->only(['destroy', 'update', 'store']);
     Route::apiResource('comments', CommentController::class)->only(['destroy', 'update', 'store']);
+    Route::post('/comments/{id}/like', [CommentController::class, 'toggleLike']);
 
     // Move this outside of the Admin-only nested group
     Route::apiResource('user', UserController::class)->only(['update']);

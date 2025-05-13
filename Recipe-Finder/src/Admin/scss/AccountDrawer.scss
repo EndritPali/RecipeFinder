@@ -13,17 +13,14 @@
         align-items: center;
         gap: 16px;
 
-        .user-profile-pic {
+        .ant-avatar {
+            height: 70px;
+            width: 70px;
+            border-radius: 50%;
+            object-fit: cover;
 
-            .ant-avatar {
-                height: 70px;
-                width: 70px;
-                border-radius: 50%;
-                object-fit: cover;
-
-                svg {
-                    font-size: 2rem;
-                }
+            svg {
+                font-size: 2rem;
             }
         }
     }

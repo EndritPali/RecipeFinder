@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react';
 import api from '../Services/api';
 import auth from '../Services/auth';
 
-export default function CreateCommentModal({ open, onOk, onCancel, refreshComments }) {
+export default function CreateCommentModal({ open, onOk, onCancel, refreshComments, mode = 'create', comment = null }) {
+    const isEdit = mode === 'edit';
     const [form] = Form.useForm();
     const [user, setUser] = useState(null);
     const [submitting, setSubmitting] = useState(false);
@@ -16,34 +17,48 @@ export default function CreateCommentModal({ open, onOk, onCancel, refreshCommen
         }
     }, [open]);
 
+    useEffect(() => {
+        if (open && isEdit && comment) {
+            form.setFieldsValue({
+                description: comment.comment
+            });
+
+        }
+    }, [open, isEdit, comment, form]);
+
+
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
             setSubmitting(true);
 
-            await api.post('/comments', {
-                description: values.description,
-            });
-
-            message.success('Comment added successfully!');
-            form.resetFields();
-
-            if (refreshComments) {
-                refreshComments();
+            if (isEdit && comment) {
+                await api.put(`/comments/${comment.id}`, {
+                    description: values.description,
+                });
+                message.success('Comment updated successfully!');
+            } else {
+                await api.post('/comments', {
+                    description: values.description,
+                });
+                message.success('Comment added successfully!');
             }
 
+            form.resetFields();
+            refreshComments?.();
             onOk();
         } catch (err) {
             console.error('Submit error:', err);
-            message.error('Failed to add comment');
+            message.error(`Failed to ${isEdit ? 'edit' : 'add'} comment`);
         } finally {
             setSubmitting(false);
         }
     };
+
     return (
         <Modal
             className='create-comment'
-            title='Add new comment'
+            title={isEdit ? 'Edit comment' : 'Add new comment'}
             open={open}
             onOk={handleSubmit}
             onCancel={onCancel}
@@ -64,8 +79,12 @@ export default function CreateCommentModal({ open, onOk, onCancel, refreshCommen
                     name='description'
                     rules={[{ required: true, message: 'Comment cannot be empty' }]}
                 >
-                    <Input.TextArea placeholder='Add new comment' rows={4} />
+                    <Input.TextArea
+                        placeholder={isEdit ? 'Edit Comment' : 'Add new comment'}
+                        rows={4}
+                    />
                 </Form.Item>
+
             </Form>
 
         </Modal>

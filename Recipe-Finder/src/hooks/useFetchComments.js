@@ -19,6 +19,7 @@ export const useFetchComments = () => {
 
       const mapped = response.data.data.map(comment => ({
         id: comment.id,
+        creator: comment.creator_id,
         comment: comment.description,
         name: comment.user_id || 'Anonymous',
         likes: comment.likes || 0,

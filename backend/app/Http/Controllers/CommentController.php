@@ -79,13 +79,40 @@ class CommentController extends Controller
         ]);
     }
 
-    // Delete comment (only owner)
+    public function toggleLike(Request $request, $id)
+    {
+        $user = $request->user();
+        $comment = Comment::findOrFail($id);
+
+        $action = $request->input('action'); // 'like' or 'unlike'
+
+        if ($action === 'like') {
+            $comment->increment('likes');
+        } elseif ($action === 'unlike' && $comment->likes > 0) {
+            $comment->decrement('likes');
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid like action'
+            ], 400);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Comment ' . $action . 'd successfully',
+            'likes' => $comment->likes,
+        ]);
+    }
+
+
+    // Delete comment (only owner and admin)
     public function destroy(Request $request, $id)
     {
         $comment = Comment::findOrFail($id);
         $user = $request->user();
 
-        if ($user->id !== $comment->user_id) {
+        // Allow deletion if the user is the owner OR an admin
+        if ($user->id !== $comment->user_id && $user->role !== 'Admin') {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
         }
 

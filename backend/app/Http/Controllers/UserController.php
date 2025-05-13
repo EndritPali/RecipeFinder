@@ -36,7 +36,7 @@ class UserController extends Controller
             'username' => $validated['username'],
             'email' => $validated['email'],
             'password_hash' => Hash::make($validated['password']),
-            'role' =>$validated['role']
+            'role' => $validated['role']
         ]);
 
         return response()->json([
@@ -92,26 +92,26 @@ class UserController extends Controller
     }
 
     public function register(Request $request)
-{
-    $validated = $request->validate([
-        'username' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email',
-        'password' => 'required|string|min:6',
-    ]);
+    {
+        $validated = $request->validate([
+            'username' => 'required|string|unique:users,username|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+        ]);
 
-    $user = User::create([
-        'username' => $validated['username'],
-        'email' => $validated['email'],
-        'password_hash' => bcrypt($validated['password']),
-        'role' => 'User', // default role
-    ]);
+        $user = User::create([
+            'username' => $validated['username'],
+            'email' => $validated['email'],
+            'password_hash' => bcrypt($validated['password']),
+            'role' => 'User', // default role
+        ]);
 
-    return response()->json([
-        'status' => 'success',
-        'message' => 'User registered successfully!',
-        'user' => $user,
-    ]);
-}
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User registered successfully!',
+            'user' => $user,
+        ]);
+    }
 
 
     /**
