@@ -5,6 +5,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\RecipeCategoryController;
+use App\Http\Controllers\SavedRecipeController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -51,6 +52,7 @@ Route::middleware(['auth.token', 'role:User,Admin'])->group(function () {
     Route::get('/my-recipes', [RecipeController::class, 'myRecipes']);
     Route::apiResource('recipes', RecipeController::class)->only(['destroy', 'update', 'store']);
     Route::apiResource('comments', CommentController::class)->only(['destroy', 'update', 'store']);
+    Route::apiResource('saved-recipes', SavedRecipeController::class);
     Route::post('/comments/{id}/like', [CommentController::class, 'toggleLike']);
 
     // Move this outside of the Admin-only nested group

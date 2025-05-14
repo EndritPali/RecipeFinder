@@ -67,6 +67,57 @@
     border-radius: 4px;
 }
 
+
+.saved-recipes-dropdown {
+    min-width: 250px;
+    max-width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.saved-recipes-header {
+    font-weight: bold;
+    font-size: 16px;
+    text-align: center;
+    color: #333;
+}
+
+.saved-recipe-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 0;
+
+    img {
+        width: 30px;
+        height: 30px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    span {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+
+.ant-modal-footer {
+    .ant-btn-primary {
+        &[icon="heart-filled"] {
+            background-color: #ff4d4f;
+            border-color: #ff4d4f;
+
+            &:hover {
+                background-color: #ff7875;
+                border-color: #ff7875;
+            }
+        }
+    }
+}
+
 // tablet width
 @media screen and (min-width: $mobile-size) and (max-width: $tablet-size) {
     .header {

@@ -4,9 +4,10 @@ import User from '../assets/User.svg';
 import Heart from '../assets/Heart.svg';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Dropdown, AutoComplete, Skeleton } from 'antd';
+import { Dropdown, AutoComplete, Skeleton, Menu, Empty } from 'antd';
 import AccountModal from '../Templates/AccountModal';
 import { useFetchRecipes } from '../hooks/useFetchRecipes';
+import { useSavedRecipes } from '../hooks/useSavedRecipes';
 import RecipeDetailsModal from '../Templates/RecipeDetailsModal';
 
 export default function Header() {
@@ -18,6 +19,7 @@ export default function Header() {
   const [filteredOptions, setFilteredOptions] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const { recipes, loading } = useFetchRecipes();
+  const { savedRecipes, loading: savedLoading } = useSavedRecipes();
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -52,6 +54,11 @@ export default function Header() {
     setShowSearch(false);
   };
 
+  const handleSavedRecipeClick = (recipe) => {
+    setSelectedRecipe(recipe);
+    setIsRecipeModalOpen(true);
+  };
+
   const handleCloseRecipeModal = () => {
     setIsRecipeModalOpen(false);
     setSelectedRecipe(null);
@@ -71,6 +78,35 @@ export default function Header() {
     { key: 'divider', type: 'divider' },
     { key: 'register', label: 'Register', onClick: () => openAccountModal('register') },
   ];
+
+  const savedRecipesMenu = (
+    <Menu className="saved-recipes-dropdown">
+      <Menu.Item key="header" disabled className="saved-recipes-header">
+        Saved Recipes
+      </Menu.Item>
+      <Menu.Divider />
+      {savedLoading ? (
+        <Menu.Item key="loading" disabled>
+          <Skeleton active paragraph={{ rows: 1 }} />
+        </Menu.Item>
+      ) : savedRecipes.length === 0 ? (
+        <Menu.Item key="empty" disabled>
+          <Empty description="No saved recipes" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        </Menu.Item>
+      ) : (
+        savedRecipes.map(recipe => (
+          <Menu.Item key={recipe.key} onClick={() => handleSavedRecipeClick(recipe)}>
+            <div className="saved-recipe-item">
+              {recipe.image && (
+                <img src={recipe.image} alt={recipe.recipetitle} width={30} height={30} />
+              )}
+              <span>{recipe.recipetitle}</span>
+            </div>
+          </Menu.Item>
+        ))
+      )}
+    </Menu>
+  );
 
   return (
     <>
@@ -116,7 +152,12 @@ export default function Header() {
 
           {loading && <Skeleton active paragraph={{ rows: 1 }} />}
 
-          <button><img src={Heart} alt="heart" /></button>
+          {user && (
+            <Dropdown overlay={savedRecipesMenu} placement='bottomRight' trigger={['click']}>
+              <button><img src={Heart} alt="heart" /></button>
+            </Dropdown>
+          )}
+
           <Dropdown menu={{ items: menuItems }} placement='bottomRight'>
             <button><img src={User} alt="user" /></button>
           </Dropdown>
