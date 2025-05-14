@@ -36,7 +36,7 @@
                 padding: 0px 11px;
                 background-color: transparent;
 
-                &:focus{
+                &:focus {
                     border: none;
                     box-shadow: none;
                 }
@@ -53,22 +53,27 @@
             display: flex;
 
             .ant-radio-button-wrapper {
-                // border: 1px solid $light-gray;
-                // color: $light-gray;
                 font-size: 16px;
                 height: 40px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+            }
+        }
+    }
+}
 
-                // &-checked {
-                //     border: 1px solid $primary-color;
-                //     color: $primary-color;
-                // }
+@media screen and (max-width: $mobile-size) {
+    .dashboard-filter {
+        gap: 20px;
 
-                // &::before {
-                //     display: none;
-                // }
+        .filter-section {
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+
+            .ant-radio-group {
+                display: none;
             }
         }
     }

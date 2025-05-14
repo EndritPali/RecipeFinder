@@ -1,18 +1,35 @@
 @use '../../Scss/Variables.scss' as *;
 
-*{
+* {
     padding: 0;
     margin: 0;
     box-sizing: border-box;
     font-family: 'urbanist', sans-serif;
 }
 
-body{
+body {
     background-color: $light-gray-bg;
 }
 
-.content-area{
+.drawer-activate {
+    position: absolute;
+    padding: 10px;
+    top: 75px;
+    border-color: #000 !important;
+    display: none;
+}
+
+.content-area {
     display: flex;
     flex-direction: row;
-    padding: 70px 0;
+    padding: 80px 0;
+}
+
+@media screen and (min-width: $mobile-size) and (max-width: $tablet-size) {
+    .drawer-activate {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
 }

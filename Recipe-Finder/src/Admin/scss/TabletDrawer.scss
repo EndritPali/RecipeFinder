@@ -1,0 +1,35 @@
+@use '../../Scss/Variables.scss' as *;
+
+.ant-drawer {
+    display: none;
+
+    .ant-drawer-content-wrapper {
+        width: 40% !important;
+    }
+
+    .tablet-only {
+
+        .ant-drawer-body {
+            padding: 24px 10px;
+        }
+
+        &-menu {
+            background-color: #fff;
+
+            .ant-menu-item {
+                color: #000;
+            }
+
+            .ant-menu-item-selected {
+                background-color: $primary-color;
+                color: #fff;
+            }
+        }
+    }
+}
+
+@media screen and (min-width: $mobile-size) and (max-width: $tablet-size) {
+    .ant-drawer {
+        display: flex;
+    }
+}

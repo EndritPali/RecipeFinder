@@ -137,3 +137,27 @@
         }
     }
 }
+
+@media screen and (min-width: $mobile-size) and (max-width: $tablet-size) {
+
+    .content-container {
+
+        .grid-view {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1px;
+            width: 100%;
+
+            .recipe-card {
+                min-width: 350px;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: $mobile-size) {
+    .content-container {
+        padding: 15px;
+    }
+
+}

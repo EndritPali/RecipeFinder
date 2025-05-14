@@ -76,3 +76,39 @@
 .ant-popover {
     z-index: 999;
 }
+
+
+@media screen and (min-width: $mobile-size) and (max-width: $tablet-size) {
+    .dashboard-header {
+
+        &__profile {
+            h5 {
+                display: none;
+            }
+        }
+    }
+}
+
+
+@media screen and (max-width: $mobile-size) {
+    .dashboard-header {
+
+        &__logo {
+            h1 {
+                font-size: 20px;
+                font-weight: bold;
+
+                span {
+                    font-weight: 500;
+                }
+            }
+        }
+
+        &__profile {
+            h5 {
+                display: none;
+            }
+        }
+    }
+
+}

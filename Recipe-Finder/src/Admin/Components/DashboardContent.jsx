@@ -35,7 +35,6 @@ export default function DashboardContent() {
     };
 
     const handleDataChanged = () => {
-        // Refresh data when notified by child components
         if (isUserDashboard) {
             fetchUsers();
         } else {
@@ -55,6 +54,7 @@ export default function DashboardContent() {
 
             {view === 'list' ? (
                 <Table
+                    scroll={{ x: "max-content" }}
                     columns={columns}
                     dataSource={filteredData}
                     loading={loading}

@@ -57,3 +57,19 @@
 
     }
 }
+
+
+@media screen and (min-width: $mobile-size) and (max-width: $tablet-size) {
+    .ant-layout-sider {
+        display: none !important;
+    }
+
+}
+
+
+@media screen and (max-width: $mobile-size) {
+    .ant-layout-sider {
+        display: none !important;
+    }
+
+}

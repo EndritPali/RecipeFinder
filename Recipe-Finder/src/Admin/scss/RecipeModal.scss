@@ -3,7 +3,7 @@
 .ant-modal {
     width: 70% !important;
 
-    .ant-btn-primary{
+    .ant-btn-primary {
         background-color: $primary-color;
     }
 
@@ -12,7 +12,7 @@
             display: flex;
             gap: 1rem;
 
-            .ant-form-item{
+            .ant-form-item {
                 margin-bottom: 0;
             }
 
@@ -80,6 +80,35 @@
                     }
                 }
             }
+        }
+    }
+}
+
+
+@media screen and (max-width: $mobile-size) {
+    .ant-modal {
+        width: 100% !important;
+
+        .ant-form {
+            flex-direction: column;
+
+            .form-img-upload {
+                width: 100%;
+                min-height: 375px;
+
+                .ant-upload-drag {
+                    height: 375px;
+                }
+            }
+        }
+
+
+        .ant-modal-footer {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 20px;
         }
     }
 }

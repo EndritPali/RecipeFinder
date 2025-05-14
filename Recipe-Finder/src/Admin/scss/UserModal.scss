@@ -38,3 +38,18 @@
         }
     }
 }
+
+@media screen and (max-width: $mobile-size) {
+    .ant-modal.create-user-modal {
+        width: 100% !important;
+
+
+        .ant-modal-footer {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 20px;
+        }
+    }
+}
