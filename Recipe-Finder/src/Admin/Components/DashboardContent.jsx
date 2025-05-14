@@ -19,15 +19,28 @@ export default function DashboardContent() {
         columns,
         loading,
         fetchUsers,
+        fetchRecipes,
         handleShowModal,
         handleDelete
     } = useDashboardLogic(searchTerm, setIsModalOpen, setSelectedItem);
 
-
     const handleCloseModal = () => {
-        if (isUserDashboard) fetchUsers();
+        if (isUserDashboard) {
+            fetchUsers();
+        } else {
+            fetchRecipes();
+        }
         setIsModalOpen(false);
         setSelectedItem(null);
+    };
+
+    const handleDataChanged = () => {
+        // Refresh data when notified by child components
+        if (isUserDashboard) {
+            fetchUsers();
+        } else {
+            fetchRecipes();
+        }
     };
 
     return (
@@ -37,6 +50,7 @@ export default function DashboardContent() {
                 setView={setView}
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
+                onDataChanged={handleDataChanged}
             />
 
             {view === 'list' ? (

@@ -1,5 +1,5 @@
-import { Card, Row, Col } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Card, Row, Col, Avatar } from 'antd';
+import { EditOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
 
 export default function GridSort({ data, onEdit, onDelete }) {
   const { Meta } = Card;
@@ -20,10 +20,16 @@ export default function GridSort({ data, onEdit, onDelete }) {
             className="recipe-card"
             hoverable
             cover={
-                <img 
-                  alt={item.recipetitle || item.username} 
-                  src={item.image || item.profilePic} 
+              item.username && item.email ? (
+                <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '1rem' }}>
+                  <Avatar size={96} icon={<UserOutlined />} />
+                </div>
+              ) : (
+                <img
+                  alt={item.recipetitle }
+                  src={item.image }
                 />
+              )
             }
             actions={[
               <EditOutlined key="edit" onClick={handleEdit(item)} />,
@@ -48,10 +54,10 @@ function CardDescription({ item }) {
     <>
       {item.category && <p className="category">{item.category}</p>}
       {item.shortdescription && <p className="description">{item.shortdescription}</p>}
-      
+
       {item.email && <p className="role">{item.role}</p>}
       {item.email && <p className="email"><strong>Email:</strong> {item.email}</p>}
-      
+
       {item.createdby && <p className="author"><strong>By:</strong> {item.createdby}</p>}
       {item.date && <p className="date"><strong>Created:</strong> {item.date}</p>}
     </>

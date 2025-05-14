@@ -1,4 +1,4 @@
-import '../Scss/Comment-Template.scss'
+import '../Scss/CommentTemplate.scss'
 import { Avatar, Button } from 'antd'
 import { UserOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 

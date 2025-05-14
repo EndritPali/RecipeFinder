@@ -31,17 +31,12 @@
             margin-bottom: -125px;
             border-radius: 50%;
             object-fit: cover;
-            // max-width: 170px;
-            // position: absolute;
-            // left: 55px;
-            // top: 40px;
         }
     }
 
     .recipe-box__info {
         background-color: #fff;
         border-radius: 70px 70px 20px 20px;
-        // box-shadow: 1px 1px 10px 2px $bright-gray;
         box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 25%);
         padding: 16px 16px;
         padding-top: 0;
@@ -69,8 +64,6 @@
             color: $light-gray;
             font-size: 14px;
             line-height: 17px;
-            // display: flex;
-            // align-items: center;
         }
 
         span {
@@ -82,6 +75,7 @@
             align-items: flex-end;
             position: absolute;
             right: 8px;
+            
 
 
             p {
@@ -98,13 +92,6 @@
 
 @media screen and (max-width: $mobile-size) {
 
-    .recipes-row .recipe-box:nth-child(3),
-    .recipe-box:nth-child(4),
-    .recipe-box:nth-child(5),
-    .recipe-box:nth-child(6) {
-        display: none;
-    }
-
     .recipe-box {
         padding: 16px 0 !important;
         padding-bottom: 0;
@@ -113,10 +100,6 @@
 
             img {
                 margin-bottom: -125px;
-                // max-width: 170px;
-                // position: absolute;
-                // left: 55px;
-                // top: 40px;
             }
         }
 
@@ -132,12 +115,6 @@
 
 @media screen and (min-width: $mobile-size) and (max-width: 1140px) {
 
-    .recipe-box:nth-child(3),
-    .recipe-box:nth-child(4) {
-        display: none;
-    }
-
-
     .recipe-box {
         padding: 39px 47px;
         padding-bottom: 0;
@@ -145,9 +122,6 @@
         .recipe-box__image {
             img {
                 margin-bottom: -125px;
-                // position: absolute;
-                // left: 40px;
-                // top: 40px;
             }
         }
 
@@ -186,22 +160,3 @@
     }
 
 }
-
-////large screens
-//// @media screen and (min-width: 1450px) {
-////     .recipe-box{
-////         padding: 42px 65px;
-////     }
-//// }
-
-
-//// @media screen and (max-width: 1800px) {
-////     .recipe-box:nth-child(5) {
-////         display: none;
-////     }
-//// }
-//// @media screen and (max-width: 1600px) {
-////     .recipe-box{
-////         padding: 42px 47px;
-////     }
-//// }

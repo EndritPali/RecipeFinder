@@ -13,7 +13,7 @@
     .recipe-banner__img {
         height: 98px;
         min-width: 180px;
-        
+
         img {
             border-radius: 10px;
             height: 100%;
@@ -224,10 +224,8 @@
 
 }
 
-//// large screen size
-//// @media screen and (min-width: 1450px) {
-////   .recipe-banner{
-////     min-width: 660px;
-////     justify-content: flex-start;
-////   }
-//// }
+ @media screen and (min-width: 1450px) {
+    .recipe-banner {
+        min-width: 560px;
+    }
+}

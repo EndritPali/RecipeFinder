@@ -4,9 +4,12 @@ import { PlusCircleOutlined, UnorderedListOutlined, AppstoreOutlined, SearchOutl
 import '../scss/DashboardFilter.scss';
 import RecipeModal from '../Templates/RecipeModal';
 import CreateUserModal from '../Templates/UserModal';
+import { useLocation } from 'react-router-dom';
 
-export default function DashboardFilter({ view, setView, searchTerm, setSearchTerm }) {
+export default function DashboardFilter({ view, setView, searchTerm, setSearchTerm, onDataChanged }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const location = useLocation();
+    const isUsersPage = location.pathname === '/admin/users';
 
     const showModal = () => {
         setIsModalOpen(true);
@@ -14,13 +17,15 @@ export default function DashboardFilter({ view, setView, searchTerm, setSearchTe
 
     const handleOk = () => {
         setIsModalOpen(false);
+        // Notify parent component that data has changed and should be refreshed
+        if (onDataChanged) {
+            onDataChanged();
+        }
     };
 
     const handleCancel = () => {
         setIsModalOpen(false);
     };
-
-    const isUsersPage = location.pathname === '/admin/users';
 
     return (
         <>
@@ -55,9 +60,19 @@ export default function DashboardFilter({ view, setView, searchTerm, setSearchTe
             </div>
 
             {isUsersPage ? (
-                <CreateUserModal open={isModalOpen} onOk={handleOk} onCancel={handleCancel} />
+                <CreateUserModal
+                    open={isModalOpen}
+                    onOk={handleOk}
+                    onCancel={handleCancel}
+                    mode="create"
+                />
             ) : (
-                <RecipeModal open={isModalOpen} onOk={handleOk} onCancel={handleCancel} mode="create" />
+                <RecipeModal
+                    open={isModalOpen}
+                    onOk={handleOk}
+                    onCancel={handleCancel}
+                    mode="create"
+                />
             )}
         </>
     );

@@ -1,6 +1,6 @@
 import { useFetchComments } from '../hooks/useFetchComments';
 import { useEffect, useState } from 'react';
-import '../Scss/Comment-Section.scss';
+import '../Scss/CommentSection.scss';
 import CommentsTemplate from '../Templates/CommentTemplate';
 import circleRight from '../assets/circle-right.svg';
 import { Button, Skeleton, message } from 'antd';
@@ -61,7 +61,7 @@ export default function CommentsSection() {
             await api.post(`/comments/${commentId}/like`, { action });
 
             message.success(`Comment ${action}d successfully!`);
-            refreshComments(); 
+            refreshComments();
         } catch (error) {
             console.error('Error toggling like:', error);
             message.error('Failed to toggle like');
@@ -88,7 +88,7 @@ export default function CommentsSection() {
                         comments.map(comment => {
                             const isOwner = currentUser && currentUser.id === comment.creator;
                             const isAdmin = currentUser && currentUser.role === 'Admin';
-                            const hasLiked = comment.userHasLiked || false; 
+                            const hasLiked = comment.userHasLiked || false;
 
                             return (
                                 <CommentsTemplate

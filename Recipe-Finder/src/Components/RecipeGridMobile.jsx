@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useFetchRecipes } from '../hooks/useFetchRecipes';
 import RecipeBanner from "../Templates/RecipeBanner";
 import RecipeDetailsModal from '../Templates/RecipeDetailsModal';
-import '../Scss/Recipe-grid-Mobile.scss';
+import '../Scss/RecipeGridMobile.scss';
 
 export default function RecipeGridMobile() {
     const { recipes } = useFetchRecipes();

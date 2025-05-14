@@ -1,5 +1,5 @@
 import StarShape from '../assets/star-filled.svg';
-import '../Scss/Recipe-Box.scss';
+import '../Scss/RecipeBox.scss';
 
 export default function RecipeBox({ recipePlate, saladName, saladIngredients, saladRating }) {
     const truncatedName = saladName.split(' ').slice(0, 2).join(' ') + '...';

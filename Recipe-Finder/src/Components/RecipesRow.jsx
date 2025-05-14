@@ -1,12 +1,23 @@
 import { useFetchRecipes } from '../hooks/useFetchRecipes';
-import '../Scss/Recipes-Row.scss';
+import useResponsiveCount from '../hooks/useResponsiveCount';
+import '../Scss/RecipesRow.scss';
 import { Skeleton } from 'antd';
 import RecipeBox from '../Templates/RecipeBox';
+import { useState } from 'react';
 
 export default function RecipesRow() {
   const { loading, recipes } = useFetchRecipes();
+  const [showAll, setShowAll] = useState(false);
+  const maxVisible = useResponsiveCount();
 
   const filteredRecipes = recipes.filter(recipe => recipe.category === 'With Features');
+
+  const displayedRecipes = showAll ? filteredRecipes : filteredRecipes.slice(0, maxVisible);
+
+  const handleToggleShowAll = (e) => {
+    e.preventDefault();
+    setShowAll(prev => !prev);
+  };
 
   return (
     <div className="recipes-row">
@@ -16,18 +27,21 @@ export default function RecipesRow() {
           <h3>with features</h3>
         </div>
         <div className="recipes-row__header-link">
-          <a href="#">See all</a>
+          <a href="#" onClick={handleToggleShowAll}>
+            {showAll ? 'See less' : 'See all'}
+          </a>
         </div>
       </div>
+
       <div className="recipes-row__content">
         {loading ? (
-          Array.from({ length: 3 }).map((_, index) => (
+          Array.from({ length: maxVisible }).map((_, index) => (
             <div key={index} style={{ width: 300, margin: '0 1rem' }}>
               <Skeleton active paragraph={{ rows: 3 }} />
             </div>
           ))
         ) : (
-          filteredRecipes.map(recipe => (
+          displayedRecipes.map(recipe => (
             <RecipeBox
               key={recipe.key}
               recipePlate={recipe.image}

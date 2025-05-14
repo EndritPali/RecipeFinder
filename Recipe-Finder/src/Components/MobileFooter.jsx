@@ -1,4 +1,4 @@
-import '../Scss/Mobile-Footer.scss'
+import '../Scss/MobileFooter.scss'
 
 
 export default function MobileFooter() {

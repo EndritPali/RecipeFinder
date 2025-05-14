@@ -1,25 +1,41 @@
 import { useMemo, useState } from 'react';
+import useBatchSize from '../hooks/useBatchSize';
 import { useFetchRecipes } from '../hooks/useFetchRecipes';
 import { Skeleton } from 'antd';
 import RecipeBanner from "../Templates/RecipeBanner";
-import '../Scss/Recipe-Grid.scss';
+import '../Scss/RecipeGrid.scss';
 import RecipeDetailsModal from '../Templates/RecipeDetailsModal';
+import { useUserAccount } from '../hooks/useUserAccount';
+import AccountModal from '../Templates/AccountModal';
 
 export default function RecipeGrid() {
     const { loading, recipes } = useFetchRecipes();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedRecipe, setSelectedRecipe] = useState(null);
+    const batchSize = useBatchSize();
+    const [currentPage, setCurrentPage] = useState(0);
 
     const filteredRecipes = useMemo(() =>
         recipes.filter(recipe => recipe.category === 'With benefits'),
         [recipes]
     );
 
-    const randomRecipe = useMemo(() => {
-        if (!filteredRecipes.length) return null;
-        return filteredRecipes[Math.floor(Math.random() * filteredRecipes.length)];
-    }, [filteredRecipes]);
+    const startIndex = batchSize === Infinity ? 0 : currentPage * batchSize;
+    const endIndex = batchSize === Infinity ? filteredRecipes.length : startIndex + batchSize;
+    const displayedRecipes = filteredRecipes.slice(startIndex, endIndex);
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedRecipe, setSelectedRecipe] = useState(null);
+    const hasNext = endIndex < filteredRecipes.length;
+    const hasPrev = currentPage > 0;
+
+    const handleNext = (e) => {
+        e.preventDefault();
+        if (hasNext) setCurrentPage(prev => prev + 1);
+    };
+
+    const handlePrev = (e) => {
+        e.preventDefault();
+        if (hasPrev) setCurrentPage(prev => prev - 1);
+    };
 
     const handleOpenModal = recipe => {
         setSelectedRecipe(recipe);
@@ -31,23 +47,40 @@ export default function RecipeGrid() {
         setSelectedRecipe(null);
     };
 
-    const skeletonItems = Array.from({ length: 5 }).map((_, index) => (
+    const skeletonItems = Array.from({ length: batchSize }).map((_, index) => (
         <div key={index} style={{ width: 550, margin: '0 1rem' }}>
             <Skeleton active paragraph={{ rows: 3 }} />
         </div>
     ));
+
+    const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+    const [modalMode, setModalMode] = useState('login');
+    const { user, openAccountModal } = useUserAccount(setModalMode, setIsAccountModalOpen);
+
+    const randomRecipe = useMemo(() => {
+        if (!filteredRecipes.length) return null;
+        return filteredRecipes[Math.floor(Math.random() * filteredRecipes.length)];
+    }, [filteredRecipes]);
 
     return (
         <>
             <div className="recipe-grid">
                 <div className="recipe-grid__header">
                     <h3>with benefits</h3>
-                    <a href="#" className="recipe-grid__header-link">See all</a>
+                    <div className="recipe-grid__pagination">
+                        {hasPrev && (
+                            <a href="#" onClick={handlePrev} className="recipe-grid__header-link">See less</a>
+                        )}
+                        {hasNext && (
+                            <a href="#" onClick={handleNext} className="recipe-grid__header-link">See all</a>
+                        )}
+                    </div>
                 </div>
+
 
                 <div className="recipe-grid__wrapper">
                     <div className="recipe-grid__col recipe-grid__col--first">
-                        {loading ? skeletonItems : filteredRecipes.map(recipe => (
+                        {loading ? skeletonItems : displayedRecipes.map(recipe => (
                             <RecipeBanner
                                 background={recipe.image}
                                 key={recipe.key}
@@ -60,8 +93,18 @@ export default function RecipeGrid() {
 
                     <div className="recipe-grid__col recipe-grid__col--second">
                         <div className="recipe-grid__card recipe-grid__card--first">
-                            <h2>Learn how to become a master chef right now!</h2>
-                            <button>Login</button>
+                            <h2>
+                                {user
+                                    ? 'Upload your unique recipes now! Like a real master chef'
+                                    : 'Learn how to become a master chef right now!'}
+                            </h2>
+                            {user ? (
+                                <a href="/admin">
+                                    <button>Dashboard</button>
+                                </a>
+                            ) : (
+                                <button onClick={() => openAccountModal('login')}>Login</button>
+                            )}
                         </div>
 
                         {randomRecipe && (
@@ -92,6 +135,13 @@ export default function RecipeGrid() {
                 onOk={handleCloseModal}
                 onCancel={handleCloseModal}
                 recipe={selectedRecipe}
+            />
+
+            <AccountModal
+                open={isAccountModalOpen}
+                onOk={() => setIsAccountModalOpen(false)}
+                onCancel={() => setIsAccountModalOpen(false)}
+                mode={modalMode}
             />
         </>
     );

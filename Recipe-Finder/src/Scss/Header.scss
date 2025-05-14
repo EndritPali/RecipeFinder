@@ -156,9 +156,13 @@
                 font-size: 24px;
             }
 
-            input {
-                border: none;
-                background-color: transparent;
+            .ant-select {
+                height: 28px;
+
+                .ant-select-selector {
+                    border: none;
+                    background-color: transparent;
+                }
 
                 &::placeholder {
                     line-height: 21px;

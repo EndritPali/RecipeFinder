@@ -1,6 +1,6 @@
 import './index.scss'
 import CommentsSection from '../Components/CommentsSection.jsx'
-import Header from '../Components/Header.jsx'
+import Header from '../Components/Header/Header.jsx'
 import MobileFooter from '../Components/MobileFooter.jsx'
 import RecipeGrid from '../Components/RecipeGrid.jsx'
 import RecipeGridMobile from '../Components/RecipeGridMobile.jsx'
