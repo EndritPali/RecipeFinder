@@ -1,14 +1,16 @@
-import { Routes, Route } from 'react-router-dom'; // You still need this for the routes container
-import Router from './router/Router'; // Import your Router component with `useRoutes`
-
+import { Routes, Route } from 'react-router-dom';
+import Router from './router/Router';
+import { ModalProvider } from './Context/ModalProvider';
 import './App.scss';
 
 function App() {
   return (
     <>
-      <Routes> 
-        <Route path="/*" element={<Router />} /> 
-      </Routes>
+      <ModalProvider>
+        <Routes>
+          <Route path="/*" element={<Router />} />
+        </Routes>
+      </ModalProvider>
     </>
   );
 }

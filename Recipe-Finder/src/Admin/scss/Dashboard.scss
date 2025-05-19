@@ -25,11 +25,18 @@ body {
     padding: 80px 0;
 }
 
-@media screen and (min-width: $mobile-size) and (max-width: $tablet-size) {
+@media screen and (max-width: $tablet-size) {
     .drawer-activate {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
     }
+}
+
+@media screen and (max-width: $mobile-size) {
+    .content-area {
+        padding: 100px 0;
+    }
+
 }

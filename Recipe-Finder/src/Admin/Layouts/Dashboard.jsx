@@ -6,7 +6,7 @@ import MobileFooter from '../../Components/MobileFooter'
 import DashboardContent from "../Components/DashboardContent";
 import DashboardSider from "../Components/DashboardSider";
 import { Outlet } from "react-router-dom";
-import TabletDrawer from "../Templates/TabletDrawer";
+import ResponsiveDrawer from "../Templates/ResponsiveDrawer";
 import { Button } from "antd";
 
 export default function Dashboard() {
@@ -23,10 +23,10 @@ export default function Dashboard() {
           className="drawer-activate"
           onClick={showDrawer} />
         <DashboardSider />
-        <TabletDrawer open={isDrawerOpen} onClose={closeDrawer} />
+        <ResponsiveDrawer open={isDrawerOpen} onClose={closeDrawer} />
         <Outlet />
       </div>
-      <MobileFooter />
+      {/* <MobileFooter /> */}
     </>
   )
 }

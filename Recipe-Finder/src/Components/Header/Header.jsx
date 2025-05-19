@@ -15,6 +15,7 @@ export default function Header() {
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('login');
   const [showSearch, setShowSearch] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
   const { recipes, loading } = useFetchRecipes();
@@ -40,9 +41,10 @@ export default function Header() {
   return (
     <>
       <div className="header">
-        <Logo menuItems={menuItems} />
+        <Logo setShowMobileSearch={setShowMobileSearch} />
 
         <MobileSearch
+          showMobileSearch={showMobileSearch}
           filteredOptions={filteredOptions}
           handleSearch={handleSearch}
           handleSelect={handleSelect}

@@ -1,7 +1,7 @@
 import { Drawer, Menu } from "antd"
 import { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import '../scss/TabletDrawer.scss'
+import '../scss/ResponsiveDrawer.scss'
 
 import {
     DashboardOutlined,
@@ -10,7 +10,7 @@ import {
     LockOutlined
 } from '@ant-design/icons';
 
-export default function TabletDrawer({ open, onClose }) {
+export default function ResponsiveDrawer({ open, onClose }) {
     const location = useLocation();
 
     const menuItems = useMemo(() => {
@@ -36,7 +36,7 @@ export default function TabletDrawer({ open, onClose }) {
     return (
         <Drawer
             title='RecipeFinder'
-            className="tablet-only"
+            className="responsive-only"
             open={open}
             onClose={onClose}
             placement="left"
@@ -44,7 +44,7 @@ export default function TabletDrawer({ open, onClose }) {
 
         >
             <Menu
-                className="tablet-only-menu"
+                className="responsive-only-menu"
                 theme="dark"
                 mode="inline"
                 selectedKeys={[location.pathname]}

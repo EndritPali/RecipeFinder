@@ -37,3 +37,10 @@
     }
 
 }
+
+@media screen and (max-width: $mobile-size){
+    .account-modal-login{
+        min-width: 90% !important;
+    }
+    
+} 

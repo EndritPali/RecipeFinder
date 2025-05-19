@@ -7,7 +7,7 @@
         width: 40% !important;
     }
 
-    .tablet-only {
+    .responsive-only {
 
         .ant-drawer-body {
             padding: 24px 10px;
@@ -28,8 +28,17 @@
     }
 }
 
-@media screen and (min-width: $mobile-size) and (max-width: $tablet-size) {
+@media screen and (max-width: $tablet-size) {
     .ant-drawer {
         display: flex;
     }
+}
+
+@media screen and (max-width: $mobile-size) {
+    .ant-drawer {
+        .ant-drawer-content-wrapper {
+            width: 100% !important;
+        }
+    }
+
 }

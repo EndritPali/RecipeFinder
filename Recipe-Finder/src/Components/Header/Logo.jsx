@@ -1,12 +1,13 @@
-import { Dropdown } from 'antd';
+// import { useState } from 'react';
 
-export default function Logo({ menuItems }) {
+export default function Logo({ setShowMobileSearch }) {
     return (
         <div className="header__logo">
             <div className="header__logo-box">
-                <Dropdown menu={{ items: menuItems }} placement='bottomRight'>
-                    <i className="fas fa-bars"></i>
-                </Dropdown>
+                <i
+                    className="fas fa-bars"
+                    onClick={() => setShowMobileSearch(prev => !prev)}
+                ></i>
             </div>
             <h1><span>Recipe</span> finder</h1>
         </div>

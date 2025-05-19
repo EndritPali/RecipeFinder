@@ -1,6 +1,8 @@
 import { AutoComplete } from 'antd';
 
-export default function MobileSearch({ filteredOptions, handleSearch, handleSelect }) {
+export default function MobileSearch({ filteredOptions, handleSearch, handleSelect, showMobileSearch }) {
+    if (!showMobileSearch) return null;
+
     return (
         <div className="header__search--mobile">
             <i className="fas fa-search"></i>

@@ -68,6 +68,12 @@
             align-items: center;
             justify-content: center;
             gap: 56px;
+
+            .mobile-footer__dice-btn {
+                background-color: transparent;
+                border: none;
+                color: $light-gray;
+            }
         }
 
         .mobile-footer__bottom-right {
