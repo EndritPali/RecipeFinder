@@ -1,6 +1,6 @@
 @use '../../Scss/Variables.scss' as *;
 
-.ant-drawer {
+.ant-drawer-left {
     display: none;
 
     .ant-drawer-content-wrapper {
@@ -29,13 +29,13 @@
 }
 
 @media screen and (max-width: $tablet-size) {
-    .ant-drawer {
+    .ant-drawer-left {
         display: flex;
     }
 }
 
 @media screen and (max-width: $mobile-size) {
-    .ant-drawer {
+    .ant-drawer-left {
         .ant-drawer-content-wrapper {
             width: 100% !important;
         }

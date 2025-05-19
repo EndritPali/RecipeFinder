@@ -1,19 +1,19 @@
 import { useFetchComments } from '../hooks/useFetchComments';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import '../Scss/CommentSection.scss';
 import CommentsTemplate from '../Templates/CommentTemplate';
 import circleRight from '../assets/circle-right.svg';
 import { Button, Skeleton, message } from 'antd';
 import CreateCommentModal from '../Templates/CreateCommentModal';
-import auth from '../Services/auth';
 import CommentButtons from '../Templates/CommentButtons';
 import api from '../Services/api';
+import useAuth from '../hooks/useAuth';
 
 export default function CommentsSection() {
     const { comments, loading, refreshComments } = useFetchComments();
+    const { currentUser, isAuthenticated } = useAuth();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [currentUser, setCurrentUser] = useState(null);
     const [selectedComment, setSelectedComment] = useState(null);
 
     const handleEditComment = (comment) => {
@@ -42,24 +42,10 @@ export default function CommentsSection() {
         setSelectedComment(null);
     };
 
-    useEffect(() => {
-        async function fetchUser() {
-            const userData = await auth.getCurrentUser();
-            if (userData) {
-                setIsAuthenticated(true);
-                setCurrentUser(userData);
-            }
-        }
-
-        fetchUser();
-    }, []);
-
     const handleToggleLike = async (commentId, isLiked) => {
         try {
             const action = isLiked ? 'unlike' : 'like';
-
             await api.post(`/comments/${commentId}/like`, { action });
-
             message.success(`Comment ${action}d successfully!`);
             refreshComments();
         } catch (error) {
@@ -77,6 +63,7 @@ export default function CommentsSection() {
                         <img src={circleRight} alt="circle-right" />
                     </div>
                 </div>
+
                 <div className="comments__section">
                     {loading ? (
                         Array.from({ length: 3 }).map((_, index) => (
@@ -86,8 +73,8 @@ export default function CommentsSection() {
                         ))
                     ) : (
                         comments.map(comment => {
-                            const isOwner = currentUser && currentUser.id === comment.creator;
-                            const isAdmin = currentUser && currentUser.role === 'Admin';
+                            const isOwner = currentUser?.id === comment.creator;
+                            const isAdmin = currentUser?.role === 'Admin';
                             const hasLiked = comment.userHasLiked || false;
 
                             return (
@@ -115,7 +102,7 @@ export default function CommentsSection() {
 
                 <Button
                     onClick={handleOpenModal}
-                    className='create-comment-button'
+                    className="create-comment-button"
                     disabled={!isAuthenticated}
                 >
                     Comment

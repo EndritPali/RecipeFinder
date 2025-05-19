@@ -1,105 +1,49 @@
 import { Avatar, message, Badge, Popover } from 'antd';
 import { UserOutlined, SettingOutlined, LogoutOutlined, BellOutlined } from '@ant-design/icons';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AccountDrawer from '../Templates/AccountDrawer';
 import NotificationsModal from '../Templates/NotificationsModal';
-import api from '../../Services/api';
-import auth from '../../Services/auth';
+import useAuth from '../../hooks/useAuth';
 import '../scss/DashboardHeader.scss';
 
 export default function DashboardHeader() {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const [userBasicInfo, setUserBasicInfo] = useState({});
-    const [userFullInfo, setUserFullInfo] = useState(null);
-    const [pendingRequests, setPendingRequests] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [pendingRequests, setPendingRequests] = useState(0);
+    const { user, logout, fetchPendingRequests } = useAuth();
     const navigate = useNavigate();
 
-    const showDrawer = () => setIsDrawerOpen(true);
-    const closeDrawer = () => setIsDrawerOpen(false);
-
-    const handleOpenModal = () => setIsModalOpen(true);
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-        fetchPendingRequestsCount(); 
-    };
-
-    const handleLogout = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            if (token) {
-                api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                await api.post('/auth/logout');
-            }
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            message.success('Logged out successfully');
-            navigate('/');
-        } catch (error) {
-            message.error('Logout failed. Please try again.'), error;
-        }
-    };
-
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUserBasicInfo(JSON.parse(storedUser));
-        }
+        if (user.role !== 'Admin') return;
 
-        const fetchUserData = async () => {
-            try {
-                const userData = await auth.getCurrentUser();
-                setUserFullInfo(userData);
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
+        const updatePendingRequests = async () => {
+            const count = await fetchPendingRequests();
+            setPendingRequests(count);
         };
 
-        fetchUserData();
-    }, []);
+        updatePendingRequests();
+        const interval = setInterval(updatePendingRequests, 30000);
+        return () => clearInterval(interval);
+    }, [user.role, fetchPendingRequests]);
 
-    const mainuser = {
-        ...userBasicInfo,
-        role: userFullInfo?.role || 'Loading...',
+    const handleLogout = async () => {
+        const success = await logout();
+        if (success) {
+            message.success('Logged out successfully');
+            navigate('/');
+        } else {
+            message.error('Logout failed. Please try again.');
+        }
     };
 
-    const fetchPendingRequestsCount = useCallback(async () => {
-        if (mainuser.role === 'Admin') {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) return;
-
-                api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                const response = await api.get('/auth/password-reset/pending');
-
-                if (Array.isArray(response.data?.data)) {
-                    setPendingRequests(response.data.data.length);
-                } else {
-                    setPendingRequests(0);
-                }
-            } catch {
-                setPendingRequests(0);
-            }
+    const handleCloseModal = async () => {
+        setIsModalOpen(false);
+        if (user.role === 'Admin') {
+            const count = await fetchPendingRequests();
+            setPendingRequests(count);
         }
-    }, [mainuser.role]);
-
-    useEffect(() => {
-        fetchPendingRequestsCount();
-        const interval = setInterval(fetchPendingRequestsCount, 30000); 
-        return () => clearInterval(interval);
-    }, [fetchPendingRequestsCount]);
-
-    const dropdown = (
-        <div className='dropdown-list'>
-            <li onClick={showDrawer}>
-                <p><SettingOutlined /> Account Settings</p>
-            </li>
-            <li className='logout' onClick={handleLogout}>
-                <p><LogoutOutlined /> Logout</p>
-            </li>
-        </div>
-    );
+    };
 
     return (
         <>
@@ -109,23 +53,39 @@ export default function DashboardHeader() {
                 </div>
 
                 <div className="dashboard-header__profile">
-                    {mainuser.role === 'Admin' && (
-                        <div className="dashboard-header__profile-notifications" onClick={handleOpenModal}>
+                    {user.role === 'Admin' && (
+                        <div className="dashboard-header__profile-notifications" onClick={() => setIsModalOpen(true)}>
                             <Badge count={pendingRequests}>
                                 <BellOutlined />
                             </Badge>
                         </div>
                     )}
 
-                    <Popover content={dropdown} trigger="click">
+                    <Popover
+                        content={
+                            <div className='dropdown-list'>
+                                <li onClick={() => setIsDrawerOpen(true)}>
+                                    <p><SettingOutlined /> Account Settings</p>
+                                </li>
+                                <li className='logout' onClick={handleLogout}>
+                                    <p><LogoutOutlined /> Logout</p>
+                                </li>
+                            </div>
+                        }
+                        trigger="click"
+                    >
                         <Avatar icon={<UserOutlined />} />
                     </Popover>
-                    <h5>{userBasicInfo.username || 'User'}</h5>
+                    <h5>{user.username || 'User'}</h5>
                 </div>
             </div>
 
-            <AccountDrawer open={isDrawerOpen} onClose={closeDrawer} />
-            <NotificationsModal open={isModalOpen} onOk={handleCloseModal} onCancel={handleCloseModal} />
+            <AccountDrawer open={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
+            <NotificationsModal
+                open={isModalOpen}
+                onOk={handleCloseModal}
+                onCancel={handleCloseModal}
+            />
         </>
     );
 }

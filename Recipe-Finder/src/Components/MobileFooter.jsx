@@ -1,9 +1,12 @@
 import '../Scss/MobileFooter.scss';
 import { Link } from 'react-router-dom';
-import { Dropdown, Modal } from 'antd';
-import { useState } from 'react';
+import { Dropdown } from 'antd';
 import AccountModal from '../Templates/AccountModal';
 import RecipeDetailsModal from '../Templates/RecipeDetailsModal';
+import useRecipeModal from '../hooks/useRecipeModal';
+import useAccountModal from '../hooks/useAccountModal';
+import AuthDropdown from '../Templates/AuthDropdown';
+import SavedRecipesDropdown from '../Templates/SavedRecipesDropdown';
 
 export default function MobileFooter({
     user,
@@ -14,52 +17,19 @@ export default function MobileFooter({
     setModalMode,
     recipes = []
 }) {
-    const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
-    const [selectedRecipe, setSelectedRecipe] = useState(null);
-    const [isAccountModalOpen, setIsAccountModalLocalOpen] = useState(false);
-    const [modalMode, setModalModeLocal] = useState('login');
-    const [isAuthDropdownOpen, setIsAuthDropdownOpen] = useState(false);
+    const {
+        isRecipeModalOpen,
+        selectedRecipe,
+        handleOpenRecipeModal,
+        handleCloseRecipeModal,
+        handleRollDice
+    } = useRecipeModal();
 
-    const handleOpenAccountModal = (mode) => {
-        setModalModeLocal(mode);
-        setIsAccountModalLocalOpen(true);
-        if (setModalMode && setIsAccountModalOpen) {
-            setModalMode(mode);
-            setIsAccountModalOpen(true);
-        }
-        setIsAuthDropdownOpen(false);
-    };
-
-    const handleSavedRecipeClick = (recipe) => {
-        setSelectedRecipe(recipe);
-        setIsRecipeModalOpen(true);
-    };
-
-    const handleCloseRecipeModal = () => {
-        setIsRecipeModalOpen(false);
-        setSelectedRecipe(null);
-    };
-
-    const handleRollDice = () => {
-        if (!recipes.length) return;
-        const random = recipes[Math.floor(Math.random() * recipes.length)];
-        setSelectedRecipe(random);
-        setIsRecipeModalOpen(true);
-    };
-
-
-    const authOptions = [
-        {
-            key: 'login',
-            label: 'Login',
-            onClick: () => handleOpenAccountModal('login')
-        },
-        {
-            key: 'register',
-            label: 'Register',
-            onClick: () => handleOpenAccountModal('register')
-        }
-    ];
+    const {
+        isAccountModalOpen,
+        modalMode,
+        openAccountModal
+    } = useAccountModal(setIsAccountModalOpen, setModalMode);
 
     return (
         <>
@@ -75,51 +45,31 @@ export default function MobileFooter({
                             <i className="fas fa-house"></i>
                         </Link>
                         <button
-                            onClick={handleRollDice}
+                            onClick={() => handleRollDice(recipes)}
                             className="mobile-footer__dice-btn">
                             <i className="fas fa-dice"></i>
                         </button>
                     </div>
                     <div className="mobile-footer__bottom-right">
-                        <Dropdown
-                            menu={{
-                                items: savedLoading
-                                    ? [{ key: 'loading', label: 'Loading saved recipes...', disabled: true }]
-                                    : !savedRecipes || savedRecipes.length === 0
-                                        ? [{ key: 'empty', label: 'No saved recipes', disabled: true }]
-                                        : savedRecipes.map(recipe => ({
-                                            key: recipe.key,
-                                            label: (
-                                                <div className="saved-recipe-item">
-                                                    {recipe.image && (
-                                                        <img src={recipe.image} alt={recipe.recipetitle} width={30} height={30} />
-                                                    )}
-                                                    <span>{recipe.recipetitle}</span>
-                                                </div>
-                                            ),
-                                            onClick: () => handleSavedRecipeClick(recipe)
-                                        }))
-                            }}
-                            placement='topRight'
-                            trigger={['click']}
-                        >
-                            <i className="far fa-bookmark"></i>
-                        </Dropdown>
+                        <SavedRecipesDropdown
+                            user={user}
+                            savedRecipes={savedRecipes}
+                            savedLoading={savedLoading}
+                            onRecipeClick={handleOpenRecipeModal}
+                            trigger={<i className="far fa-bookmark" />}
+                            placement="topRight"
+                        />
 
                         {user ? (
                             <Dropdown menu={{ items: menuItems }} placement='topRight'>
                                 <i className="far fa-user"></i>
                             </Dropdown>
                         ) : (
-                            <Dropdown
-                                menu={{ items: authOptions }}
-                                placement='topRight'
-                                open={isAuthDropdownOpen}
-                                onOpenChange={setIsAuthDropdownOpen}
-                                trigger={['click']}
-                            >
-                                <i className="far fa-user"></i>
-                            </Dropdown>
+                            <AuthDropdown
+                                onLogin={openAccountModal}
+                                onRegister={openAccountModal}
+                                trigger={<i className="far fa-user" />}
+                            />
                         )}
                     </div>
                 </div>
@@ -137,8 +87,8 @@ export default function MobileFooter({
             {(!setModalMode || !setIsAccountModalOpen) && (
                 <AccountModal
                     open={isAccountModalOpen}
-                    onOk={() => setIsAccountModalLocalOpen(false)}
-                    onCancel={() => setIsAccountModalLocalOpen(false)}
+                    onOk={() => setIsAccountModalOpen(false)}
+                    onCancel={() => setIsAccountModalOpen(false)}
                     mode={modalMode}
                 />
             )}

@@ -1,8 +1,10 @@
 import Magnify from '../../assets/MagnifyingGlass.svg';
 import User from '../../assets/User.svg';
 import Heart from '../../assets/Heart.svg';
-import { Dropdown, Skeleton } from 'antd';
+import { Skeleton } from 'antd';
 import RecipeSearch from './RecipeSearch';
+import SavedRecipesDropdown from '../../Templates/SavedRecipesDropdown';
+import UserDropdown from '../../Templates/UserDropdown';
 
 export default function HeaderWidgets({
     showSearch,
@@ -12,7 +14,7 @@ export default function HeaderWidgets({
     handleSelect,
     loading,
     user,
-    savedRecipes,
+    savedRecipes = [],
     savedLoading,
     onSavedRecipeClick,
     menuItems
@@ -32,36 +34,20 @@ export default function HeaderWidgets({
 
             {loading && <Skeleton active paragraph={{ rows: 1 }} />}
 
-            {user && (
-                <Dropdown
-                    menu={{
-                        items: savedLoading
-                            ? [{ key: 'loading', label: <Skeleton active paragraph={{ rows: 1 }} />, disabled: true }]
-                            : savedRecipes.length === 0
-                                ? [{ key: 'empty', label: 'No saved recipes', disabled: true }]
-                                : savedRecipes.map(recipe => ({
-                                    key: recipe.key,
-                                    label: (
-                                        <div className="saved-recipe-item">
-                                            {recipe.image && (
-                                                <img src={recipe.image} alt={recipe.recipetitle} width={30} height={30} />
-                                            )}
-                                            <span>{recipe.recipetitle}</span>
-                                        </div>
-                                    ),
-                                    onClick: () => onSavedRecipeClick(recipe)
-                                }))
-                    }}
-                    placement='bottomRight'
-                    trigger={['click']}
-                >
-                    <button><img src={Heart} alt="heart" /></button>
-                </Dropdown>
-            )}
+            <SavedRecipesDropdown
+                user={user}
+                savedRecipes={savedRecipes}
+                savedLoading={savedLoading}
+                onRecipeClick={onSavedRecipeClick}
+                trigger={<button><img src={Heart} alt="heart" /></button>}
+                placement="bottomRight"
+            />
 
-            <Dropdown menu={{ items: menuItems }} placement='bottomRight'>
-                <button><img src={User} alt="user" /></button>
-            </Dropdown>
+            <UserDropdown
+                menuItems={menuItems}
+                placement="bottomRight"
+                trigger={<button><img src={User} alt="user" /></button>}
+            />
         </div>
     );
 }

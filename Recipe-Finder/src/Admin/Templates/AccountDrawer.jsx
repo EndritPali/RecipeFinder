@@ -7,59 +7,45 @@ import {
 } from '@ant-design/icons';
 
 import api from '../../Services/api';
-import auth from '../../Services/auth';
+import useAuth from '../../hooks/useAuth';
 import DrawerInput from './DrawerInputs';
 import '../scss/AccountDrawer.scss';
 
 export default function AccountDrawer({ open, onClose }) {
-    const [state, setState] = useState({
-        user: JSON.parse(localStorage.getItem('user') || '{}'),
-        fullUser: null,
-        recipes: [],
-        editing: null,
-        loading: false
-    });
+    const { currentUser } = useAuth();
+    const [recipes, setRecipes] = useState([]);
+    const [editing, setEditing] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [editedEmail, setEditedEmail] = useState('');
+    const [editedPassword, setEditedPassword] = useState('');
 
     useEffect(() => {
         if (open) {
-            setState(prev => ({ ...prev, loading: true }));
-            Promise.all([
-                auth.getCurrentUser().then(fullUser =>
-                    setState(prev => ({ ...prev, fullUser }))
-                ),
-                api.get('/my-recipes').then(({ data }) =>
-                    setState(prev => ({ ...prev, recipes: data.data }))
-                )
-            ]).finally(() =>
-                setState(prev => ({ ...prev, loading: false }))
-            );
+            setLoading(true);
+            api.get('/my-recipes')
+                .then(({ data }) => setRecipes(data.data))
+                .finally(() => setLoading(false));
         }
     }, [open]);
 
     const updateUser = async (payload) => {
         try {
-            const userId = state.user.id || state.fullUser?.id;
-            await api.put(`/user/${userId}`, payload);
+            await api.put(`/user/${currentUser.id}`, payload);
 
-            const updatedUser = { ...state.user, ...payload };
+            const updatedUser = { ...currentUser, ...payload };
             localStorage.setItem('user', JSON.stringify(updatedUser));
 
-            setState(prev => ({
-                ...prev,
-                user: updatedUser,
-                editing: null
-            }));
-
+            setEditing(null);
             message.success('Updated successfully');
         } catch (error) {
             message.error(error.response?.data?.message || 'Update failed');
         }
     };
 
-    const user = {
-        ...state.user,
-        ...(state.fullUser || {}),
-        role: state.fullUser?.role || state.user.role || 'Loading...'
+    const handleEdit = (field) => {
+        setEditing(field);
+        if (field === 'email') setEditedEmail(currentUser.email || '');
+        else setEditedPassword('');
     };
 
     return (
@@ -67,66 +53,69 @@ export default function AccountDrawer({ open, onClose }) {
             title="Account Settings"
             open={open}
             onClose={onClose}
-            loading={state.loading ? 1 : 0}
+            loading={loading ? 1 : 0}
         >
             <div className="user">
                 <Avatar icon={<UserOutlined />} />
-                <h2>{user.username}</h2>
+                <h2>{currentUser?.username}</h2>
             </div>
 
             <Card title={<Space><UserOutlined /> User Profile</Space>}>
                 <DrawerInput
                     icon={<IdcardOutlined />}
                     header="Role:"
-                    information={user.role}
+                    information={currentUser?.role || 'Loading...'}
                 />
                 <DrawerInput
                     icon={<CalendarOutlined />}
                     header="Date Created:"
-                    information={user.date}
+                    information={currentUser?.date}
                 />
                 <DrawerInput
                     icon={<BookOutlined />}
                     header="Recipes Created:"
-                    information={state.recipes.map(r => r.title).join(', ')}
+                    information={recipes.map(r => r.title).join(', ')}
                 />
             </Card>
 
             <Card title={<Space><SafetyCertificateOutlined /> Security</Space>}>
-                {['email', 'password'].map(field => (
-                    <DrawerInput
-                        key={field}
-                        icon={field === 'email' ? <MailOutlined /> : <KeyOutlined />}
-                        header={`${field.charAt(0).toUpperCase() + field.slice(1)}:`}
-                        information={field === 'email' ? user.email : '********'}
-                        isEditing={state.editing === field}
-                        value={state[`edited${field.charAt(0).toUpperCase() + field.slice(1)}`] || ''}
-                        onValueChange={(value) => setState(prev => ({
-                            ...prev,
-                            [`edited${field.charAt(0).toUpperCase() + field.slice(1)}`]: value
-                        }))}
-                    >
-                        {state.editing === field ? (
-                            <div className="btns">
-                                <button onClick={() => setState(prev => ({ ...prev, editing: null }))}>
-                                    Cancel
-                                </button>
-                                <button onClick={() => updateUser({
-                                    [field]: state[`edited${field.charAt(0).toUpperCase() + field.slice(1)}`]
-                                })}>
-                                    Save
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="btns">
-                                <button onClick={() => setState(prev => ({ ...prev, editing: field }))}>
-                                    <EditOutlined />
-                                </button>
-                            </div>
-                        )}
-                    </DrawerInput>
-                ))}
+                <DrawerInput
+                    icon={<MailOutlined />}
+                    header="Email:"
+                    information={currentUser?.email}
+                    isEditing={editing === 'email'}
+                    value={editedEmail}
+                    onValueChange={setEditedEmail}
+                >
+                    {renderButtons('email', editedEmail)}
+                </DrawerInput>
+
+                <DrawerInput
+                    icon={<KeyOutlined />}
+                    header="Password:"
+                    information="********"
+                    isEditing={editing === 'password'}
+                    value={editedPassword}
+                    onValueChange={setEditedPassword}
+                >
+                    {renderButtons('password', editedPassword)}
+                </DrawerInput>
             </Card>
         </Drawer>
     );
+
+    function renderButtons(field, value) {
+        return editing === field ? (
+            <div className="btns">
+                <button onClick={() => setEditing(null)}>Cancel</button>
+                <button onClick={() => updateUser({ [field]: value })}>Save</button>
+            </div>
+        ) : (
+            <div className="btns">
+                <button onClick={() => handleEdit(field)}>
+                    <EditOutlined />
+                </button>
+            </div>
+        );
+    }
 }

@@ -2,8 +2,6 @@ import DashboardHeader from "../Components/DashboardHeader";
 import { DashboardOutlined } from '@ant-design/icons';
 import '../scss/Dashboard.scss';
 import { useState } from "react";
-import MobileFooter from '../../Components/MobileFooter'
-import DashboardContent from "../Components/DashboardContent";
 import DashboardSider from "../Components/DashboardSider";
 import { Outlet } from "react-router-dom";
 import ResponsiveDrawer from "../Templates/ResponsiveDrawer";
@@ -26,7 +24,6 @@ export default function Dashboard() {
         <ResponsiveDrawer open={isDrawerOpen} onClose={closeDrawer} />
         <Outlet />
       </div>
-      {/* <MobileFooter /> */}
     </>
   )
 }

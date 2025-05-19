@@ -3,27 +3,22 @@ import { UserOutlined } from '@ant-design/icons';
 import '../scss/NotificationsModal.scss';
 import { useState, useEffect } from 'react';
 import api from "../../Services/api";
+import useAuth from "../../hooks/useAuth";
 
 export default function NotificationsModal({ open, onOk, onCancel }) {
     const [resetRequests, setResetRequests] = useState([]);
     const [loading, setLoading] = useState(false);
+    const { isAuthenticated } = useAuth();
 
     useEffect(() => {
-        if (open) {
+        if (open && isAuthenticated) {
             fetchResetRequests();
         }
-    }, [open]);
+    }, [open, isAuthenticated]);
 
     const fetchResetRequests = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                message.error('Authentication required');
-                return;
-            }
-
-            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             const response = await api.get('/auth/password-reset/pending');
             setResetRequests(response.data.data || []);
         } catch (error) {
@@ -36,22 +31,14 @@ export default function NotificationsModal({ open, onOk, onCancel }) {
 
     const handleAction = async (resetId, action) => {
         try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                message.error('Authentication required');
-                return;
-            }
-
-            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             const response = await api.post('/auth/password-reset/process', {
                 reset_id: resetId,
-                action: action
+                action
             });
 
             if (action === 'approve') {
-                const tempPassword = response.data.temporary_password;
-                const userEmail = response.data.user_email;
-                console.log(`Password Reset Approved\nEmail: ${userEmail}\nTemp Password: ${tempPassword}`);
+                const { temporary_password, user_email } = response.data;
+                console.log(`Password Reset Approved\nEmail: ${user_email}\nTemp Password: ${temporary_password}`);
             } else {
                 message.success('Password reset request denied');
             }
@@ -89,17 +76,8 @@ export default function NotificationsModal({ open, onOk, onCancel }) {
                                 description={`Last password remembered: ${item.last_password}`}
                             />
                             <div className="list-buttons">
-                                <Button
-                                    type="primary"
-                                    onClick={() => handleAction(item.id, 'approve')}
-                                >
-                                    Accept
-                                </Button>
-                                <Button
-                                    onClick={() => handleAction(item.id, 'deny')}
-                                >
-                                    Deny
-                                </Button>
+                                <Button type="primary" onClick={() => handleAction(item.id, 'approve')}>Accept</Button>
+                                <Button onClick={() => handleAction(item.id, 'deny')}>Deny</Button>
                             </div>
                         </List.Item>
                     )}

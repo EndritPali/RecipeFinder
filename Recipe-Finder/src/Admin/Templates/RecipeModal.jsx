@@ -1,7 +1,6 @@
-import { Modal, Form, Input, Upload, Button, InputNumber, Select } from 'antd';
+import { Modal, Form, Input, InputNumber, Select } from 'antd';
 import '../scss/RecipeModal.scss';
 import { useRecipeForm } from '../../hooks/useRecipeForm';
-
 import api from '../../Services/api';
 import FormImageUpload from './ImgUpload';
 
@@ -27,75 +26,57 @@ export default function RecipeModal({ open, onOk, onCancel, mode = 'create', ite
                 servings: Number(values.servings),
             };
 
-            if (isEdit) {
-                await api.put(`/recipes/${item.key}`, payload);
-            } else {
-                await api.post('/recipes', payload);
-            }
-
+            await api[isEdit ? 'put' : 'post'](
+                isEdit ? `/recipes/${item.key}` : '/recipes', payload
+            );
             onOk();
         } catch (error) {
-            if (error.response && error.response.status === 422) {
-                console.error("Validation errors:", error.response.data.errors);
-            } else {
-                console.error('Error saving recipe:', error);
-            }
+            console.error('Error saving recipe:', error);
         }
-        
     };
 
     return (
-        <>
-            <Modal
-                title={isEdit ? 'Edit Recipe' : 'Create New Recipe'}
-                open={open}
-                onOk={() => form.submit()}
-                onCancel={onCancel}
-                okText={isEdit ? 'Save Changes' : 'Create Recipe'}
-            >
-                <Form form={form} onFinish={handleFinish}>
-                    <FormImageUpload form={form} />
-                    <div className="form-inputs">
-                        <Form.Item name="recipetitle" rules={[{ required: true, message: 'Please enter a recipe title' }]}>
-                            <Input placeholder='Enter recipe title' />
-                        </Form.Item>
+        <Modal
+            title={isEdit ? 'Edit Recipe' : 'Create New Recipe'}
+            open={open}
+            onOk={() => form.submit()}
+            onCancel={onCancel}
+            okText={isEdit ? 'Save Changes' : 'Create Recipe'}
+        >
+            <Form form={form} onFinish={handleFinish}>
+                <FormImageUpload form={form} />
+                <div className="form-inputs">
+                    <Form.Item name="recipetitle" rules={[{ required: true, message: 'Please enter a recipe title' }]}>
+                        <Input placeholder='Enter recipe title' />
+                    </Form.Item>
 
-                        <div className="input-spaced">
-                            <Form.Item name="category">
-                                <Select placeholder='Select Category'>
-                                    <Select.Option value='With Features'>With Features</Select.Option>
-                                    <Select.Option value='With benefits'>With benefits</Select.Option>
-                                </Select>
-                            </Form.Item>
-                            <Form.Item name="rating">
-                                <InputNumber placeholder='Enter Rating' min={0} max={5} />
-                            </Form.Item>
-                        </div>
-
-                        <Form.Item name="preparation">
-                            <TextArea placeholder='Enter preparation steps' />
+                    <div className="input-spaced">
+                        <Form.Item name="category">
+                            <Select placeholder='Select Category'>
+                                <Select.Option value='With Features'>With Features</Select.Option>
+                                <Select.Option value='With benefits'>With benefits</Select.Option>
+                            </Select>
                         </Form.Item>
-                        <Form.Item name="ingredients">
-                            <TextArea placeholder='Enter ingredients list' />
+                        <Form.Item name="rating">
+                            <InputNumber placeholder='Enter Rating' min={0} max={5} />
                         </Form.Item>
-                        <Form.Item name="shortdescription">
-                            <TextArea placeholder='Enter short description' />
-                        </Form.Item>
-
-                        <div className="input-spaced-multiple">
-                            <Form.Item name="servings">
-                                <Input placeholder='Enter amount of servings' />
-                            </Form.Item>
-                            <Form.Item name="preptime">
-                                <Input placeholder='Enter preparation time' />
-                            </Form.Item>
-                            <Form.Item name="cooktime">
-                                <Input placeholder='Enter cooking time' />
-                            </Form.Item>
-                        </div>
                     </div>
-                </Form>
-            </Modal>
-        </>
-    )
+
+                    {['preparation', 'ingredients', 'shortdescription'].map(name => (
+                        <Form.Item key={name} name={name}>
+                            <TextArea placeholder={`Enter ${name.replace(/^./, c => c.toUpperCase())}`} />
+                        </Form.Item>
+                    ))}
+
+                    <div className="input-spaced-multiple">
+                        {['servings', 'preptime', 'cooktime'].map(name => (
+                            <Form.Item key={name} name={name}>
+                                <Input placeholder={`Enter ${name.includes('time') ? name.replace('time', ' time') : name}`} />
+                            </Form.Item>
+                        ))}
+                    </div>
+                </div>
+            </Form>
+        </Modal>
+    );
 }
