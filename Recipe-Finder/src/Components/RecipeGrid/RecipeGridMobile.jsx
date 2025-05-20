@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useFetchRecipes } from '../../hooks/useFetchRecipes';
-import RecipeBanner from "../../Templates/RecipeBanner";
+import RecipeBanner from '../../Templates/RecipeBanner';
 import RecipeDetailsModal from '../../Templates/RecipeDetailsModal';
+import { useUserAccount } from '../../hooks/useUserAccount';
+import AccountModal from '../../Templates/AccountModal';
 import '../../Scss/RecipeGridMobile.scss';
 
 export default function RecipeGridMobile() {
@@ -30,13 +32,25 @@ export default function RecipeGridMobile() {
         setSelectedRecipe(null);
     };
 
+    const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+    const [modalMode, setModalMode] = useState('login');
+    const { user, openAccountModal } = useUserAccount(setModalMode, setIsAccountModalOpen);
+
     return (
         <>
             <div className="recipe-grid-mobile">
 
                 <div className="recipe-grid-mobile__card recipe-grid-mobile__card--first">
-                    <h2>Learn how to become a master chef right now!</h2>
-                    <button>Login</button>
+                    <h2>
+                        {user
+                            ? 'Upload your unique recipes now! Like a real master chef'
+                            : 'Learn how to become a master chef right now!'}
+                    </h2>
+                    {user ? (
+                        <a href="/admin"><button>Dashboard</button></a>
+                    ) : (
+                        <button onClick={() => openAccountModal('login')}>Login</button>
+                    )}
                 </div>
 
                 <div className="recipe-grid-mobile__header">
@@ -90,6 +104,13 @@ export default function RecipeGridMobile() {
                 onOk={handleCloseModal}
                 onCancel={handleCloseModal}
                 recipe={selectedRecipe}
+            />
+
+            <AccountModal
+                open={isAccountModalOpen}
+                onOk={() => setIsAccountModalOpen(false)}
+                onCancel={() => setIsAccountModalOpen(false)}
+                mode={modalMode}
             />
         </>
     );

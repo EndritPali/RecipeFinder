@@ -28,6 +28,7 @@ export const columns = (onEdit, onDelete) => [
     {
         title: 'Action',
         key: 'action',
+        fixed: 'right',
         render: (_, record) => (
             <Space size="middle" className='btn-space'>
                 <button className='edit-btn' onClick={() => onEdit(record)}> <EditOutlined /> </button>

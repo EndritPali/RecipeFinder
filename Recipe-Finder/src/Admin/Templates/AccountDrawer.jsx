@@ -69,7 +69,7 @@ export default function AccountDrawer({ open, onClose }) {
                 <DrawerInput
                     icon={<CalendarOutlined />}
                     header="Date Created:"
-                    information={currentUser?.date}
+                    information={currentUser?.created_at}
                 />
                 <DrawerInput
                     icon={<BookOutlined />}

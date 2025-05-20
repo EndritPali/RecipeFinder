@@ -4,19 +4,26 @@ import { Dropdown } from 'antd';
 import AccountModal from '../Templates/AccountModal';
 import RecipeDetailsModal from '../Templates/RecipeDetailsModal';
 import useRecipeModal from '../hooks/useRecipeModal';
-import useAccountModal from '../hooks/useAccountModal';
 import AuthDropdown from '../Templates/AuthDropdown';
 import SavedRecipesDropdown from '../Templates/SavedRecipesDropdown';
+import { useState } from 'react';
+import { useUserAccount } from '../hooks/useUserAccount';
 
 export default function MobileFooter({
     user,
     savedRecipes,
     savedLoading,
     menuItems,
-    setIsAccountModalOpen,
-    setModalMode,
     recipes = []
 }) {
+
+    const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+    const [modalMode, setModalMode] = useState('login');
+
+    const updatedUserContext = useUserAccount(setModalMode, setIsAccountModalOpen);
+    const effectiveUser = user || updatedUserContext.user;
+    const effectiveMenuItems = menuItems || updatedUserContext.menuItems;
+
     const {
         isRecipeModalOpen,
         selectedRecipe,
@@ -25,11 +32,10 @@ export default function MobileFooter({
         handleRollDice
     } = useRecipeModal();
 
-    const {
-        isAccountModalOpen,
-        modalMode,
-        openAccountModal
-    } = useAccountModal(setIsAccountModalOpen, setModalMode);
+    const openAccountModal = (mode) => {
+        setModalMode(mode);
+        setIsAccountModalOpen(true);
+    };
 
     return (
         <>
@@ -52,7 +58,7 @@ export default function MobileFooter({
                     </div>
                     <div className="mobile-footer__bottom-right">
                         <SavedRecipesDropdown
-                            user={user}
+                            user={effectiveUser}
                             savedRecipes={savedRecipes}
                             savedLoading={savedLoading}
                             onRecipeClick={handleOpenRecipeModal}
@@ -60,14 +66,14 @@ export default function MobileFooter({
                             placement="topRight"
                         />
 
-                        {user ? (
-                            <Dropdown menu={{ items: menuItems }} placement='topRight'>
+                        {effectiveUser ? (
+                            <Dropdown menu={{ items: effectiveMenuItems }} placement='topRight'>
                                 <i className="far fa-user"></i>
                             </Dropdown>
                         ) : (
                             <AuthDropdown
-                                onLogin={openAccountModal}
-                                onRegister={openAccountModal}
+                                onLogin={() => openAccountModal('login')}
+                                onRegister={() => openAccountModal('register')}
                                 trigger={<i className="far fa-user" />}
                             />
                         )}
@@ -84,14 +90,12 @@ export default function MobileFooter({
                 />
             )}
 
-            {(!setModalMode || !setIsAccountModalOpen) && (
-                <AccountModal
-                    open={isAccountModalOpen}
-                    onOk={() => setIsAccountModalOpen(false)}
-                    onCancel={() => setIsAccountModalOpen(false)}
-                    mode={modalMode}
-                />
-            )}
+            <AccountModal
+                open={isAccountModalOpen}
+                onOk={() => setIsAccountModalOpen(false)}
+                onCancel={() => setIsAccountModalOpen(false)}
+                mode={modalMode}
+            />
         </>
     );
 }
