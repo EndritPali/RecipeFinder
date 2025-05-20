@@ -134,25 +134,35 @@ class RecipeController extends Controller
 
         $recipe->update($validated);
 
-        $ingredientNames = explode(',', $request->input('ingredients'));
+        $ingredientsInput = $request->input('ingredients');
+
+        $normalizedInput = preg_replace('/,\s*/', ', ', $ingredientsInput);
+
+        $ingredientNames = preg_split('/,\s*/', $normalizedInput);
         $ingredientIds = [];
 
         foreach ($ingredientNames as $name) {
-            $ingredient = Ingredient::firstOrCreate(
-                ['name' => trim($name)],
-                ['unit' => 'pesos']
-            );
-            $ingredientIds[] = $ingredient->id;
+            if (!empty(trim($name))) {
+                $ingredient = Ingredient::firstOrCreate(
+                    ['name' => trim($name)],
+                    ['unit' => 'pesos']
+                );
+                $ingredientIds[] = $ingredient->id;
+            }
         }
 
         $recipe->ingredients()->sync($ingredientIds);
 
-        $categoryNames = explode(',', $request->input('category'));
+        $categoryInput = $request->input('category');
+        $normalizedCategories = preg_replace('/,\s*/', ', ', $categoryInput);
+        $categoryNames = preg_split('/,\s*/', $normalizedCategories);
         $categoryIds = [];
 
         foreach ($categoryNames as $name) {
-            $category = Category::firstOrCreate(['name' => trim($name)]);
-            $categoryIds[] = $category->id;
+            if (!empty(trim($name))) {
+                $category = Category::firstOrCreate(['name' => trim($name)]);
+                $categoryIds[] = $category->id;
+            }
         }
 
         $recipe->categories()->sync($categoryIds);
