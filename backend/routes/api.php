@@ -37,7 +37,7 @@ Route::post('/upload-image', function (Request $request) {
     return response()->json(['url' => url('images/' . $filename)]);
 });
 
-Route::prefix('api/v1')->group(function () {
+Route::prefix('v1')->group(function () {
     Route::apiResource('user', UserController::class);
 
     Route::prefix('auth')->group(function () {

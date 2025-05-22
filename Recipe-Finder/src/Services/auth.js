@@ -5,7 +5,7 @@ const auth = {
   
   getCurrentUser: async () => {
     try {
-      const response = await api.get('api/v1/auth/me');
+      const response = await api.get('v1/auth/me');
       return response.data;
     } catch (error) {
       console.error('Error fetching user data:', error);
