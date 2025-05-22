@@ -13,7 +13,7 @@ export default function ResetPassword() {
     const handleSubmit = async (values) => {
         setIsSubmitting(true);
         try {
-            const response = await api.post('/auth/password-reset/submit', {
+            const response = await api.post('v1/auth/password-reset/submit', {
                 username: values.username,
                 email: values.email,
                 last_password: values.password

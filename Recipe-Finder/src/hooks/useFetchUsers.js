@@ -8,7 +8,7 @@ export const useFetchUsers = () => {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await api.get('api/v1/user');
+      const response = await api.get('v1/user');
       const mapped = response.data.data.map(user => ({
         key: user.id,
         username: user.username,

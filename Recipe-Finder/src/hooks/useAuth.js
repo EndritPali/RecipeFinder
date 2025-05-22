@@ -50,7 +50,7 @@ export default function useAuth() {
             const token = localStorage.getItem('token');
             if (token) {
                 api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                await api.post('/auth/logout');
+                await api.post('v1/auth/logout');
             }
             
             localStorage.removeItem('token');

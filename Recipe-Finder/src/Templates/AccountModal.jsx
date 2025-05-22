@@ -27,7 +27,7 @@ export default function AccountModal({ open, onOk, onCancel, mode = 'login' }) {
                     onOk();
                 }
             } else {
-                response = await api.post('/auth/login', {
+                response = await api.post('v1/auth/login', {
                     email: values.email,
                     password: values.password,
                 });
