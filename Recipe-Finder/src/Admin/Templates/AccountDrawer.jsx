@@ -30,7 +30,7 @@ export default function AccountDrawer({ open, onClose }) {
 
     const updateUser = async (payload) => {
         try {
-            await api.put(`/user/${currentUser.id}`, payload);
+            await api.put(`api/v1/user/${currentUser.id}`, payload);
 
             const updatedUser = { ...currentUser, ...payload };
             localStorage.setItem('user', JSON.stringify(updatedUser));

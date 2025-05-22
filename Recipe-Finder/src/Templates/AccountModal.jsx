@@ -14,7 +14,7 @@ export default function AccountModal({ open, onOk, onCancel, mode = 'login' }) {
             let response;
 
             if (isRegistering) {
-                response = await api.post('/register', {
+                response = await api.post('api/v1/auth/register', {
                     username: values.username,
                     email: values.email,
                     password: values.password,

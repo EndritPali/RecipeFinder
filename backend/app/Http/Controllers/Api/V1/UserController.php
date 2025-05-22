@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
@@ -88,28 +89,6 @@ class UserController extends Controller
             'message' => 'User updated successfully',
             'data' => new UserResource($user)
 
-        ]);
-    }
-
-    public function register(Request $request)
-    {
-        $validated = $request->validate([
-            'username' => 'required|string|unique:users,username|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-        ]);
-
-        $user = User::create([
-            'username' => $validated['username'],
-            'email' => $validated['email'],
-            'password_hash' => bcrypt($validated['password']),
-            'role' => 'User', // default role
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User registered successfully!',
-            'user' => $user,
         ]);
     }
 

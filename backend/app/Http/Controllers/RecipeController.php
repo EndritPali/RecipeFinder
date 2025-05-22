@@ -83,27 +83,6 @@ class RecipeController extends Controller
     }
 
     /**
-     * Grab recipes by user_id function - uses server-side user data for security
-     */
-    public function myRecipes(Request $request)
-    {
-        $user = $request->user();
-
-        if (!$user) {
-            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
-        }
-
-        $recipes = Recipe::with(['ingredients', 'categories'])
-            ->where('created_by', $user->id)
-            ->get();
-
-        return response()->json([
-            'status' => 'success',
-            'data' => RecipeResource::collection($recipes)
-        ]);
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
