@@ -26,9 +26,9 @@ export default function UserModal({ open, onOk, onCancel, mode = 'create', item 
             const payload = { ...values };
 
             if (isEdit) {
-                await api.put(`v1/user/${item.key}`, payload);
+                await api.put(`v1/users/${item.key}`, payload);
             } else {
-                await api.post('v1/user', payload);
+                await api.post('v1/users', payload);
             }
 
             onOk();

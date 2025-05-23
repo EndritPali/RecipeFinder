@@ -29,7 +29,7 @@ Route::post('/upload-image', function (Request $request) {
 });
 
 Route::prefix('v1')->group(function () {
-    Route::apiResource('user', UserController::class);
+    Route::apiResource('users', UserController::class);
     Route::apiResource('recipes', RecipeController::class)->only(['index']);
     Route::apiResource('ingredients', IngredientController::class);
     Route::apiResource('category', CategoryController::class);
@@ -57,7 +57,7 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/comments/{id}/like', [LikeController::class, 'toggleLike']);
 
-        Route::apiResource('user', UserController::class)->only(['update']);
+        Route::apiResource('users', UserController::class)->only(['update']);
     });
 
 
@@ -65,6 +65,6 @@ Route::prefix('v1')->group(function () {
         Route::get('/auth/password-reset/pending', [PasswordResetController::class, 'getPendingRequests']);
         Route::post('/auth/password-reset/process', [PasswordResetController::class, 'processResetRequest']);
 
-        Route::apiResource('user', UserController::class)->except(['update']);
+        Route::apiResource('users', UserController::class)->except(['update']);
     });
 });

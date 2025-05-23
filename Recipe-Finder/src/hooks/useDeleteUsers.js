@@ -10,7 +10,7 @@ export const useDeleteUsers = (onSuccess) => {
     setError(null);
 
     try {
-      await api.delete(`v1/user/${id}`);
+      await api.delete(`v1/users/${id}`);
       
       if (onSuccess) {
         onSuccess();
