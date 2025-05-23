@@ -3,23 +3,19 @@
 namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\RegisterRequest;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class RegisterController extends Controller
 {
-    public function register(Request $request)
+    public function register(RegisterRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'username' => 'required|string|unique:users,username|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-        ]);
-
         $user = User::create([
-            'username' => $validated['username'],
-            'email' => $validated['email'],
-            'password_hash' => bcrypt($validated['password']),
+            'username' => $request['username'],
+            'email' => $request['email'],
+            'password_hash' => bcrypt($request['password']),
             'role' => 'User',
         ]);
 

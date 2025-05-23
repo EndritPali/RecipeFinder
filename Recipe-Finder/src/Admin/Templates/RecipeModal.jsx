@@ -27,7 +27,7 @@ export default function RecipeModal({ open, onOk, onCancel, mode = 'create', ite
             };
 
             await api[isEdit ? 'put' : 'post'](
-                isEdit ? `/recipes/${item.key}` : '/recipes', payload
+                isEdit ? `v1/recipes/${item.key}` : 'v1/recipes', payload
             );
             onOk();
         } catch (error) {

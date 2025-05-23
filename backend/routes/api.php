@@ -7,8 +7,8 @@ use App\Http\Controllers\Api\V1\Auth\SessionController;
 use App\Http\Controllers\Api\V1\Auth\PasswordResetController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\V1\RecipeController;
 
-use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\RecipeIngredientController;
@@ -19,7 +19,6 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\MyRecipesController;
 
 
-Route::apiResource('recipes', RecipeController::class)->only(['index']);
 Route::apiResource('ingredients', IngredientController::class);
 Route::apiResource('category', CategoryController::class);
 Route::apiResource('recipe-ingredients', RecipeIngredientController::class)->only(['store', 'destroy']);
@@ -39,6 +38,7 @@ Route::post('/upload-image', function (Request $request) {
 
 Route::prefix('v1')->group(function () {
     Route::apiResource('user', UserController::class);
+    Route::apiResource('recipes', RecipeController::class)->only(['index']);
 
     Route::prefix('auth')->group(function () {
         Route::post('login', [SessionController::class, 'login']);
@@ -51,7 +51,7 @@ Route::prefix('v1')->group(function () {
     });
 });
 
-Route::middleware(['auth.token', 'role:User,Admin'])->group(function () {
+Route::prefix('v1')->middleware(['auth.token', 'role:User,Admin'])->group(function () {
     Route::get('/admin', fn() => response()->json(['message' => 'Dashboard']));
     Route::get('/my-recipes', [MyRecipesController::class, 'myRecipes']);
 

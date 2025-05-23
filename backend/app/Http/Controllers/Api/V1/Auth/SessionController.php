@@ -3,63 +3,26 @@
 namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use App\Models\Session;
-use App\Models\User;
+use App\Http\Requests\Api\V1\SessionLoginRequest;
+use App\Http\Services\Auth\SessionAuthenticationInterface;
+use Illuminate\Http\JsonResponse;
 
 class SessionController extends Controller
 {
-    /**
-     * Login a user and create a session
-     */
-    public function login(Request $request)
+    private SessionAuthenticationInterface $auth;
+
+    public function __construct(SessionAuthenticationInterface $auth)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string'
-        ]);
-
-        $user = User::where('email', $credentials['email'])->first();
-
-        if (!$user || !Hash::check($credentials['password'], $user->password_hash)) {
-            return response()->json(['status' => 'error', 'message' => 'Invalid credentials'], 401);
-        }
-
-        $token = Str::random(64);
-
-        $session = Session::create([
-            'user_id'  => $user->id,
-            'token'  => $token,
-            'expires_at' => now()->addDays(7),
-            'created_at' => now()
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'token'  => $token,
-            'user'   => $user,
-        ]);
+        $this->auth = $auth;
     }
 
-    /**
-     * Logout a user and destroy their session
-     */
-    public function logout(Request $request)
+    public function login(SessionLoginRequest $request): JsonResponse
     {
-        $token = $request->bearerToken();
+        return $this->auth->login($request->validated());
+    }
 
-        if (!$token) {
-            return response()->json(['status' => 'error', 'message' => 'Token missing'], 400);
-        }
-
-        $deleted = Session::where('token', $token)->delete();
-
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Logged out successfully',
-            'deleted' => $deleted,
-        ]);
+    public function logout(): JsonResponse
+    {
+        return $this->auth->logout(request()->bearerToken());
     }
 }

@@ -7,12 +7,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Http\Resources\UserResource;
+use App\Http\Requests\Api\V1\UpdateUserRequest;
+use App\Http\Requests\Api\V1\StoreUserRequest;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         return response()->json([
@@ -21,60 +20,39 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $validated = $request->validate([
-            'username' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-            'role' => 'required|string'
-        ]);
+        $validated = $request->validated();
 
         $user = User::create([
             'username' => $validated['username'],
             'email' => $validated['email'],
             'password_hash' => Hash::make($validated['password']),
-            'role' => $validated['role']
+            'role' => $validated['role'],
         ]);
 
         return response()->json([
             'status' => 'success',
             'message' => 'User created successfully',
-            'data' => new UserResource($user)
-
+            'data' => new UserResource($user),
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         $user = User::findOrFail($id);
 
         return response()->json([
             'status' => 'success',
-            'data' => new UserResource($user)
-
+            'data' => new UserResource($user),
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(UpdateUserRequest $request, string $id)
     {
         $user = User::findOrFail($id);
 
-        $validated = $request->validate([
-            'username' => 'sometimes|string',
-            'email' => 'sometimes|email|unique:users,email,' . $id,
-            'password' => 'nullable|string|min:6',
-            'role' => 'sometimes|string'
-        ]);
+        $validated = $request->validated();
 
         if (!empty($validated['password'])) {
             $validated['password_hash'] = Hash::make($validated['password']);
@@ -87,15 +65,10 @@ class UserController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'User updated successfully',
-            'data' => new UserResource($user)
-
+            'data' => new UserResource($user),
         ]);
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         $user = User::findOrFail($id);

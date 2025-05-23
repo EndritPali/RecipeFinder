@@ -10,7 +10,7 @@ export const useDeleteRecipes = (onSuccess) => {
     setError(null);
 
     try {
-      await api.delete(`/recipes/${id}`);
+      await api.delete(`v1/recipes/${id}`);
       
       if (onSuccess) {
         onSuccess();

@@ -12,7 +12,7 @@ export const useSavedRecipes = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get('/saved-recipes');
+      const response = await api.get('v1/saved-recipes');
       const mappedRecipes = response.data.map(item => ({
         key: item.recipe.id,
         recipetitle: item.recipe.title,
@@ -38,7 +38,7 @@ export const useSavedRecipes = () => {
 
   const checkIfSaved = useCallback(async (recipeId) => {
     try {
-      const response = await api.get(`/saved-recipes/${recipeId}`);
+      const response = await api.get(`v1/saved-recipes/${recipeId}`);
       return response.data.saved;
     } catch (error) {
       console.error('Error checking saved status:', error);
@@ -48,7 +48,7 @@ export const useSavedRecipes = () => {
 
   const saveRecipe = useCallback(async (recipeId) => {
     try {
-      await api.post('/saved-recipes', { recipe_id: recipeId });
+      await api.post('v1/saved-recipes', { recipe_id: recipeId });
       savedRecipesEvent.dispatchEvent(new Event('changed'));
       return true;
     } catch (error) {
@@ -59,7 +59,7 @@ export const useSavedRecipes = () => {
 
   const unsaveRecipe = useCallback(async (recipeId) => {
     try {
-      await api.delete(`/saved-recipes/${recipeId}`);
+      await api.delete(`v1/saved-recipes/${recipeId}`);
       setSavedRecipes(prevRecipes => prevRecipes.filter(recipe => recipe.key !== recipeId));
       savedRecipesEvent.dispatchEvent(new Event('changed'));
       return true;

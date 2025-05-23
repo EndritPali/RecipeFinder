@@ -8,7 +8,7 @@ export const useFetchRecipes = (onlyMine = false) => {
   const fetchRecipes = useCallback(async () => {
     setLoading(true);
     try {
-      const endpoint = onlyMine ? '/my-recipes' : '/recipes';
+      const endpoint = onlyMine ? 'v1/my-recipes' : 'v1/recipes';
       const response = await api.get(endpoint);
       const mapped = response.data.data.map(recipe => ({
         key: recipe.id,

@@ -22,7 +22,7 @@ export default function AccountDrawer({ open, onClose }) {
     useEffect(() => {
         if (open) {
             setLoading(true);
-            api.get('/my-recipes')
+            api.get('v1/my-recipes')
                 .then(({ data }) => setRecipes(data.data))
                 .finally(() => setLoading(false));
         }
