@@ -19,7 +19,7 @@ export default function NotificationsModal({ open, onOk, onCancel }) {
     const fetchResetRequests = async () => {
         setLoading(true);
         try {
-            const response = await api.get('/auth/password-reset/pending');
+            const response = await api.get('v1/auth/password-reset/pending');
             setResetRequests(response.data.data || []);
         } catch (error) {
             console.error('Error fetching reset requests:', error);
@@ -31,7 +31,7 @@ export default function NotificationsModal({ open, onOk, onCancel }) {
 
     const handleAction = async (resetId, action) => {
         try {
-            const response = await api.post('/auth/password-reset/process', {
+            const response = await api.post('v1/auth/password-reset/process', {
                 reset_id: resetId,
                 action
             });

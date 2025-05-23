@@ -37,7 +37,7 @@ export default function useAuth() {
             if (!token) return 0;
 
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            const response = await api.get('/auth/password-reset/pending');
+            const response = await api.get('v1/auth/password-reset/pending');
             return Array.isArray(response.data?.data) ? response.data.data.length : 0;
         } catch (error) {
             console.error('Error fetching pending requests:', error);

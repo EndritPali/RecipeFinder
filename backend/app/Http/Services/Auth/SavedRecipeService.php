@@ -1,34 +1,28 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Services\Auth;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\Api\V1\StoreSavedRecipesRequest;
 use App\Models\SavedRecipe;
-use App\Models\Recipe;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StoreSavedRecipeRequest;
 
-class SavedRecipeController extends Controller
+class SavedRecipeService
 {
-    // GET /api/saved-recipes
-    public function index()
+    public function getSavedRecipes()
     {
         $user = Auth::user();
 
-        $savedRecipes = SavedRecipe::with('recipe') 
+        $savedRecipes = SavedRecipe::with('recipe')
             ->where('user_id', $user->id)
             ->get();
 
         return response()->json($savedRecipes);
     }
 
-    // POST /api/saved-recipes
-    public function store(Request $request)
+    public function saveRecipe(StoreSavedRecipesRequest $request)
     {
         $user = Auth::user();
-
-        $request->validate([
-            'recipe_id' => 'required|exists:recipes,id',
-        ]);
 
         $exists = SavedRecipe::where('user_id', $user->id)
             ->where('recipe_id', $request->recipe_id)
@@ -46,8 +40,7 @@ class SavedRecipeController extends Controller
         return response()->json($saved, 201);
     }
 
-    // GET /api/saved-recipes/{recipeId}
-    public function show($recipeId)
+    public function isRecipeSaved(string $recipeId)
     {
         $user = Auth::user();
 
@@ -58,8 +51,7 @@ class SavedRecipeController extends Controller
         return response()->json(['saved' => $exists]);
     }
 
-    // DELETE /api/saved-recipes/{recipeId}
-    public function destroy($recipeId)
+    public function removeSavedRecipe(string $recipeId)
     {
         $user = Auth::user();
 

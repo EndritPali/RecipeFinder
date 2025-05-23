@@ -14,7 +14,7 @@ export const useFetchComments = () => {
   const fetchComments = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await api.get('/comments'); 
+      const response = await api.get('v1/comments'); 
       
 
       const mapped = response.data.data.map(comment => ({

@@ -3,33 +3,62 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use App\Models\User;
-use App\Http\Resources\UserResource;
-use App\Http\Requests\Api\V1\UpdateUserRequest;
 use App\Http\Requests\Api\V1\StoreUserRequest;
+use App\Http\Requests\Api\V1\UpdateUserRequest;
+use App\Http\Resources\UserResource;
+use App\Http\Services\Auth\UserService;
+
+/**
+ * @group Users
+ * 
+ * API endpoints for managing users
+ */
 
 class UserController extends Controller
 {
+
+    /**
+     * The service responsible for user business logic
+     * 
+     * @var \App\Http\Services\Auth\UserService
+     */
+    protected UserService $userService;
+
+
+    /**
+     * Inject the UserService dependency
+     * 
+     * @param \App\Http\Services\Auth\UserService $userService
+     */
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
+    /**
+     * Display a listing of users
+     * 
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function index()
     {
+        $users = $this->userService->getAllUsers();
+
         return response()->json([
             'status' => 'success',
-            'data' => UserResource::collection(User::all()),
+            'data' => UserResource::collection($users),
         ]);
     }
 
+    /**
+     * Stores the newly created user to the database
+     * 
+     * @param \App\Http\Requests\Api\V1\StoreUserRequest $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function store(StoreUserRequest $request)
     {
-        $validated = $request->validated();
-
-        $user = User::create([
-            'username' => $validated['username'],
-            'email' => $validated['email'],
-            'password_hash' => Hash::make($validated['password']),
-            'role' => $validated['role'],
-        ]);
+        $user = $this->userService->createUser($request->validated());
 
         return response()->json([
             'status' => 'success',
@@ -38,9 +67,15 @@ class UserController extends Controller
         ], 201);
     }
 
+    /**
+     * Displays the specified user
+     * 
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function show(string $id)
     {
-        $user = User::findOrFail($id);
+        $user = $this->userService->getUserById($id);
 
         return response()->json([
             'status' => 'success',
@@ -48,19 +83,16 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Update the specified user
+     * 
+     * @param \App\Http\Requests\Api\V1\UpdateUserRequest $request
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function update(UpdateUserRequest $request, string $id)
     {
-        $user = User::findOrFail($id);
-
-        $validated = $request->validated();
-
-        if (!empty($validated['password'])) {
-            $validated['password_hash'] = Hash::make($validated['password']);
-        }
-
-        unset($validated['password']);
-
-        $user->update($validated);
+        $user = $this->userService->updateUser($id, $request->validated());
 
         return response()->json([
             'status' => 'success',
@@ -69,10 +101,15 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Remove the specified user
+     * 
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function destroy(string $id)
     {
-        $user = User::findOrFail($id);
-        $user->delete();
+        $this->userService->deleteUser($id);
 
         return response()->json([
             'status' => 'success',

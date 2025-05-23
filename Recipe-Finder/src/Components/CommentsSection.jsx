@@ -23,7 +23,7 @@ export default function CommentsSection() {
 
     const handleDeleteComment = async (commentId) => {
         try {
-            await api.delete(`/comments/${commentId}`);
+            await api.delete(`v1/comments/${commentId}`);
             message.success('Comment deleted successfully');
             refreshComments();
         } catch (error) {
@@ -45,7 +45,7 @@ export default function CommentsSection() {
     const handleToggleLike = async (commentId, isLiked) => {
         try {
             const action = isLiked ? 'unlike' : 'like';
-            await api.post(`/comments/${commentId}/like`, { action });
+            await api.post(`v1/comments/${commentId}/like`, { action });
             message.success(`Comment ${action}d successfully!`);
             refreshComments();
         } catch (error) {

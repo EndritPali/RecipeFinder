@@ -33,12 +33,12 @@ export default function CreateCommentModal({ open, onOk, onCancel, refreshCommen
             setSubmitting(true);
 
             if (isEdit && comment) {
-                await api.put(`/comments/${comment.id}`, {
+                await api.put(`v1/comments/${comment.id}`, {
                     description: values.description,
                 });
                 message.success('Comment updated successfully!');
             } else {
-                await api.post('/comments', {
+                await api.post('v1/comments', {
                     description: values.description,
                 });
                 message.success('Comment added successfully!');
