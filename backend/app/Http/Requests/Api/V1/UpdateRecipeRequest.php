@@ -6,11 +6,21 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateRecipeRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     * 
+     * @return bool
+     */
     public function authorize()
     {
         return true;
     }
 
+    /**
+     *  Get the validation rules that apply to the request.
+     * 
+     * @return array{category: string, cooking_time: string, image_url: string, ingredients: string, instructions: string, preparation_time: string, rating: string, servings: string, short_description: string, title: string}
+     */
     public function rules()
     {
         return [

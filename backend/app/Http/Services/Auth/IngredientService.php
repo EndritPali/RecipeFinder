@@ -2,49 +2,75 @@
 
 namespace App\Http\Services\Auth;
 
-use App\Models\Ingredient;
+use App\Repositories\Recipes\IngredientRepository;
 use App\Http\Requests\Api\V1\StoreIngredientRequest;
 use App\Http\Requests\Api\V1\UpdateIngredientRequest;
 
 class IngredientService
 {
+    /**
+     * @var 
+     */
+    protected $ingredients;
+
+    /**
+     * @param \App\Repositories\Recipes\IngredientRepository $ingredients
+     */
+    public function __construct(IngredientRepository $ingredients)
+    {
+        $this->ingredients = $ingredients;
+    }
+
+    /**
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getAll()
     {
-        $ingredients = Ingredient::all();
+        $ingredients = $this->ingredients->all();
 
         return response()->json([
             'status' => 'success',
             'data' => $ingredients,
         ]);
     }
-
+    /**
+     * @param \App\Http\Requests\Api\V1\StoreIngredientRequest $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function create(StoreIngredientRequest $request)
     {
-        $ingredient = Ingredient::create($request->validated());
+        $ingredient = $this->ingredients->create($request->validated());
 
         return response()->json([
             'status' => 'success',
             'message' => 'Ingredient created successfully',
-            'data' => $ingredient
+            'data' => $ingredient,
         ], 201);
     }
 
+    /**
+     * @param \App\Http\Requests\Api\V1\UpdateIngredientRequest $request
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function update(UpdateIngredientRequest $request, string $id)
     {
-        $ingredient = Ingredient::findOrFail($id);
-        $ingredient->update($request->validated());
+        $ingredient = $this->ingredients->update($id, $request->validated());
 
         return response()->json([
             'status' => 'success',
             'message' => 'Ingredient updated successfully',
-            'data' => $ingredient
+            'data' => $ingredient,
         ]);
     }
 
+    /**
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function delete(string $id)
     {
-        $ingredient = Ingredient::findOrFail($id);
-        $ingredient->delete();
+        $this->ingredients->delete($id);
 
         return response()->json([
             'status' => 'success',

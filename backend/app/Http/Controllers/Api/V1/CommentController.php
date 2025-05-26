@@ -3,99 +3,71 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\StoreCommentRequest;
+use App\Http\Requests\Api\V1\UpdateCommentRequest;
 use App\Http\Resources\CommentResource;
+use App\Http\Services\Auth\CommentService;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
-    // Get all comments with users
+    /**
+     * @var 
+     */
+    protected $service;
+
+    /**
+     * @param \App\Http\Services\Auth\CommentService $service
+     */
+    public function __construct(CommentService $service)
+    {
+        $this->service = $service;
+    }
+
+    /**
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function index()
     {
-        $comments = Comment::with('user')->latest()->get();
-
-        return response()->json([
-            'status' => 'success',
-            'data' => CommentResource::collection($comments)
-        ]);
+        return $this->service->getAllComments();
     }
 
-    // Store a new comment
-    public function store(Request $request)
+    /**
+     * @param \App\Http\Requests\Api\V1\StoreCommentRequest $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function store(StoreCommentRequest $request)
     {
-        $user = $request->user();
-
-        if (!$user) {
-            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
-        }
-
-        $validated = $request->validate([
-            'description' => 'required|string|max:1000',
-        ]);
-
-        $comment = Comment::create([
-            'user_id'    => $user->id,
-            'description' => $validated['description'],
-            'posted_at'   => now(),
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Comment posted successfully',
-            'data' => $comment->load('user')
-        ], 201);
+        return $this->service->createComment($request);
     }
 
-    // Show single comment
+    /**
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function show($id)
     {
-        $comment = Comment::with('user')->findOrFail($id);
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $comment
-        ]);
+        return $this->service->getComment($id);
     }
 
-    // Update comment (only owner)
-    public function update(Request $request, $id)
+    /**
+     * @param \App\Http\Requests\Api\V1\UpdateCommentRequest $request
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function update(UpdateCommentRequest $request, $id)
     {
-        $comment = Comment::findOrFail($id);
-        $user = $request->user();
-
-        if ($user->id !== $comment->user_id) {
-            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
-        }
-
-        $validated = $request->validate([
-            'description' => 'required|string|max:1000',
-        ]);
-
-        $comment->update($validated);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Comment updated successfully',
-            'data' => $comment
-        ]);
+        return $this->service->updateComment($request, $id);
     }
 
-    // Delete comment (only owner and admin)
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function destroy(Request $request, $id)
     {
-        $comment = Comment::findOrFail($id);
-        $user = $request->user();
-
-        // Allow deletion if the user is the owner OR an admin
-        if ($user->id !== $comment->user_id && $user->role !== 'Admin') {
-            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
-        }
-
-        $comment->delete();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Comment deleted successfully'
-        ]);
+        return $this->service->deleteComment($id);
     }
 }

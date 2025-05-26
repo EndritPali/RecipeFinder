@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 
 class RecipeIngredientService
 {
+    /**
+     * @param mixed $recipeId
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function attachIngredient($recipeId, Request $request)
     {
         $recipe = Recipe::findOrFail($recipeId);
@@ -20,6 +25,12 @@ class RecipeIngredientService
         ]);
     }
 
+    /**
+     * @param mixed $recipeId
+     * @param mixed $ingredientId
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function updateQuantity($recipeId, $ingredientId, Request $request)
     {
         $recipe = Recipe::findOrFail($recipeId);
@@ -41,6 +52,11 @@ class RecipeIngredientService
         ]);
     }
 
+    /**
+     * @param mixed $recipeId
+     * @param mixed $ingredientId
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function detachIngredient($recipeId, $ingredientId)
     {
         $recipe = Recipe::findOrFail($recipeId);

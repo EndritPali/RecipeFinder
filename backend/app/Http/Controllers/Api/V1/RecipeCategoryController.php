@@ -3,41 +3,41 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Models\Recipe;
-use App\Models\Category;
-use Illuminate\Http\Request;
+use App\Http\Requests\Api\V1\AttachIngredientRequest;
+use App\Http\Services\Auth\RecipeCategoryService;
 
 class RecipeCategoryController extends Controller
 {
     /**
-     * Store a newly created resource in storage.
+     * @var 
      */
-    public function store(Request $request, $recipeId)
+    protected $service;
+
+    /**
+     * @param \App\Http\Services\Auth\RecipeCategoryService $service
+     */
+    public function __construct(RecipeCategoryService $service)
     {
-        $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-        ]);
-
-        $recipe = Recipe::findOrFail($recipeId);
-        $recipe->categories()->syncWithoutDetaching([$validated['category_id']]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Category attached to recipe'
-        ]);
+        $this->service = $service;
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @param \App\Http\Requests\Api\V1\AttachIngredientRequest $request
+     * @param mixed $recipeId
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function store(AttachIngredientRequest $request, $recipeId)
+    {
+        return $this->service->attachCategory($recipeId, $request->validated()['category_id']);
+    }
+
+    /**
+     * @param mixed $recipeId
+     * @param mixed $categoryId
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function destroy($recipeId, $categoryId)
     {
-        $recipe = Recipe::findOrFail($recipeId);
-        $recipe->categories()->detach($categoryId);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Category detached from recipe'
-        ]);
+        return $this->service->detachCategory($recipeId, $categoryId);
     }
 }

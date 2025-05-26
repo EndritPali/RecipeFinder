@@ -2,27 +2,39 @@
 
 namespace App\Http\Services\Auth;
 
-use App\Http\Resources\RecipeResource;
-use App\Models\Category;
+use App\Repositories\Recipes\RecipeRepository;
 use App\Models\Ingredient;
-use App\Models\Recipe;
+use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Http\Resources\RecipeResource;
 
 class RecipeService
 {
+    protected $recipes;
+
+    /**
+     * @param \App\Repositories\Recipes\RecipeRepository $recipes
+     */
+    public function __construct(RecipeRepository $recipes)
+    {
+        $this->recipes = $recipes;
+    }
+
+    /**
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getAllRecipes()
     {
-        $recipes = Recipe::with(['creator', 'ingredients', 'categories'])->get();
-
         return response()->json([
             'status' => 'success',
-            'data' => RecipeResource::collection($recipes)
+            'data' => RecipeResource::collection($this->recipes->all())
         ]);
     }
 
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createRecipe(Request $request)
     {
         $validated = $request->validated();
@@ -33,13 +45,13 @@ class RecipeService
         }
 
         $validated['created_by'] = $user->id;
-        $recipe = Recipe::create($validated);
+        $recipe = $this->recipes->create($validated);
 
-        $ingredientIds = $this->attachIngredients($request->input('ingredients'));
-        $recipe->ingredients()->attach($ingredientIds);
+        $ingredientIds = $this->processIngredients($request->input('ingredients'));
+        $categoryIds = $this->processCategories($request->input('category'));
 
-        $categoryIds = $this->attachCategories($request->input('category'));
-        $recipe->categories()->attach($categoryIds);
+        $this->recipes->attachIngredients($recipe, $ingredientIds);
+        $this->recipes->attachCategories($recipe, $categoryIds);
 
         return response()->json([
             'status' => 'success',
@@ -48,26 +60,28 @@ class RecipeService
         ], 201);
     }
 
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function updateRecipe(Request $request, string $id)
     {
-        $recipe = Recipe::findOrFail($id);
+        $recipe = $this->recipes->find($id);
         $user = $request->user();
 
         if ($user->role !== 'Admin' && $recipe->created_by !== $user->id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You do not have permission to update this recipe'
-            ], 403);
+            return response()->json(['status' => 'error', 'message' => 'Permission denied'], 403);
         }
 
         $validated = $request->validated();
-        $recipe->update($validated);
+        $this->recipes->update($recipe, $validated);
 
-        $ingredientIds = $this->attachIngredients($request->input('ingredients'));
-        $recipe->ingredients()->sync($ingredientIds);
+        $ingredientIds = $this->processIngredients($request->input('ingredients'));
+        $categoryIds = $this->processCategories($request->input('category'));
 
-        $categoryIds = $this->attachCategories($request->input('category'));
-        $recipe->categories()->sync($categoryIds);
+        $this->recipes->attachIngredients($recipe, $ingredientIds);
+        $this->recipes->attachCategories($recipe, $categoryIds);
 
         return response()->json([
             'status' => 'success',
@@ -76,21 +90,24 @@ class RecipeService
         ]);
     }
 
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function deleteRecipe(Request $request, string $id)
     {
-        $recipe = Recipe::findOrFail($id);
+        $recipe = $this->recipes->find($id);
         $user = $request->user();
 
         if ($user->role !== 'Admin' && $recipe->created_by !== $user->id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You do not have permission to delete this recipe'
-            ], 403);
+            return response()->json(['status' => 'error', 'message' => 'Permission denied'], 403);
         }
 
         $recipe->ingredients()->detach();
         $recipe->categories()->detach();
-        $recipe->delete();
+
+        $this->recipes->delete($recipe);
 
         return response()->json([
             'status' => 'success',
@@ -98,7 +115,11 @@ class RecipeService
         ]);
     }
 
-    private function attachIngredients(string $ingredientsString): array
+    /**
+     * @param string $ingredientsString
+     * @return array
+     */
+    private function processIngredients(string $ingredientsString): array
     {
         $names = preg_split('/,\s*/', trim($ingredientsString));
         $ids = [];
@@ -116,7 +137,11 @@ class RecipeService
         return $ids;
     }
 
-    private function attachCategories(string $categoryString): array
+    /**
+     * @param string $categoryString
+     * @return array
+     */
+    private function processCategories(string $categoryString): array
     {
         $names = preg_split('/,\s*/', trim($categoryString));
         $ids = [];

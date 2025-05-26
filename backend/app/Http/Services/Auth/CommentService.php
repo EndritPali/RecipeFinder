@@ -2,7 +2,7 @@
 
 namespace App\Http\Services\Auth;
 
-use App\Models\Comment;
+use App\Repositories\CommentRepository;
 use App\Http\Requests\Api\V1\StoreCommentRequest;
 use App\Http\Requests\Api\V1\UpdateCommentRequest;
 use App\Http\Resources\CommentResource;
@@ -10,9 +10,25 @@ use Illuminate\Support\Facades\Auth;
 
 class CommentService
 {
+    /**
+     * @var CommentRepository
+     */
+    protected CommentRepository $repository;
+
+    /**
+     * @param \App\Repositories\CommentRepository $repository
+     */
+    public function __construct(CommentRepository $repository)
+    {
+        $this->repository = $repository;
+    }
+
+    /**
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getAllComments()
     {
-        $comments = Comment::with('user')->latest()->get();
+        $comments = $this->repository->getAllWithUser();
 
         return response()->json([
             'status' => 'success',
@@ -20,11 +36,15 @@ class CommentService
         ]);
     }
 
+    /**
+     * @param \App\Http\Requests\Api\V1\StoreCommentRequest $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function createComment(StoreCommentRequest $request)
     {
         $user = $request->user();
 
-        $comment = Comment::create([
+        $comment = $this->repository->create([
             'user_id'    => $user->id,
             'description' => $request->description,
             'posted_at'   => now(),
@@ -37,9 +57,13 @@ class CommentService
         ], 201);
     }
 
+    /**
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function getComment(string $id)
     {
-        $comment = Comment::with('user')->findOrFail($id);
+        $comment = $this->repository->findWithUser($id);
 
         return response()->json([
             'status' => 'success',
@@ -47,34 +71,43 @@ class CommentService
         ]);
     }
 
+    /**
+     * @param \App\Http\Requests\Api\V1\UpdateCommentRequest $request
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function updateComment(UpdateCommentRequest $request, string $id)
     {
-        $comment = Comment::findOrFail($id);
+        $comment = $this->repository->find($id);
         $user = $request->user();
 
         if ($user->id !== $comment->user_id) {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
         }
 
-        $comment->update($request->validated());
+        $updated = $this->repository->update($comment, $request->validated());
 
         return response()->json([
             'status' => 'success',
             'message' => 'Comment updated successfully',
-            'data' => $comment
+            'data' => $updated
         ]);
     }
 
+    /**
+     * @param string $id
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function deleteComment(string $id)
     {
-        $comment = Comment::findOrFail($id);
+        $comment = $this->repository->find($id);
         $user = Auth::user();
 
         if ($user->id !== $comment->user_id && $user->role !== 'Admin') {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
         }
 
-        $comment->delete();
+        $this->repository->delete($comment);
 
         return response()->json([
             'status' => 'success',
