@@ -8,7 +8,15 @@ use Illuminate\Support\Facades\Hash;
 
 class RegisterService
 {
+    /**
+     * @param \App\Repositories\UserRepository $userRepository
+     */
     public function __construct(protected UserRepository $userRepository) {}
+
+    /**
+     * @param array $data
+     * @return User
+     */
     public function register(array $data): User
     {
         return $this->userRepository->create([

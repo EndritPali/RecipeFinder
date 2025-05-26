@@ -3,9 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
-use App\Http\Controllers\Api\V1\Auth\SessionController;
-use App\Http\Controllers\Api\V1\Auth\PasswordResetController;
-use App\Http\Controllers\Api\V1\Auth\RegisterController;
+use App\Http\Controllers\Api\V1\SessionController;
+use App\Http\Controllers\Api\V1\PasswordResetController;
+use App\Http\Controllers\Api\V1\RegisterController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\RecipeController;
 use App\Http\Controllers\Api\V1\IngredientController;
@@ -40,10 +40,12 @@ Route::prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::post('login', [SessionController::class, 'login']);
         Route::post('logout', [SessionController::class, 'logout']);
+        Route::post('/register', [RegisterController::class, 'register']);
+
         Route::post('password-reset/request', [PasswordResetController::class, 'requestReset']);
         Route::post('password-reset/reset', [PasswordResetController::class, 'resetPassword']);
         Route::post('password-reset/submit', [PasswordResetController::class, 'submitResetRequest']);
-        Route::post('/register', [RegisterController::class, 'register']);
+
         Route::middleware('auth.token')->get('/me', fn(Request $request) => response()->json($request->user()));
     });
 
