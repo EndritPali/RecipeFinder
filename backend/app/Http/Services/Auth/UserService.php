@@ -6,18 +6,19 @@ namespace App\Http\Services\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Repositories\UserRepository;
+use App\Repositories\Users\UserRepositoryInterface;
 
 class UserService
 {
     /**
-     * @var UserRepository
+     * @var UserRepositoryInterface
      */
-    protected UserRepository $userRepository;
+    protected UserRepositoryInterface $userRepository;
 
     /**
-     * @param \App\Repositories\UserRepository $userRepository
+     * @param \App\Repositories\Users\UserRepositoryInterface $userRepository
      */
-    public function __construct(UserRepository $userRepository)
+    public function __construct(UserRepositoryInterface $userRepository)
     {
         $this->userRepository = $userRepository;
     }

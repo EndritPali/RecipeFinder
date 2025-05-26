@@ -3,11 +3,12 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use App\Repositories\Users\UserRepositoryInterface;
 
 /**
  * Handles data access logic for user entities
  */
-class UserRepository
+class UserRepository implements UserRepositoryInterface
 {
     /**
      * Get all users
