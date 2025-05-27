@@ -34,3 +34,9 @@
         width: 100% !important;
     }
 }
+
+@media screen and (min-width: $mobile-size) and (max-width: $tablet-size) {
+    .ant-modal.create-comment {
+        width: 100% !important;
+    }
+}

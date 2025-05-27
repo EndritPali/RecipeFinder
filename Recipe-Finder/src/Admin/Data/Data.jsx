@@ -7,7 +7,7 @@ export const columns = (onEdit, onDelete) => [
         title: 'Recipe Title',
         dataIndex: 'recipetitle',
         key: 'recipetitle',
-        render: text => <a>{text}</a>,
+        render: text => <p>{text}</p>,
         sorter: (a, b) => a.recipetitle.localeCompare(b.recipetitle),
     },
     {

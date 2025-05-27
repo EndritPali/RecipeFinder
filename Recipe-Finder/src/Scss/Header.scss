@@ -123,6 +123,10 @@
     .header {
         padding: 45px 62px;
 
+        h1 {
+            line-height: 35px;
+        }
+
         .header__search--mobile {
             display: none;
         }

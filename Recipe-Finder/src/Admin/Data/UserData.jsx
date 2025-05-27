@@ -7,7 +7,7 @@ export const columns = (onEdit, onDelete) => [
         title: 'Username',
         dataIndex: 'username',
         key: 'username',
-        render: text => <a>{text}</a>,
+        render: text => <p>{text}</p>,
         sorter: (a, b) => a.username.localeCompare(b.username),
     },
     {

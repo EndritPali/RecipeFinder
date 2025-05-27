@@ -28,7 +28,7 @@ export default function RecipeGridColumnRight({ user, openAccountModal, randomRe
                         <button onClick={() => handleOpenModal(randomRecipe)}>Start cook</button>
                     </div>
                     <div className="recipe-grid__col-info">
-                        <h2>Weekly pick</h2>
+                        <h2>Weekly pick: {randomRecipe.recipetitle}</h2>
                         <p>{randomRecipe.shortdescription}</p>
                     </div>
                 </div>

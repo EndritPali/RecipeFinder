@@ -112,3 +112,10 @@
         }
     }
 }
+
+@media screen and (min-width: $mobile-size) and (max-width: $tablet-size){
+    .ant-modal{
+        width: 95% !important;
+    }
+    
+}
