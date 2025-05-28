@@ -13,11 +13,22 @@
             padding: 24px 10px;
         }
 
+        .ant-drawer-header {
+            .ant-drawer-header-title {
+                display: flex;
+                flex-direction: row-reverse;
+            }
+        }
+
         &-menu {
             background-color: #fff;
 
             .ant-menu-item {
                 color: #000;
+
+                &:hover {
+                    color: $light-gray !important;
+                }
             }
 
             .ant-menu-item-selected {

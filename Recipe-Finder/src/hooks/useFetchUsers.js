@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../Services/api';
 
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
+
+
 export const useFetchUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -14,7 +19,7 @@ export const useFetchUsers = () => {
         username: user.username,
         email: user.email,
         role: user.role,
-        date: user.created_at,
+        date: dayjs(user.created_at).format('DD-MM-YYYY'),
       }));
       setUsers(mapped);
     } catch (error) {

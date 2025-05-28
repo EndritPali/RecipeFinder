@@ -46,12 +46,6 @@ export default function UserModal({ open, onOk, onCancel, mode = 'create', item 
             input: <Input placeholder={`${isEdit ? 'Edit' : 'Enter'} username`} />
         },
         {
-            name: 'password',
-            label: 'Password',
-            rules: [{ required: !isEdit, message: 'Please input password!' }],
-            input: <Input.Password placeholder={`${isEdit ? 'Change' : 'Enter'} password`} />
-        },
-        {
             name: 'email',
             label: 'Email',
             rules: [
@@ -59,6 +53,12 @@ export default function UserModal({ open, onOk, onCancel, mode = 'create', item 
                 { type: 'email', message: 'Please enter a valid email!' }
             ],
             input: <Input placeholder={`${isEdit ? 'Edit' : 'Enter'} email`} />
+        },
+        {
+            name: 'password',
+            label: 'Password',
+            rules: [{ required: !isEdit, message: 'Please input password!' }],
+            input: <Input.Password placeholder={`${isEdit ? 'Change' : 'Enter'} password`} />
         },
         {
             name: 'role',

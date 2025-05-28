@@ -11,14 +11,14 @@ export const columns = (onEdit, onDelete) => [
         sorter: (a, b) => a.username.localeCompare(b.username),
     },
     {
-        title: 'Role',
-        dataIndex: 'role',
-        key: 'role',
-    },
-    {
         title: 'Email',
         dataIndex: 'email',
         key: 'email',
+    },
+    {
+        title: 'Role',
+        dataIndex: 'role',
+        key: 'role',
     },
     {
         title: 'Date Created',
@@ -26,8 +26,8 @@ export const columns = (onEdit, onDelete) => [
         key: 'date',
     },
     {
-        title: 'Action',
-        key: 'action',
+        title: 'Actions',
+        key: 'actions',
         fixed: 'right',
         render: (_, record) => (
             <Space size="middle" className='btn-space'>
