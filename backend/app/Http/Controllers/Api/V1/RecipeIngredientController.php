@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\AttachIngredientRequest;
 use App\Http\Requests\Api\V1\UpdateRecipeIngredientRequest;
-use App\Http\Services\Auth\RecipeIngredientService;
+use App\Http\Services\RecipeIngredientService;
 
 class RecipeIngredientController extends Controller
 {
@@ -15,7 +15,7 @@ class RecipeIngredientController extends Controller
     protected $service;
 
     /**
-     * @param \App\Http\Services\Auth\RecipeIngredientService $service
+     * @param \App\Http\Services\RecipeIngredientService $service
      */
     public function __construct(RecipeIngredientService $service)
     {

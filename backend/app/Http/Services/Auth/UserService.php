@@ -2,11 +2,13 @@
 
 namespace App\Http\Services\Auth;
 
-
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use App\Repositories\UserRepository;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use App\Repositories\Users\UserRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
+use Exception;
 
 class UserService
 {
@@ -16,68 +18,111 @@ class UserService
     protected UserRepositoryInterface $userRepository;
 
     /**
-     * @param \App\Repositories\Users\UserRepositoryInterface $userRepository
+     * UserService constructor.
      */
     public function __construct(UserRepositoryInterface $userRepository)
     {
         $this->userRepository = $userRepository;
     }
 
-    /** 
-     * @return \Illuminate\Database\Eloquent\Collection<int, User>
+    /**
+     * Retrieve all users.
+     *
+     * @return Collection<int, User>
      */
-    public function getAllUsers()
+    public function getAllUsers(): Collection
     {
         return $this->userRepository->getAll();
     }
 
-    /** 
+    /**
+     * Create a new user.
+     *
      * @param array $data
-     * @return User
+     * @return User|null
      */
-    public function createUser(array $data): User
+    public function createUser(array $data): ?User
     {
-        $data['password_hash'] = Hash::make($data['password']);
-        unset($data['password']);
+        try {
+            DB::beginTransaction();
 
-        return $this->userRepository->create($data);
+            $data['password_hash'] = Hash::make($data['password'] ?? '');
+            unset($data['password']);
+
+            $user = $this->userRepository->create($data);
+
+            DB::commit();
+            return $user;
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('UserService::createUser Error: ' . $e->getMessage());
+            return null;
+        }
     }
 
-    /** 
+    /**
+     * Get a user by ID.
+     *
      * @param string $id
-     * @return User
+     * @return User|null
      */
-    public function getUserById(string $id): User
+    public function getUserById(string $id): ?User
     {
         return $this->userRepository->findById($id);
     }
 
-    /** 
+    /**
+     * Update an existing user.
+     *
      * @param string $id
      * @param array $data
-     * @return User
+     * @return User|null
      */
-    public function updateUser(string $id, array $data): User
+    public function updateUser(string $id, array $data): ?User
     {
-        $user = $this->getUserById($id);
+        try {
+            DB::beginTransaction();
 
-        if (!empty($data['password'])) {
-            $data['password_hash'] = Hash::make($data['password']);
+            $user = $this->getUserById($id);
+            if (!$user) {
+                return null;
+            }
+
+            if (!empty($data['password'])) {
+                $data['password_hash'] = Hash::make($data['password']);
+            }
+
+            unset($data['password']);
+
+            $this->userRepository->update($user, $data);
+
+            DB::commit();
+            return $user;
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('UserService::updateUser Error: ' . $e->getMessage());
+            return null;
         }
-        unset($data['password']);
-
-        $this->userRepository->update($user, $data);
-
-        return $user;
     }
 
     /**
+     * Delete a user by ID.
+     *
      * @param string $id
-     * @return bool|null
+     * @return bool
      */
     public function deleteUser(string $id): bool
     {
-        $user = $this->getUserById($id);
-        return $this->userRepository->delete($user);
+        try {
+            $user = $this->getUserById($id);
+            if (!$user) {
+                return false;
+            }
+
+            return $this->userRepository->delete($user);
+        } catch (Exception $e) {
+            Log::error('UserService::deleteUser Error: ' . $e->getMessage());
+            return false;
+        }
     }
 }

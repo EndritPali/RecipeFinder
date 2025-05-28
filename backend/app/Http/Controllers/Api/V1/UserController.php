@@ -7,28 +7,28 @@ use App\Http\Requests\Api\V1\StoreUserRequest;
 use App\Http\Requests\Api\V1\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Services\Auth\UserService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 /**
  * @group Users
- * 
+ *
  * API endpoints for managing users
  */
-
 class UserController extends Controller
 {
-
     /**
-     * The service responsible for user business logic
-     * 
-     * @var \App\Http\Services\Auth\UserService
+     * The service responsible for user business logic.
+     *
+     * @var UserService
      */
-    protected UserService $userService;
-
+    private UserService $userService;
 
     /**
-     * Inject the UserService dependency
-     * 
-     * @param \App\Http\Services\Auth\UserService $userService
+     * Create a new controller instance.
+     *
+     * @param UserService $userService
      */
     public function __construct(UserService $userService)
     {
@@ -36,44 +36,42 @@ class UserController extends Controller
     }
 
     /**
-     * Display a listing of users
-     * 
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Display a listing of users.
+     *
+     * @param Request $request
+     * @return AnonymousResourceCollection
      */
-    public function index()
+    public function index(Request $request): AnonymousResourceCollection
     {
         $users = $this->userService->getAllUsers();
 
-        return response()->json([
-            'status' => 'success',
-            'data' => UserResource::collection($users),
-        ]);
+        return UserResource::collection($users);
     }
 
     /**
-     * Stores the newly created user to the database
-     * 
-     * @param \App\Http\Requests\Api\V1\StoreUserRequest $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Store a newly created user.
+     *
+     * @param StoreUserRequest $request
+     * @return JsonResponse
      */
-    public function store(StoreUserRequest $request)
+    public function store(StoreUserRequest $request): JsonResponse
     {
         $user = $this->userService->createUser($request->validated());
 
         return response()->json([
             'status' => 'success',
-            'message' => 'User created successfully',
+            'message' => 'User created successfully.',
             'data' => new UserResource($user),
         ], 201);
     }
 
     /**
-     * Displays the specified user
-     * 
+     * Display the specified user.
+     *
      * @param string $id
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function show(string $id)
+    public function show(string $id): JsonResponse
     {
         $user = $this->userService->getUserById($id);
 
@@ -84,36 +82,36 @@ class UserController extends Controller
     }
 
     /**
-     * Update the specified user
-     * 
-     * @param \App\Http\Requests\Api\V1\UpdateUserRequest $request
+     * Update the specified user.
+     *
+     * @param UpdateUserRequest $request
      * @param string $id
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function update(UpdateUserRequest $request, string $id)
+    public function update(UpdateUserRequest $request, string $id): JsonResponse
     {
         $user = $this->userService->updateUser($id, $request->validated());
 
         return response()->json([
             'status' => 'success',
-            'message' => 'User updated successfully',
+            'message' => 'User updated successfully.',
             'data' => new UserResource($user),
         ]);
     }
 
     /**
-     * Remove the specified user
-     * 
+     * Remove the specified user.
+     *
      * @param string $id
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function destroy(string $id)
+    public function destroy(string $id): JsonResponse
     {
         $this->userService->deleteUser($id);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'User deleted successfully',
+            'message' => 'User deleted successfully.',
         ]);
     }
 }

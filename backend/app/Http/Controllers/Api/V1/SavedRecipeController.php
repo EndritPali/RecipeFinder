@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreSavedRecipesRequest;
-use App\Http\Services\Auth\SavedRecipeService;
+use App\Http\Services\SavedRecipeService;
 use Illuminate\Http\Request;
 use App\Models\SavedRecipe;
 use App\Models\Recipe;
@@ -18,7 +18,7 @@ class SavedRecipeController extends Controller
     protected $service;
 
     /**
-     * @param \App\Http\Services\Auth\SavedRecipeService $service
+     * @param \App\Http\Services\SavedRecipeService $service
      */
     public function __construct(SavedRecipeService $service)
     {

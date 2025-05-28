@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\RegisterRequest;
-use App\Http\Services\Auth\RegisterService;
+use App\Http\Services\RegisterService;
 use Illuminate\Http\JsonResponse;
 
 class RegisterController extends Controller
 {
     /**
-     * @param \App\Http\Services\Auth\RegisterService $service
+     * @param \App\Http\Services\RegisterService $service
      */
     public function __construct(protected RegisterService $service) {}
 

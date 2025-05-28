@@ -3,37 +3,37 @@
 namespace App\Repositories\Users;
 
 use App\Models\User;
-use App\Repositories\Users\UserRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
- * Handles data access logic for user entities
+ * Handles data access logic for user entities.
  */
 class UserRepository implements UserRepositoryInterface
 {
     /**
-     * Get all users
-     * 
-     * @return \Illuminate\Database\Eloquent\Collection<int, User>
+     * Get all users.
+     *
+     * @return Collection<int, User>
      */
-    public function getAll()
+    public function getAll(): Collection
     {
         return User::all();
     }
 
     /**
-     * Find specified user by id or fail
-     * 
+     * Find specified user by ID or fail.
+     *
      * @param string $id
      * @return User
      */
-    public function findById(string $id): ?User
+    public function findById(string $id): User
     {
         return User::findOrFail($id);
     }
 
     /**
-     * Create new user with the given data
-     * 
+     * Create a new user with the given data.
+     *
      * @param array $data
      * @return User
      */
@@ -43,9 +43,9 @@ class UserRepository implements UserRepositoryInterface
     }
 
     /**
-     * Update user with new data
-     * 
-     * @param \App\Models\User $user
+     * Update user with new data.
+     *
+     * @param User $user
      * @param array $data
      * @return bool
      */
@@ -55,10 +55,10 @@ class UserRepository implements UserRepositoryInterface
     }
 
     /**
-     * Delete user
-     * 
-     * @param \App\Models\User $user
-     * @return bool|null
+     * Delete the user.
+     *
+     * @param User $user
+     * @return bool
      */
     public function delete(User $user): bool
     {

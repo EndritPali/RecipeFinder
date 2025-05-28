@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Services\Auth;
+namespace App\Http\Services;
 
 use App\Repositories\Recipes\CategoryRepositoryInterface;
 use Illuminate\Http\Request;

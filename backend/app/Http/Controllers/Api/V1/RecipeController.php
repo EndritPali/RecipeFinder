@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreRecipeRequest;
 use App\Http\Requests\Api\V1\UpdateRecipeRequest;
 use App\Http\Resources\RecipeResource;
-use App\Http\Services\Auth\RecipeService;
+use App\Http\Services\RecipeService;
 use Illuminate\Http\Request;
 
 class RecipeController extends Controller
@@ -17,7 +17,7 @@ class RecipeController extends Controller
     protected $service;
 
     /**
-     * @param \App\Http\Services\Auth\RecipeService $service
+     * @param \App\Http\Services\RecipeService $service
      */
     public function __construct(RecipeService $service)
     {

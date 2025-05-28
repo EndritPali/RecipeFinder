@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreCommentRequest;
 use App\Http\Requests\Api\V1\UpdateCommentRequest;
 use App\Http\Resources\CommentResource;
-use App\Http\Services\Auth\CommentService;
+use App\Http\Services\CommentService;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 
@@ -18,7 +18,7 @@ class CommentController extends Controller
     protected $service;
 
     /**
-     * @param \App\Http\Services\Auth\CommentService $service
+     * @param \App\Http\Services\CommentService $service
      */
     public function __construct(CommentService $service)
     {

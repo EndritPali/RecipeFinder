@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Services\Auth;
+namespace App\Http\Services;
 
 use App\Http\Requests\Api\V1\StoreSavedRecipesRequest;
 use App\Repositories\Recipes\SavedRecipeRepositoryInterface;
