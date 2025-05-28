@@ -3,20 +3,20 @@
 namespace App\Http\Services\Auth;
 
 use App\Http\Requests\Api\V1\StoreSavedRecipesRequest;
-use App\Repositories\Recipes\SavedRecipeRepository;
+use App\Repositories\Recipes\SavedRecipeRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
 
 class SavedRecipeService
 {
     /**
-     * @var 
+     * @var SavedRecipeRepositoryInterface
      */
     protected $savedRecipeRepo;
 
     /**
-     * @param \App\Repositories\Recipes\SavedRecipeRepository $savedRecipeRepo
+     * @param \App\Repositories\Recipes\SavedRecipeRepositoryInterface $savedRecipeRepo
      */
-    public function __construct(SavedRecipeRepository $savedRecipeRepo)
+    public function __construct(SavedRecipeRepositoryInterface $savedRecipeRepo)
     {
         $this->savedRecipeRepo = $savedRecipeRepo;
     }

@@ -3,14 +3,16 @@
 namespace App\Repositories\Recipes;
 
 use App\Models\SavedRecipe;
+use App\Repositories\Recipes\SavedRecipeRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 
-class SavedRecipeRepository
+class SavedRecipeRepository implements SavedRecipeRepositoryInterface
 {
     /**
      * @param string $userId
      * @return \Illuminate\Database\Eloquent\Collection<int, SavedRecipe>
      */
-    public function getByUserId(string $userId)
+    public function getByUserId(string $userId): Collection
     {
         return SavedRecipe::with('recipe')
             ->where('user_id', $userId)
@@ -34,7 +36,7 @@ class SavedRecipeRepository
      * @param string $recipeId
      * @return SavedRecipe
      */
-    public function create(string $userId, string $recipeId)
+    public function create(string $userId, string $recipeId): SavedRecipe
     {
         return SavedRecipe::create([
             'user_id' => $userId,

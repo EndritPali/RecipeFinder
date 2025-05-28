@@ -2,7 +2,7 @@
 
 namespace App\Http\Services\Auth;
 
-use App\Repositories\CommentRepository;
+use App\Repositories\Comments\CommentRepositoryInterface;
 use App\Http\Requests\Api\V1\StoreCommentRequest;
 use App\Http\Requests\Api\V1\UpdateCommentRequest;
 use App\Http\Resources\CommentResource;
@@ -11,14 +11,14 @@ use Illuminate\Support\Facades\Auth;
 class CommentService
 {
     /**
-     * @var CommentRepository
+     * @var CommentRepositoryInterface
      */
-    protected CommentRepository $repository;
+    protected CommentRepositoryInterface $repository;
 
     /**
-     * @param \App\Repositories\CommentRepository $repository
+     * @param \App\Repositories\Comments\CommentRepositoryInterface $repository
      */
-    public function __construct(CommentRepository $repository)
+    public function __construct(CommentRepositoryInterface $repository)
     {
         $this->repository = $repository;
     }

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Repositories\PasswordReset;
 
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
 
-class PasswordResetRepository
+class PasswordResetRepository implements PasswordResetRepositoryInterface
 {
     /**
      * @param int $userId

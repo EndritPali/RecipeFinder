@@ -3,13 +3,14 @@
 namespace App\Repositories\Recipes;
 
 use App\Models\Recipe;
+use Illuminate\Database\Eloquent\Collection;
 
-class RecipeRepository
+class RecipeRepository implements RecipeRepositoryInterface
 {
     /**
      * @return \Illuminate\Database\Eloquent\Collection<int, Recipe>
      */
-    public function all()
+    public function all(): Collection
     {
         return Recipe::with(['creator', 'ingredients', 'categories'])->get();
     }
@@ -18,7 +19,7 @@ class RecipeRepository
      * @param string $id
      * @return Recipe
      */
-    public function find(string $id)
+    public function find(string $id): Recipe
     {
         return Recipe::findOrFail($id);
     }
@@ -27,7 +28,7 @@ class RecipeRepository
      * @param array $data
      * @return Recipe
      */
-    public function create(array $data)
+    public function create(array $data): Recipe
     {
         return Recipe::create($data);
     }
@@ -37,7 +38,7 @@ class RecipeRepository
      * @param array $data
      * @return bool
      */
-    public function update(Recipe $recipe, array $data)
+    public function update(Recipe $recipe, array $data): bool
     {
         return $recipe->update($data);
     }
@@ -46,7 +47,7 @@ class RecipeRepository
      * @param \App\Models\Recipe $recipe
      * @return bool|null
      */
-    public function delete(Recipe $recipe)
+    public function delete(Recipe $recipe): ?bool
     {
         return $recipe->delete();
     }
@@ -56,7 +57,7 @@ class RecipeRepository
      * @param array $ingredientIds
      * @return void
      */
-    public function attachIngredients(Recipe $recipe, array $ingredientIds)
+    public function attachIngredients(Recipe $recipe, array $ingredientIds): void
     {
         $recipe->ingredients()->sync($ingredientIds);
     }
@@ -66,7 +67,7 @@ class RecipeRepository
      * @param array $categoryIds
      * @return void
      */
-    public function attachCategories(Recipe $recipe, array $categoryIds)
+    public function attachCategories(Recipe $recipe, array $categoryIds): void
     {
         $recipe->categories()->sync($categoryIds);
     }

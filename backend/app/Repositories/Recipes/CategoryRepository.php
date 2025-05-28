@@ -4,7 +4,7 @@ namespace App\Repositories\Recipes;
 
 use App\Models\Category;
 
-class CategoryRepository
+class CategoryRepository implements CategoryRepositoryInterface
 {
     /**
      * @return \Illuminate\Database\Eloquent\Collection<int, Category>

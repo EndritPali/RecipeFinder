@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 class CommentController extends Controller
 {
     /**
-     * @var 
+     * @var CommentService
      */
     protected $service;
 

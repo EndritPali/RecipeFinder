@@ -2,20 +2,20 @@
 
 namespace App\Http\Services\Auth;
 
-use App\Repositories\Recipes\CategoryRepository;
+use App\Repositories\Recipes\CategoryRepositoryInterface;
 use Illuminate\Http\Request;
 
 class CategoryService
 {
     /**
-     * @var 
+     * @var CategoryRepositoryInterface
      */
     protected $categories;
 
     /**
-     * @param \App\Repositories\Recipes\CategoryRepository $categories
+     * @param \App\Repositories\Recipes\CategoryRepositoryInterface $categories
      */
-    public function __construct(CategoryRepository $categories)
+    public function __construct(CategoryRepositoryInterface $categories)
     {
         $this->categories = $categories;
     }

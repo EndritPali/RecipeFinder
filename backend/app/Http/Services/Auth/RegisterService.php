@@ -3,13 +3,13 @@
 namespace  App\Http\Services\Auth;
 
 use App\Models\User;
-use App\Repositories\UserRepository;
+use App\Repositories\Users\UserRepository;
 use Illuminate\Support\Facades\Hash;
 
 class RegisterService
 {
     /**
-     * @param \App\Repositories\UserRepository $userRepository
+     * @param \App\Repositories\\Users\UserRepository $userRepository
      */
     public function __construct(protected UserRepository $userRepository) {}
 

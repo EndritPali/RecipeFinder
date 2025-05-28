@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Auth;
 class SavedRecipeController extends Controller
 {
     /**
-     * @var 
+     * @var SavedRecipeService
      */
     protected $service;
 

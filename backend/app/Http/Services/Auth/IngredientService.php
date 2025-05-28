@@ -2,21 +2,21 @@
 
 namespace App\Http\Services\Auth;
 
-use App\Repositories\Recipes\IngredientRepository;
+use App\Repositories\Recipes\IngredientRepositoryInterface;
 use App\Http\Requests\Api\V1\StoreIngredientRequest;
 use App\Http\Requests\Api\V1\UpdateIngredientRequest;
 
 class IngredientService
 {
     /**
-     * @var 
+     * @var IngredientRepositoryInterface
      */
     protected $ingredients;
 
     /**
-     * @param \App\Repositories\Recipes\IngredientRepository $ingredients
+     * @param \App\Repositories\Recipes\IngredientRepositoryInterface $ingredients
      */
-    public function __construct(IngredientRepository $ingredients)
+    public function __construct(IngredientRepositoryInterface $ingredients)
     {
         $this->ingredients = $ingredients;
     }

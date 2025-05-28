@@ -4,7 +4,7 @@ namespace App\Repositories\Recipes;
 
 use App\Models\Ingredient;
 
-class IngredientRepository
+class IngredientRepository implements IngredientRepositoryInterface
 {
     /**
      * @return \Illuminate\Database\Eloquent\Collection<int, Ingredient>

@@ -9,11 +9,10 @@ use App\Http\Services\Auth\CategoryService;
 use App\Models\Category;
 use Illuminate\Http\Request;
 
-
 class CategoryController extends Controller
 {
     /**
-     * @var 
+     * @var CategoryService
      */
     protected $service;
 

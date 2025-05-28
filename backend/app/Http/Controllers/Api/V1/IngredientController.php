@@ -10,7 +10,7 @@ use App\Http\Services\Auth\IngredientService;
 class IngredientController extends Controller
 {
     /**
-     * @var 
+     * @var IngredientService
      */
     protected $service;
 

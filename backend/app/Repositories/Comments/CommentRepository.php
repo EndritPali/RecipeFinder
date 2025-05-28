@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Repositories;
+namespace  App\Repositories\Comments;
 
 use App\Models\Comment;
+use Illuminate\Database\Eloquent\Collection;
 
-class CommentRepository
+class CommentRepository implements CommentRepositoryInterface
 {
     /**
      * @return \Illuminate\Database\Eloquent\Collection<int, Comment>
      */
-    public function getAllWithUser()
+    public function getAllWithUser(): Collection
     {
         return Comment::with('user')->latest()->get();
     }
@@ -18,7 +19,7 @@ class CommentRepository
      * @param array $data
      * @return Comment
      */
-    public function create(array $data)
+    public function create(array $data): Comment
     {
         return Comment::create($data);
     }
@@ -27,7 +28,7 @@ class CommentRepository
      * @param string $id
      * @return Comment
      */
-    public function findWithUser(string $id)
+    public function findWithUser(string $id): Comment
     {
         return Comment::with('user')->findOrFail($id);
     }
@@ -36,7 +37,7 @@ class CommentRepository
      * @param string $id
      * @return Comment
      */
-    public function find(string $id)
+    public function find(string $id): Comment
     {
         return Comment::findOrFail($id);
     }
@@ -46,7 +47,7 @@ class CommentRepository
      * @param array $data
      * @return Comment
      */
-    public function update(Comment $comment, array $data)
+    public function update(Comment $comment, array $data): Comment
     {
         $comment->update($data);
         return $comment;

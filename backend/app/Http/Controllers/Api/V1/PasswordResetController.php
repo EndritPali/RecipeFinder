@@ -11,9 +11,17 @@ use App\Http\Services\Auth\PasswordResetService;
 class PasswordResetController extends Controller
 {
     /**
+     * @var PasswordResetService
+     */
+    protected $service;
+
+    /**
      * @param \App\Http\Services\Auth\PasswordResetService $service
      */
-    public function __construct(protected PasswordResetService $service) {}
+    public function __construct(PasswordResetService $service)
+    {
+        $this->service = $service;
+    }
 
     /**
      * @param \App\Http\Requests\Api\V1\RequestReset $request

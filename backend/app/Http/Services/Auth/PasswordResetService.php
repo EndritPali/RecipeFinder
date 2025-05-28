@@ -2,7 +2,7 @@
 
 namespace App\Http\Services\Auth;
 
-use App\Repositories\PasswordResetRepository;
+use App\Repositories\PasswordReset\PasswordResetRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -10,9 +10,9 @@ use Carbon\Carbon;
 class PasswordResetService
 {
     /**
-     * @param \App\Repositories\PasswordResetRepository $repo
+     * @param \App\Repositories\PasswordReset\PasswordResetRepositoryInterface $repo
      */
-    public function __construct(protected PasswordResetRepository $repo) {}
+    public function __construct(protected PasswordResetRepositoryInterface $repo) {}
 
     /**
      * @param array $data

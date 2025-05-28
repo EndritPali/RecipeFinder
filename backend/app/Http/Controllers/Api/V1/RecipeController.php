@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 class RecipeController extends Controller
 {
     /**
-     * @var 
+     * @var RecipeService
      */
     protected $service;
 

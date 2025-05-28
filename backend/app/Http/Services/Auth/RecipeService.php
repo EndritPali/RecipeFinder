@@ -2,7 +2,7 @@
 
 namespace App\Http\Services\Auth;
 
-use App\Repositories\Recipes\RecipeRepository;
+use App\Repositories\Recipes\RecipeRepositoryInterface;
 use App\Models\Ingredient;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -13,9 +13,9 @@ class RecipeService
     protected $recipes;
 
     /**
-     * @param \App\Repositories\Recipes\RecipeRepository $recipes
+     * @param \App\Repositories\Recipes\RecipeRepositoryInterface $recipes
      */
-    public function __construct(RecipeRepository $recipes)
+    public function __construct(RecipeRepositoryInterface $recipes)
     {
         $this->recipes = $recipes;
     }
