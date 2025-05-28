@@ -9,6 +9,7 @@
     min-width: 100%;
     box-shadow: 0 4px 40px 0 rgba(0, 0, 0, 10%);
     border-radius: 10px;
+    cursor: pointer;
 
     .recipe-banner__img {
         height: 98px;
@@ -224,7 +225,7 @@
 
 }
 
- @media screen and (min-width: 1450px) {
+@media screen and (min-width: 1450px) {
     .recipe-banner {
         min-width: 560px;
     }

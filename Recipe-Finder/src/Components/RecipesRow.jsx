@@ -1,14 +1,22 @@
 import { useFetchRecipes } from '../hooks/useFetchRecipes';
 import useResponsiveCount from '../hooks/useResponsiveCount';
+import useRecipeModal from '../hooks/useRecipeModal';
 import '../Scss/RecipesRow.scss';
 import { Skeleton } from 'antd';
 import RecipeBox from '../Templates/RecipeBox';
+import RecipeDetailsModal from '../Templates/RecipeDetailsModal';
 import { useState } from 'react';
 
 export default function RecipesRow() {
   const { loading, recipes } = useFetchRecipes();
   const [showAll, setShowAll] = useState(false);
   const maxVisible = useResponsiveCount();
+  const {
+    isRecipeModalOpen,
+    selectedRecipe,
+    handleOpenRecipeModal,
+    handleCloseRecipeModal
+  } = useRecipeModal();
 
   const filteredRecipes = recipes.filter(recipe => recipe.category === 'With Features');
 
@@ -20,38 +28,48 @@ export default function RecipesRow() {
   };
 
   return (
-    <div className="recipes-row">
-      <div className="recipes-row__header">
-        <div className="recipes-row__header-primary">
-          <h2>Healthy Recipes</h2>
-          <h3>with features</h3>
+    <>
+      <div className="recipes-row">
+        <div className="recipes-row__header">
+          <div className="recipes-row__header-primary">
+            <h2>Healthy Recipes</h2>
+            <h3>with features</h3>
+          </div>
+          <div className="recipes-row__header-link">
+            <a href="#" onClick={handleToggleShowAll}>
+              {showAll ? 'See less' : 'See all'}
+            </a>
+          </div>
         </div>
-        <div className="recipes-row__header-link">
-          <a href="#" onClick={handleToggleShowAll}>
-            {showAll ? 'See less' : 'See all'}
-          </a>
+
+        <div className="recipes-row__content">
+          {loading ? (
+            Array.from({ length: maxVisible }).map((_, index) => (
+              <div key={index} style={{ width: 300, margin: '0 1rem' }}>
+                <Skeleton active paragraph={{ rows: 3 }} />
+              </div>
+            ))
+          ) : (
+            displayedRecipes.map(recipe => (
+              <RecipeBox
+                key={recipe.key}
+                recipePlate={recipe.image}
+                saladName={recipe.recipetitle}
+                saladIngredients={recipe.ingredients}
+                saladRating={recipe.rating}
+                onClick={() => handleOpenRecipeModal(recipe)}
+              />
+            ))
+          )}
         </div>
       </div>
 
-      <div className="recipes-row__content">
-        {loading ? (
-          Array.from({ length: maxVisible }).map((_, index) => (
-            <div key={index} style={{ width: 300, margin: '0 1rem' }}>
-              <Skeleton active paragraph={{ rows: 3 }} />
-            </div>
-          ))
-        ) : (
-          displayedRecipes.map(recipe => (
-            <RecipeBox
-              key={recipe.key}
-              recipePlate={recipe.image}
-              saladName={recipe.recipetitle}
-              saladIngredients={recipe.ingredients}
-              saladRating={recipe.rating}
-            />
-          ))
-        )}
-      </div>
-    </div>
+      <RecipeDetailsModal
+        open={isRecipeModalOpen}
+        onOk={handleCloseRecipeModal}
+        onCancel={handleCloseRecipeModal}
+        recipe={selectedRecipe}
+      />
+    </>
   );
 }

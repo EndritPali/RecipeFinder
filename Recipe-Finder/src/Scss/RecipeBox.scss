@@ -8,6 +8,7 @@
     padding: 42px 47px;
     padding-bottom: 0;
     position: relative;
+    cursor: pointer;
 
 
     .recipe-box__display {
@@ -19,7 +20,7 @@
         justify-content: center;
 
     }
-    
+
 
 
     .recipe-box__image {
@@ -75,7 +76,7 @@
             align-items: flex-end;
             position: absolute;
             right: 8px;
-            
+
 
 
             p {

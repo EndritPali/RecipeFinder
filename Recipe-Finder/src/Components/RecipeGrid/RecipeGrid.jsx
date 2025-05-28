@@ -79,6 +79,7 @@ export default function RecipeGrid() {
                         loading={loading}
                         skeletonItems={skeletonItems}
                         displayedRecipes={displayedRecipes}
+                        handleOpenModal={handleOpenModal}
                     />
                     <RecipeGridColumnRight
                         user={user}

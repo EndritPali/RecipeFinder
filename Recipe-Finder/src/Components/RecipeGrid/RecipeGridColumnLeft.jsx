@@ -1,7 +1,7 @@
 import { Skeleton } from 'antd';
 import RecipeBanner from "../../Templates/RecipeBanner";
 
-export default function RecipeGridColumnLeft({ loading, skeletonItems, displayedRecipes }) {
+export default function RecipeGridColumnLeft({ loading, skeletonItems, displayedRecipes, handleOpenModal }) {
     return (
         <div className="recipe-grid__col recipe-grid__col--first">
             {loading
@@ -13,6 +13,7 @@ export default function RecipeGridColumnLeft({ loading, skeletonItems, displayed
                         header={recipe.recipetitle}
                         subheader={recipe.shortdescription}
                         rating={recipe.rating}
+                        onClick={() => handleOpenModal(recipe)}
                     />
                 ))}
         </div>

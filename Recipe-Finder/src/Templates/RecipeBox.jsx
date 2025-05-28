@@ -1,12 +1,12 @@
 import StarShape from '../assets/star-filled.svg';
 import '../Scss/RecipeBox.scss';
 
-export default function RecipeBox({ recipePlate, saladName, saladIngredients, saladRating }) {
+export default function RecipeBox({ recipePlate, saladName, saladIngredients, saladRating, onClick }) {
     const truncatedName = saladName.split(' ').slice(0, 2).join(' ') + '...';
     const truncatedIngredients = saladIngredients.slice(0, 2).join(', ') + '...';
 
     return (
-        <div className="recipe-box">
+        <div className="recipe-box" onClick={onClick}>
             <div className="recipe-box__image">
                 <img src={recipePlate} alt="recipe-plate" />
             </div>

@@ -1,12 +1,12 @@
 import '../Scss/RecipeBanner.scss';
 import StarShape from '../assets/star-filled.svg';
 
-export default function RecipeBanner({ background, rating, header, subheader }) {
+export default function RecipeBanner({ background, rating, header, subheader, onClick }) {
     const truncatedSubheader = subheader.split(' ').slice(0, 3).join(' ') + '...';
     const truncatedHeader = header.split(' ').slice(0, 3).join(' ') + '...';
 
     return (
-        <div className="recipe-banner">
+        <div className="recipe-banner" onClick={onClick}>
             <div className="recipe-banner__img">
                 <img src={background} alt="Recipe background" />
             </div>

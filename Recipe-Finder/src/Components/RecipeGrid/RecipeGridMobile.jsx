@@ -70,6 +70,7 @@ export default function RecipeGridMobile() {
                             header={recipe.recipetitle}
                             subheader={recipe.shortdescription}
                             rating={recipe.rating}
+                            onClick={() => handleOpenModal(recipe)}
                         />
                     ))}
                 </div>
