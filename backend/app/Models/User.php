@@ -23,4 +23,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Recipe::class, 'created_by');
     }
+
+    public function getAuthPassword()
+    {
+        return $this->password_hash;
+    }
 }
