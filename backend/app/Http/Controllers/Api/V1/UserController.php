@@ -19,16 +19,16 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 class UserController extends ApiController
 {
     /**
-     * @var UserRepositoryInterface
+     * @var UserService
      */
-    private $userRepository;
+    private $userService;
 
     /**
-     * @param UserRepositoryInterface $userRepository
+     * @param UserService $userService
      */
-    public function __construct(UserRepositoryInterface $userRepository)
+    public function __construct(UserService $userService)
     {
-        $this->userRepository = $userRepository;
+        $this->userService = $userService;
     }
 
     /**
@@ -39,13 +39,13 @@ class UserController extends ApiController
      */
     public function index(Request $request)
     {
-        $response = UserService::getAll();
+        $response = $this->userService->getAll();
 
         if ($response->success()) {
             return UserResource::collection($response->getModel());
-        } else {
-            return response()->json(['message' => $response->getMessage()], 400);
         }
+
+        return response()->json(['message' => $response->getMessage()], 400);
     }
 
     /**
@@ -56,13 +56,13 @@ class UserController extends ApiController
      */
     public function store(StoreUserRequest $request)
     {
-        $response = UserService::store($request->validated());
+        $response = $this->userService->store($request->validated());
 
         if ($response->success()) {
             return new UserResource($response->getModel());
-        } else {
-            return response()->json(['message' => $response->getMessage()], 400);
         }
+
+        return response()->json(['message' => $response->getMessage()], 400);
     }
 
     /**
@@ -73,13 +73,13 @@ class UserController extends ApiController
      */
     public function show(string $id)
     {
-        $response = UserService::getById($id);
+        $response = $this->userService->getById($id);
 
         if ($response->success()) {
             return new UserResource($response->getModel());
-        } else {
-            return response()->json(['message' => $response->getMessage()], 404);
         }
+
+        return response()->json(['message' => $response->getMessage()], 404);
     }
 
     /**
@@ -91,13 +91,13 @@ class UserController extends ApiController
      */
     public function update(UpdateUserRequest $request, string $id)
     {
-        $response = UserService::update($id, $request->validated());
+        $response = $this->userService->update($id, $request->validated());
 
         if ($response->success()) {
             return new UserResource($response->getModel());
-        } else {
-            return response()->json(['message' => $response->getMessage()], 400);
         }
+
+        return response()->json(['message' => $response->getMessage()], 400);
     }
 
     /**
@@ -108,12 +108,12 @@ class UserController extends ApiController
      */
     public function destroy(string $id)
     {
-        $response = UserService::destroy($id);
+        $response = $this->userService->destroy($id);
 
         if ($response->success()) {
             return response()->json(['message' => 'User deleted successfully.'], 200);
-        } else {
-            return response()->json(['message' => $response->getMessage()], 400);
         }
+
+        return response()->json(['message' => $response->getMessage()], 400);
     }
 }

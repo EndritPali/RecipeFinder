@@ -12,13 +12,28 @@ use Illuminate\Database\Eloquent\Collection;
 class UserRepository implements UserRepositoryInterface
 {
     /**
+     * @var User
+     */
+    private User $model;
+
+    /**
+     * UserRepository constructor.
+     *
+     * @param User $model
+     */
+    public function __construct(User $model)
+    {
+        $this->model = $model;
+    }
+
+    /**
      * Get all users.
      *
      * @return Collection<int, User>
      */
     public function getAll(): Collection
     {
-        return User::all();
+        return $this->model->all();
     }
 
     /**
@@ -26,21 +41,23 @@ class UserRepository implements UserRepositoryInterface
      *
      * @param string $id
      * @return User
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public function findById(string $id): User
     {
-        return User::findOrFail($id);
+        return $this->model->findOrFail($id);
     }
 
     /**
-     * Find a user by ID.
+     * Find a user by ID or return null.
      *
      * @param string $id
      * @return User|null
      */
     public function find(string $id): ?User
     {
-        return User::find($id);
+        return $this->model->find($id);
     }
 
     /**
@@ -51,7 +68,7 @@ class UserRepository implements UserRepositoryInterface
      */
     public function create(array $data): User
     {
-        return User::create($data);
+        return $this->model->create($data);
     }
 
     /**
