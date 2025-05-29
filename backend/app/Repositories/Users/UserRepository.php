@@ -3,6 +3,7 @@
 namespace App\Repositories\Users;
 
 use App\Models\User;
+use App\Repositories\Users\Contracts\UserRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -29,6 +30,17 @@ class UserRepository implements UserRepositoryInterface
     public function findById(string $id): User
     {
         return User::findOrFail($id);
+    }
+
+    /**
+     * Find a user by ID.
+     *
+     * @param string $id
+     * @return User|null
+     */
+    public function find(string $id): ?User
+    {
+        return User::find($id);
     }
 
     /**

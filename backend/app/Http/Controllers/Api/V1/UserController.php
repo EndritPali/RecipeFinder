@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreUserRequest;
 use App\Http\Requests\Api\V1\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Services\Auth\UserService;
+use App\Repositories\Users\Contracts\UserRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -16,69 +16,70 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
  *
  * API endpoints for managing users
  */
-class UserController extends Controller
+class UserController extends ApiController
 {
     /**
-     * The service responsible for user business logic.
-     *
-     * @var UserService
+     * @var UserRepositoryInterface
      */
-    private UserService $userService;
+    private $userRepository;
 
     /**
-     * Create a new controller instance.
-     *
-     * @param UserService $userService
+     * @param UserRepositoryInterface $userRepository
      */
-    public function __construct(UserService $userService)
+    public function __construct(UserRepositoryInterface $userRepository)
     {
-        $this->userService = $userService;
+        $this->userRepository = $userRepository;
     }
 
     /**
      * Display a listing of users.
      *
      * @param Request $request
-     * @return AnonymousResourceCollection
+     * @return AnonymousResourceCollection|JsonResponse
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request)
     {
-        $users = $this->userService->getAllUsers();
+        $response = UserService::getAll();
 
-        return UserResource::collection($users);
+        if ($response->success()) {
+            return UserResource::collection($response->getModel());
+        } else {
+            return response()->json(['message' => $response->getMessage()], 400);
+        }
     }
 
     /**
      * Store a newly created user.
      *
      * @param StoreUserRequest $request
-     * @return JsonResponse
+     * @return UserResource|JsonResponse
      */
-    public function store(StoreUserRequest $request): JsonResponse
+    public function store(StoreUserRequest $request)
     {
-        $user = $this->userService->createUser($request->validated());
+        $response = UserService::store($request->validated());
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User created successfully.',
-            'data' => new UserResource($user),
-        ], 201);
+        if ($response->success()) {
+            return new UserResource($response->getModel());
+        } else {
+            return response()->json(['message' => $response->getMessage()], 400);
+        }
     }
 
     /**
      * Display the specified user.
      *
      * @param string $id
-     * @return JsonResponse
+     * @return UserResource|JsonResponse
      */
-    public function show(string $id): JsonResponse
+    public function show(string $id)
     {
-        $user = $this->userService->getUserById($id);
+        $response = UserService::getById($id);
 
-        return response()->json([
-            'status' => 'success',
-            'data' => new UserResource($user),
-        ]);
+        if ($response->success()) {
+            return new UserResource($response->getModel());
+        } else {
+            return response()->json(['message' => $response->getMessage()], 404);
+        }
     }
 
     /**
@@ -86,17 +87,17 @@ class UserController extends Controller
      *
      * @param UpdateUserRequest $request
      * @param string $id
-     * @return JsonResponse
+     * @return UserResource|JsonResponse
      */
-    public function update(UpdateUserRequest $request, string $id): JsonResponse
+    public function update(UpdateUserRequest $request, string $id)
     {
-        $user = $this->userService->updateUser($id, $request->validated());
+        $response = UserService::update($id, $request->validated());
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User updated successfully.',
-            'data' => new UserResource($user),
-        ]);
+        if ($response->success()) {
+            return new UserResource($response->getModel());
+        } else {
+            return response()->json(['message' => $response->getMessage()], 400);
+        }
     }
 
     /**
@@ -105,13 +106,14 @@ class UserController extends Controller
      * @param string $id
      * @return JsonResponse
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(string $id)
     {
-        $this->userService->deleteUser($id);
+        $response = UserService::destroy($id);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User deleted successfully.',
-        ]);
+        if ($response->success()) {
+            return response()->json(['message' => 'User deleted successfully.'], 200);
+        } else {
+            return response()->json(['message' => $response->getMessage()], 400);
+        }
     }
 }

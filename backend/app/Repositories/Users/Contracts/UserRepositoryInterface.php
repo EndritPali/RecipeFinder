@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories\Users;
+namespace App\Repositories\Users\Contracts;
 
 use App\Models\User;
 
@@ -26,7 +26,7 @@ interface UserRepositoryInterface
      * @param string $id The ID of the user.
      * @return User|null The user if found, null otherwise.
      */
-    public function findById(string $id): User;
+    public function findById(string $id): ?User;
 
     /**
      * Create a new user.

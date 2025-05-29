@@ -2,61 +2,85 @@
 
 namespace App\Http\Services\Auth;
 
-use App\Models\User;
+use App\Repositories\Users\Contracts\UserRepositoryInterface;
+use App\Support\Classes\ServiceResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-use App\Repositories\Users\UserRepositoryInterface;
-use Illuminate\Database\Eloquent\Collection;
 use Exception;
 
 class UserService
 {
     /**
-     * @var UserRepositoryInterface
+     * @var UserRepositoryInterface|null
      */
-    protected UserRepositoryInterface $userRepository;
+    private static ?UserRepositoryInterface $userRepository = null;
 
     /**
-     * UserService constructor.
+     * @param UserRepositoryInterface $userRepository
      */
     public function __construct(UserRepositoryInterface $userRepository)
     {
-        $this->userRepository = $userRepository;
+        self::$userRepository = $userRepository;
+    }
+
+    /**
+     * Get the user repository instance.
+     *
+     * @return UserRepositoryInterface
+     */
+    private static function getRepository(): UserRepositoryInterface
+    {
+        if (!self::$userRepository) {
+            self::$userRepository = app(UserRepositoryInterface::class);
+        }
+        return self::$userRepository;
     }
 
     /**
      * Retrieve all users.
      *
-     * @return Collection<int, User>
+     * @return ServiceResponse
      */
-    public function getAllUsers(): Collection
+    public static function getAll(): ServiceResponse
     {
-        return $this->userRepository->getAll();
+        try {
+            $users = self::getRepository()->getAll();
+            return new ServiceResponse(true, $users);
+        } catch (Exception $e) {
+            Log::error('UserService::getAll Exception Error: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
+        }
     }
 
     /**
      * Create a new user.
      *
      * @param array $data
-     * @return User|null
+     * @return ServiceResponse
      */
-    public function createUser(array $data): ?User
+    public static function store(array $data): ServiceResponse
     {
         try {
             DB::beginTransaction();
 
-            $data['password_hash'] = Hash::make($data['password'] ?? '');
-            unset($data['password']);
+            if (isset($data['password'])) {
+                $data['password_hash'] = Hash::make($data['password']);
+                unset($data['password']);
+            }
 
-            $user = $this->userRepository->create($data);
+            $user = self::getRepository()->create($data);
+
+            $user->refresh();
 
             DB::commit();
-            return $user;
+
+            return new ServiceResponse(true, $user);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('UserService::createUser Error: ' . $e->getMessage());
-            return null;
+            Log::error('UserService::store Exception Error: ' . $e->getMessage());
+
+            return new ServiceResponse(false, null, $e->getMessage());
         }
     }
 
@@ -64,11 +88,17 @@ class UserService
      * Get a user by ID.
      *
      * @param string $id
-     * @return User|null
+     * @return ServiceResponse
      */
-    public function getUserById(string $id): ?User
+    public static function getById(string $id): ServiceResponse
     {
-        return $this->userRepository->findById($id);
+        try {
+            $user = self::getRepository()->findById($id);
+            return new ServiceResponse(true, $user);
+        } catch (Exception $e) {
+            Log::error('UserService::getById Exception Error: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
+        }
     }
 
     /**
@@ -76,32 +106,30 @@ class UserService
      *
      * @param string $id
      * @param array $data
-     * @return User|null
+     * @return ServiceResponse
      */
-    public function updateUser(string $id, array $data): ?User
+    public static function update(string $id, array $data): ServiceResponse
     {
         try {
             DB::beginTransaction();
 
-            $user = $this->getUserById($id);
-            if (!$user) {
-                return null;
-            }
+            $user = self::getRepository()->findById($id);
 
-            if (!empty($data['password'])) {
+            if (isset($data['password'])) {
                 $data['password_hash'] = Hash::make($data['password']);
+                unset($data['password']);
             }
 
-            unset($data['password']);
-
-            $this->userRepository->update($user, $data);
+            $user->update($data);
 
             DB::commit();
-            return $user;
+
+            return new ServiceResponse(true, $user);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('UserService::updateUser Error: ' . $e->getMessage());
-            return null;
+            Log::error('UserService::update Exception Error: ' . $e->getMessage());
+
+            return new ServiceResponse(false, null, $e->getMessage());
         }
     }
 
@@ -109,20 +137,19 @@ class UserService
      * Delete a user by ID.
      *
      * @param string $id
-     * @return bool
+     * @return ServiceResponse
      */
-    public function deleteUser(string $id): bool
+    public static function destroy(string $id): ServiceResponse
     {
         try {
-            $user = $this->getUserById($id);
-            if (!$user) {
-                return false;
-            }
+            $user = self::getRepository()->findById($id);
 
-            return $this->userRepository->delete($user);
+            $deleted = self::getRepository()->delete($user);
+
+            return new ServiceResponse($deleted, $deleted ? $user : null);
         } catch (Exception $e) {
-            Log::error('UserService::deleteUser Error: ' . $e->getMessage());
-            return false;
+            Log::error('UserService::destroy Exception Error: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
         }
     }
 }

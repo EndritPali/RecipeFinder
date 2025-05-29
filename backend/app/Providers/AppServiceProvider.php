@@ -6,7 +6,7 @@ use App\Http\Services\Auth\SessionAuthenticationInterface;
 use App\Http\Services\Auth\SessionAuthenticationService;
 use App\Repositories\Session\SessionRepositoryInterface;
 use App\Repositories\Users\UserRepository;
-use App\Repositories\Users\UserRepositoryInterface;
+use App\Repositories\Users\Contracts\UserRepositoryInterface;
 use App\Repositories\Session\SessionRepository;
 use App\Repositories\Recipes\IngredientRepository;
 use App\Repositories\Recipes\IngredientRepositoryInterface;
