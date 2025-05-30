@@ -69,7 +69,6 @@ class UserService
             }
 
             $user = $this->userRepository->create($data);
-            $user->refresh();
 
             DB::commit();
             return new ServiceResponse(true, $user);
@@ -116,10 +115,15 @@ class UserService
                 unset($data['password']);
             }
 
-            $user->update($data);
+            $updated = $this->userRepository->update($user, $data);
 
             DB::commit();
-            return new ServiceResponse(true, $user);
+            if ($updated) {
+                $user = $this->userRepository->findById($id);
+                return new ServiceResponse(true, $user);
+            }
+
+            return new ServiceResponse(false, null, 'Update failed');
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('UserService::update Exception: ' . $e->getMessage());
@@ -138,7 +142,7 @@ class UserService
         try {
             $user = $this->userRepository->findById($id);
             $deleted = $this->userRepository->delete($user);
-            return new ServiceResponse($deleted, $deleted ? $user : null);
+            return new ServiceResponse($deleted, null, $deleted ? null : 'Deletion failed');
         } catch (Exception $e) {
             Log::error('UserService::destroy Exception: ' . $e->getMessage());
             return new ServiceResponse(false, null, $e->getMessage());
