@@ -9,15 +9,38 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
+/**
+ * Class UserService
+ *
+ * Handles all business logic related to user operations such as
+ * creating, retrieving, updating, and deleting users.
+ *
+ * @package App\Http\Services\Auth
+ */
 class UserService
 {
+    /**
+     * User repository for data access.
+     *
+     * @var UserRepositoryInterface
+     */
     private UserRepositoryInterface $userRepository;
 
+    /**
+     * UserService constructor.
+     *
+     * @param UserRepositoryInterface $userRepository
+     */
     public function __construct(UserRepositoryInterface $userRepository)
     {
         $this->userRepository = $userRepository;
     }
 
+    /**
+     * Retrieve all users.
+     *
+     * @return ServiceResponse
+     */
     public function getAll(): ServiceResponse
     {
         try {
@@ -29,6 +52,12 @@ class UserService
         }
     }
 
+    /**
+     * Store a new user in the database.
+     *
+     * @param array $data
+     * @return ServiceResponse
+     */
     public function store(array $data): ServiceResponse
     {
         try {
@@ -51,6 +80,12 @@ class UserService
         }
     }
 
+    /**
+     * Retrieve a user by their ID.
+     *
+     * @param string $id
+     * @return ServiceResponse
+     */
     public function getById(string $id): ServiceResponse
     {
         try {
@@ -62,6 +97,13 @@ class UserService
         }
     }
 
+    /**
+     * Update a user by their ID.
+     *
+     * @param string $id
+     * @param array $data
+     * @return ServiceResponse
+     */
     public function update(string $id, array $data): ServiceResponse
     {
         try {
@@ -85,6 +127,12 @@ class UserService
         }
     }
 
+    /**
+     * Delete a user by their ID.
+     *
+     * @param string $id
+     * @return ServiceResponse
+     */
     public function destroy(string $id): ServiceResponse
     {
         try {
