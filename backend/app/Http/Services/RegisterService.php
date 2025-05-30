@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\Hash;
 class RegisterService
 {
     /**
-     * @param \App\Repositories\\Users\UserRepository $userRepository
+     * @param UserRepository $userRepository
      */
-    public function __construct(protected UserRepository $userRepository) {}
+    public function __construct(
+        protected UserRepository $userRepository
+    ) {}
 
     /**
      * @param array $data

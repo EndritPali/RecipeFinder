@@ -7,62 +7,64 @@ use App\Http\Requests\Api\V1\RequestReset;
 use App\Http\Requests\Api\V1\ResetPasswordRequest;
 use Illuminate\Http\Request;
 use App\Http\Services\Auth\PasswordResetService;
+use Illuminate\Http\JsonResponse;
 
 class PasswordResetController extends Controller
 {
-    /**
-     * @var PasswordResetService
-     */
-    protected $service;
+    protected PasswordResetService $service;
 
-    /**
-     * @param \App\Http\Services\Auth\PasswordResetService $service
-     */
     public function __construct(PasswordResetService $service)
     {
         $this->service = $service;
     }
 
     /**
-     * @param \App\Http\Requests\Api\V1\RequestReset $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Handle a password reset token request.
+     * 
+     * @param RequestReset $request
+     * @return JsonResponse
      */
-    public function requestReset(RequestReset $request)
+    public function requestReset(RequestReset $request): JsonResponse
     {
         return $this->service->generateResetToken($request->validated());
     }
 
     /**
-     * @param \App\Http\Requests\Api\V1\ResetPasswordRequest $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Perform a password reset using the provided token and new password.
      */
-    public function resetPassword(ResetPasswordRequest $request)
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
     {
         return $this->service->performReset($request->validated());
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Perform a password reset using the provided token and new password.
+     * 
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function submitResetRequest(Request $request)
+    public function submitResetRequest(Request $request): JsonResponse
     {
         return $this->service->submitResetRequest($request->all());
     }
 
     /**
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Fetch all pending reset requests with associated user info.
+     * 
+     * @return JsonResponse
      */
-    public function getPendingRequests()
+    public function getPendingRequests(): JsonResponse
     {
         return $this->service->fetchPendingRequests();
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     *  Process an individual reset request (approve, deny, etc.).
+     * 
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function processResetRequest(Request $request)
+    public function processResetRequest(Request $request): JsonResponse
     {
         return $this->service->handleRequestProcessing($request->all());
     }
