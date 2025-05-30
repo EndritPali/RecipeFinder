@@ -1,4 +1,4 @@
-import { Modal, Card, Button, message } from 'antd';
+import { Modal, Card, Button, message, Space } from 'antd';
 import { StarFilled, HeartOutlined, HeartFilled } from '@ant-design/icons';
 import '../Scss/RecipeDetailsModal.scss';
 import { useSavedRecipes } from '../hooks/useSavedRecipes';
@@ -95,11 +95,12 @@ export default function RecipeDetailsModal({ open, onOk, onCancel, recipe }) {
                 </div>
             </div>
 
-            <Card title="Preparation:">
+            <Card title={<Space><i className="fas fa-book-open-reader"></i> Preparation:</Space>}>
                 <p>{recipe.preparation || 'No preparation details available'}</p>
             </Card>
 
-            <Card title="Ingredients:">
+            <Card title={<Space><i className="fas fa-utensils"></i> Ingredients: </Space>}>
+
                 {recipe.ingredients && Array.isArray(recipe.ingredients) ? (
                     <ul>
                         {recipe.ingredients.map((ingredient, index) => (
@@ -112,16 +113,16 @@ export default function RecipeDetailsModal({ open, onOk, onCancel, recipe }) {
             </Card>
 
             <div className="details-modal-general-info">
-                <Card title="Preparation time:">
-                    <p>{recipe.preptime ? `${recipe.preptime} Hours` : 'Not specified'}</p>
+                <Card title={<Space><i className="fas fa-clock"></i> Preparation time:</Space>}>
+                    <p>{recipe.preptime ? `${recipe.preptime} Hour(s)` : 'Not specified'}</p>
                 </Card>
-                <Card title="Cooking time:">
-                    <p>{recipe.cooktime ? `${recipe.cooktime} Hours` : 'Not specified'}</p>
+                <Card title={<Space><i className="fas fa-clock"></i> Cooking time:</Space>}>
+                    <p>{recipe.cooktime ? `${recipe.cooktime} Hour(s)` : 'Not specified'}</p>
                 </Card>
-                <Card title="Servings:">
-                    <p>{recipe.servings || 'Not specified'}</p>
+                <Card title={<Space><i className="fas fa-users"></i> Servings:</Space>}>
+                    <p>{recipe.servings ? `${recipe.servings} Serving(s)` : 'Not specified'}</p>
                 </Card>
             </div>
-        </Modal>
+        </Modal >
     );
 }

@@ -86,6 +86,14 @@
         padding-right: 0;
         justify-content: flex-start;
 
+        .recipe-banner__img {
+            min-width: 110px;
+
+            img {
+                max-width: 110px;
+            }
+        }
+
         .recipe-banner__info {
 
 
