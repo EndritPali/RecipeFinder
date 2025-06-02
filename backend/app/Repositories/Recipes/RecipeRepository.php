@@ -1,74 +1,148 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repositories\Recipes;
 
 use App\Models\Recipe;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use InvalidArgumentException;
+use RuntimeException;
 
-class RecipeRepository implements RecipeRepositoryInterface
+/**
+ * Implementation of the RecipeRepositoryInterface for Eloquent ORM.
+ *
+ * This repository handles all database operations for the Recipe model,
+ * following the Repository pattern and Single Responsibility Principle.
+ */
+final class RecipeRepository implements RecipeRepositoryInterface
 {
     /**
-     * @return \Illuminate\Database\Eloquent\Collection<int, Recipe>
+     * @param Recipe $model The Recipe Eloquent model
+     */
+    public function __construct(
+        private readonly Recipe $model
+    ) {}
+
+    /**
+     * {@inheritDoc}
      */
     public function all(): Collection
     {
-        return Recipe::with(['creator', 'ingredients', 'categories'])->get();
+        return $this->model->newQuery()
+            ->with(['creator', 'ingredients', 'categories'])
+            ->get();
     }
 
     /**
-     * @param string $id
-     * @return Recipe
+     * {@inheritDoc}
      */
     public function find(string $id): Recipe
     {
-        return Recipe::findOrFail($id);
+        try {
+            return $this->model->newQuery()
+                ->with(['creator', 'ingredients', 'categories'])
+                ->findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            throw new ModelNotFoundException(
+                "Recipe with ID {$id} not found.",
+                previous: $e
+            );
+        }
     }
 
     /**
-     * @param array $data
-     * @return Recipe
+     * {@inheritDoc}
      */
     public function create(array $data): Recipe
     {
-        return Recipe::create($data);
+        $requiredFields = ['title', 'description', 'created_by'];
+        foreach ($requiredFields as $field) {
+            if (!isset($data[$field]) || empty($data[$field])) {
+                throw new InvalidArgumentException("Missing required field: {$field}");
+            }
+        }
+
+        try {
+            return $this->model->newQuery()->create($data);
+        } catch (\Throwable $e) {
+            throw new RuntimeException(
+                "Failed to create recipe: {$e->getMessage()}",
+                previous: $e
+            );
+        }
     }
 
     /**
-     * @param \App\Models\Recipe $recipe
-     * @param array $data
-     * @return bool
+     * {@inheritDoc}
      */
     public function update(Recipe $recipe, array $data): bool
     {
-        return $recipe->update($data);
+        if (empty($data)) {
+            throw new InvalidArgumentException('No data provided for update');
+        }
+
+        try {
+            return $recipe->update($data);
+        } catch (\Throwable $e) {
+            throw new RuntimeException(
+                "Failed to update recipe {$recipe->id}: {$e->getMessage()}",
+                previous: $e
+            );
+        }
     }
 
     /**
-     * @param \App\Models\Recipe $recipe
-     * @return bool|null
+     * {@inheritDoc}
      */
-    public function delete(Recipe $recipe): ?bool
+    public function delete(Recipe $recipe): bool
     {
-        return $recipe->delete();
+        try {
+            return (bool) $recipe->delete();
+        } catch (\Throwable $e) {
+            throw new RuntimeException(
+                "Failed to delete recipe {$recipe->id}: {$e->getMessage()}",
+                previous: $e
+            );
+        }
     }
 
     /**
-     * @param \App\Models\Recipe $recipe
-     * @param array $ingredientIds
-     * @return void
+     * {@inheritDoc}
      */
     public function attachIngredients(Recipe $recipe, array $ingredientIds): void
     {
-        $recipe->ingredients()->sync($ingredientIds);
+        if (empty($ingredientIds)) {
+            throw new InvalidArgumentException('No ingredient IDs provided');
+        }
+
+        try {
+            $recipe->ingredients()->sync($ingredientIds);
+        } catch (\Throwable $e) {
+            throw new RuntimeException(
+                "Failed to attach ingredients to recipe {$recipe->id}: {$e->getMessage()}",
+                previous: $e
+            );
+        }
     }
 
     /**
-     * @param \App\Models\Recipe $recipe
-     * @param array $categoryIds
-     * @return void
+     * {@inheritDoc}
      */
     public function attachCategories(Recipe $recipe, array $categoryIds): void
     {
-        $recipe->categories()->sync($categoryIds);
+        if (empty($categoryIds)) {
+            throw new InvalidArgumentException('No category IDs provided');
+        }
+
+        try {
+            $recipe->categories()->sync($categoryIds);
+        } catch (\Throwable $e) {
+            throw new RuntimeException(
+                "Failed to attach categories to recipe {$recipe->id}: {$e->getMessage()}",
+                previous: $e
+            );
+        }
     }
 }

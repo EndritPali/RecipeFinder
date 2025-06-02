@@ -18,4 +18,6 @@ return [
 
     'supports_credentials' => true,
 
+    'access_control_allow_credentials' => true,
+
 ];

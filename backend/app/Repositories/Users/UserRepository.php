@@ -1,96 +1,115 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repositories\Users;
 
 use App\Models\User;
 use App\Repositories\Users\Contracts\UserRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
- * Handles data access logic for user entities.
+ * Implementation of the UserRepositoryInterface for Eloquent ORM.
+ *
+ * This repository handles all database operations for the User model,
+ * following the Repository pattern and Single Responsibility Principle.
  */
-class UserRepository implements UserRepositoryInterface
+final class UserRepository implements UserRepositoryInterface
 {
     /**
-     * @var User
+     * @param User $model The User Eloquent model
      */
-    private User $model;
+    public function __construct(
+        private readonly User $model
+    ) {}
 
     /**
-     * UserRepository constructor.
-     *
-     * @param User $model
-     */
-    public function __construct(User $model)
-    {
-        $this->model = $model;
-    }
-
-    /**
-     * Get all users.
-     *
-     * @return Collection<int, User>
+     * {@inheritDoc}
      */
     public function getAll(): Collection
     {
-        return $this->model->all();
+        return $this->model->newQuery()->get();
     }
 
     /**
-     * Find specified user by ID or fail.
-     *
-     * @param string $id
-     * @return User
-     *
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * {@inheritDoc}
      */
     public function findById(string $id): User
     {
-        return $this->model->findOrFail($id);
+        try {
+            return $this->model->newQuery()->findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            throw new ModelNotFoundException(
+                "User with ID {$id} not found.",
+                previous: $e
+            );
+        }
     }
 
     /**
-     * Find a user by ID or return null.
-     *
-     * @param string $id
-     * @return User|null
+     * {@inheritDoc}
      */
     public function find(string $id): ?User
     {
-        return $this->model->find($id);
+        return $this->model->newQuery()->find($id);
     }
 
     /**
-     * Create a new user with the given data.
-     *
-     * @param array $data
-     * @return User
+     * {@inheritDoc}
      */
     public function create(array $data): User
     {
-        return $this->model->create($data);
+        $requiredFields = ['email', 'username'];
+        foreach ($requiredFields as $field) {
+            if (!isset($data[$field]) || empty($data[$field])) {
+                throw new InvalidArgumentException("Missing required field: {$field}");
+            }
+        }
+
+        try {
+            return $this->model->newQuery()->create($data);
+        } catch (\Throwable $e) {
+            throw new RuntimeException(
+                "Failed to create user: {$e->getMessage()}",
+                previous: $e
+            );
+        }
     }
 
     /**
-     * Update user with new data.
-     *
-     * @param User $user
-     * @param array $data
-     * @return bool
+     * {@inheritDoc}
      */
     public function update(User $user, array $data): bool
     {
-        return $user->update($data);
+        if (empty($data)) {
+            throw new InvalidArgumentException('No data provided for update');
+        }
+
+        try {
+            return $user->update($data);
+        } catch (\Throwable $e) {
+            throw new RuntimeException(
+                "Failed to update user {$user->id}: {$e->getMessage()}",
+                previous: $e
+            );
+        }
     }
 
     /**
-     * Delete the user.
-     *
-     * @param User $user
-     * @return bool
+     * {@inheritDoc}
      */
     public function delete(User $user): bool
     {
-        return $user->delete();
+        try {
+            return $user->delete();
+        } catch (\Throwable $e) {
+            throw new RuntimeException(
+                "Failed to delete user {$user->id}: {$e->getMessage()}",
+                previous: $e
+            );
+        }
     }
 }

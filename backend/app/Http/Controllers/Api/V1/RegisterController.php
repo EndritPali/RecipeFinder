@@ -1,31 +1,48 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
+use App\DataTransferObjects\RegisterUserDTO;
 use App\Http\Requests\Api\V1\RegisterRequest;
 use App\Http\Services\RegisterService;
 use Illuminate\Http\JsonResponse;
 
-class RegisterController extends Controller
+/**
+ * Controller for handling user registration.
+ *
+ * This controller follows the Single Responsibility Principle by focusing solely on
+ * user registration operations. It uses dependency injection for better testability.
+ */
+final class RegisterController extends ApiController
 {
     /**
      * @param \App\Http\Services\RegisterService $service
      */
-    public function __construct(protected RegisterService $service) {}
+    public function __construct(
+        private readonly RegisterService $service
+    ) {}
 
     /**
-     * @param \App\Http\Requests\Api\V1\RegisterRequest $request
-     * @return JsonResponse|mixed
+     * Register a new user.
+     *
+     * @param RegisterRequest $request Validated registration request
+     * @return JsonResponse Response containing the created user or error details
      */
     public function register(RegisterRequest $request): JsonResponse
     {
-        $user = $this->service->register($request->validated());
+        $dto = RegisterUserDTO::fromArray($request->validated());
+        $response = $this->service->register($dto);
+
+        if (!$response->success()) {
+            return $this->errorResponse($response->getMessage(), 422);
+        }
 
         return response()->json([
             'status' => 'success',
             'message' => 'User registered successfully!',
-            'user' => $user,
-        ]);
+            'user' => $response->getModel(),
+        ], 201);
     }
 }

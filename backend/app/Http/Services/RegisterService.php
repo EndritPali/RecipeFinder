@@ -1,31 +1,62 @@
 <?php
 
-namespace  App\Http\Services;
+declare(strict_types=1);
 
+namespace App\Http\Services;
+
+use App\DataTransferObjects\RegisterUserDTO;
 use App\Models\User;
-use App\Repositories\Users\UserRepository;
+use App\Repositories\Users\Contracts\UserRepositoryInterface;
+use App\Support\Classes\ServiceResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
-class RegisterService
+/**
+ * Service for handling user registration operations.
+ *
+ * This service implements user registration while maintaining separation
+ * of concerns and following SOLID principles.
+ */
+final class RegisterService
 {
     /**
-     * @param UserRepository $userRepository
+     * @param UserRepositoryInterface $userRepository
      */
     public function __construct(
-        protected UserRepository $userRepository
+        private readonly UserRepositoryInterface $userRepository
     ) {}
 
     /**
-     * @param array $data
-     * @return User
+     * Register a new user.
+     *
+     * @param RegisterUserDTO $dto Registration data transfer object
+     * @return ServiceResponse<User> Response containing the created user or error
      */
-    public function register(array $data): User
+    public function register(RegisterUserDTO $dto): ServiceResponse
     {
-        return $this->userRepository->create([
-            'username' => $data['username'],
-            'email' => $data['email'],
-            'password_hash' => Hash::make($data['password']),
-            'role' => 'User',
-        ]);
+        try {
+            DB::beginTransaction();
+
+            $user = $this->userRepository->create([
+                'username' => $dto->username,
+                'email' => $dto->email,
+                'password_hash' => Hash::make($dto->password),
+                'role' => 'User',
+            ]);
+
+            DB::commit();
+            return new ServiceResponse(true, $user);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::error('Failed to register user', [
+                'username' => $dto->username,
+                'email' => $dto->email,
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return new ServiceResponse(false, null, 'Registration failed');
+        }
     }
 }

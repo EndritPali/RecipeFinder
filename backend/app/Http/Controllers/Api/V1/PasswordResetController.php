@@ -1,22 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\RequestReset;
 use App\Http\Requests\Api\V1\ResetPasswordRequest;
-use Illuminate\Http\Request;
 use App\Http\Services\Auth\PasswordResetService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
-class PasswordResetController extends Controller
+/**
+ * Controller for handling password reset operations.
+ */
+final class PasswordResetController extends Controller
 {
-    protected PasswordResetService $service;
-
-    public function __construct(PasswordResetService $service)
-    {
-        $this->service = $service;
-    }
+    public function __construct(
+        private readonly PasswordResetService $service
+    ) {}
 
     /**
      * Handle a password reset token request.
@@ -31,6 +33,9 @@ class PasswordResetController extends Controller
 
     /**
      * Perform a password reset using the provided token and new password.
+     * 
+     * @param ResetPasswordRequest $request
+     * @return JsonResponse
      */
     public function resetPassword(ResetPasswordRequest $request): JsonResponse
     {
@@ -38,7 +43,7 @@ class PasswordResetController extends Controller
     }
 
     /**
-     * Perform a password reset using the provided token and new password.
+     * Submit a password reset request for manual review.
      * 
      * @param Request $request
      * @return JsonResponse
@@ -59,7 +64,7 @@ class PasswordResetController extends Controller
     }
 
     /**
-     *  Process an individual reset request (approve, deny, etc.).
+     * Process an individual reset request (approve, deny, etc.).
      * 
      * @param Request $request
      * @return JsonResponse

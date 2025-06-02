@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Services\Auth;
 
 use App\Repositories\Users\Contracts\UserRepositoryInterface;
@@ -7,101 +9,96 @@ use App\Support\Classes\ServiceResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Exception;
+use Throwable;
 
 /**
- * Class UserService
+ * Service for handling user-related business logic.
  *
- * Handles all business logic related to user operations such as
- * creating, retrieving, updating, and deleting users.
- *
- * @package App\Http\Services\Auth
+ * This service implements user management operations while maintaining
+ * separation of concerns and following SOLID principles.
  */
-class UserService
+final class UserService
 {
     /**
-     * User repository for data access.
-     *
-     * @var UserRepositoryInterface
+     * @param UserRepositoryInterface $userRepository Repository for user data persistence
      */
-    private UserRepositoryInterface $userRepository;
+    public function __construct(
+        private readonly UserRepositoryInterface $userRepository
+    ) {}
 
     /**
-     * UserService constructor.
+     * Retrieve all users from the system.
      *
-     * @param UserRepositoryInterface $userRepository
-     */
-    public function __construct(UserRepositoryInterface $userRepository)
-    {
-        $this->userRepository = $userRepository;
-    }
-
-    /**
-     * Retrieve all users.
-     *
-     * @return ServiceResponse
+     * @return ServiceResponse<\Illuminate\Database\Eloquent\Collection>
      */
     public function getAll(): ServiceResponse
     {
         try {
             $users = $this->userRepository->getAll();
             return new ServiceResponse(true, $users);
-        } catch (Exception $e) {
-            Log::error('UserService::getAll Exception: ' . $e->getMessage());
-            return new ServiceResponse(false, null, $e->getMessage());
+        } catch (Throwable $e) {
+            Log::error('Failed to retrieve users', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return new ServiceResponse(false, null, 'Failed to retrieve users');
         }
     }
 
     /**
-     * Store a new user in the database.
+     * Create a new user in the system.
      *
-     * @param array $data
-     * @return ServiceResponse
+     * @param array<string, mixed> $data User data for creation
+     * @return ServiceResponse<\App\Models\User>
      */
     public function store(array $data): ServiceResponse
     {
         try {
             DB::beginTransaction();
 
-            if (isset($data['password'])) {
-                $data['password_hash'] = Hash::make($data['password']);
-                unset($data['password']);
-            }
-
+            $data = $this->processPassword($data);
             $user = $this->userRepository->create($data);
 
             DB::commit();
             return new ServiceResponse(true, $user);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             DB::rollBack();
-            Log::error('UserService::store Exception: ' . $e->getMessage());
-            return new ServiceResponse(false, null, $e->getMessage());
+            Log::error('Failed to create user', [
+                'data' => array_diff_key($data, ['password' => '']),
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return new ServiceResponse(false, null, 'Failed to create user');
         }
     }
 
     /**
-     * Retrieve a user by their ID.
+     * Retrieve a specific user by their ID.
      *
-     * @param string $id
-     * @return ServiceResponse
+     * @param string $id User ID
+     * @return ServiceResponse<\App\Models\User>
      */
     public function getById(string $id): ServiceResponse
     {
         try {
             $user = $this->userRepository->findById($id);
             return new ServiceResponse(true, $user);
-        } catch (Exception $e) {
-            Log::error('UserService::getById Exception: ' . $e->getMessage());
-            return new ServiceResponse(false, null, $e->getMessage());
+        } catch (Throwable $e) {
+            Log::error('Failed to retrieve user', [
+                'id' => $id,
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return new ServiceResponse(false, null, 'User not found');
         }
     }
 
     /**
-     * Update a user by their ID.
+     * Update an existing user's information.
      *
-     * @param string $id
-     * @param array $data
-     * @return ServiceResponse
+     * @param string $id User ID
+     * @param array<string, mixed> $data Updated user data
+     * @return ServiceResponse<\App\Models\User>
      */
     public function update(string $id, array $data): ServiceResponse
     {
@@ -109,43 +106,68 @@ class UserService
             DB::beginTransaction();
 
             $user = $this->userRepository->findById($id);
-
-            if (isset($data['password'])) {
-                $data['password_hash'] = Hash::make($data['password']);
-                unset($data['password']);
-            }
+            $data = $this->processPassword($data);
 
             $updated = $this->userRepository->update($user, $data);
-
-            DB::commit();
-            if ($updated) {
-                $user = $this->userRepository->findById($id);
-                return new ServiceResponse(true, $user);
+            if (!$updated) {
+                throw new \RuntimeException('Failed to update user');
             }
 
-            return new ServiceResponse(false, null, 'Update failed');
-        } catch (Exception $e) {
+            $user = $this->userRepository->findById($id);
+
+            DB::commit();
+            return new ServiceResponse(true, $user);
+        } catch (Throwable $e) {
             DB::rollBack();
-            Log::error('UserService::update Exception: ' . $e->getMessage());
-            return new ServiceResponse(false, null, $e->getMessage());
+            Log::error('Failed to update user', [
+                'id' => $id,
+                'data' => array_diff_key($data, ['password' => '']),
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return new ServiceResponse(false, null, 'Failed to update user');
         }
     }
 
     /**
-     * Delete a user by their ID.
+     * Remove a user from the system.
      *
-     * @param string $id
-     * @return ServiceResponse
+     * @param string $id User ID
+     * @return ServiceResponse<null>
      */
     public function destroy(string $id): ServiceResponse
     {
         try {
             $user = $this->userRepository->findById($id);
             $deleted = $this->userRepository->delete($user);
-            return new ServiceResponse($deleted, null, $deleted ? null : 'Deletion failed');
-        } catch (Exception $e) {
-            Log::error('UserService::destroy Exception: ' . $e->getMessage());
-            return new ServiceResponse(false, null, $e->getMessage());
+
+            if (!$deleted) {
+                throw new \RuntimeException('Failed to delete user');
+            }
+
+            return new ServiceResponse(true, null, 'User deleted successfully');
+        } catch (Throwable $e) {
+            Log::error('Failed to delete user', [
+                'id' => $id,
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return new ServiceResponse(false, null, 'Failed to delete user');
         }
+    }
+
+    /**
+     * Process password in the data array if present.
+     *
+     * @param array<string, mixed> $data Data array that might contain a password
+     * @return array<string, mixed> Processed data array
+     */
+    private function processPassword(array $data): array
+    {
+        if (isset($data['password'])) {
+            $data['password_hash'] = Hash::make($data['password']);
+            unset($data['password']);
+        }
+        return $data;
     }
 }

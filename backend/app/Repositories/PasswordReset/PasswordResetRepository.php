@@ -34,9 +34,9 @@ class PasswordResetRepository implements PasswordResetRepositoryInterface
      * 
      * @param int $userId
      * @param string $token
-     * @return object|null
+     * @return stdClass|null
      */
-    public function findResetRecord(int $userId, string $token): ?object
+    public function findResetRecord(int $userId, string $token): ?stdClass
     {
         return DB::table('password_resets')
             ->where('user_id', $userId)
@@ -60,9 +60,9 @@ class PasswordResetRepository implements PasswordResetRepositoryInterface
      * 
      * @param string $username
      * @param string $email
-     * @return object|null
+     * @return stdClass|null
      */
-    public function findUserByCredentials(string $username, string $email): ?object
+    public function findUserByCredentials(string $username, string $email): ?stdClass
     {
         return DB::table('users')
             ->where('username', $username)
@@ -112,9 +112,9 @@ class PasswordResetRepository implements PasswordResetRepositoryInterface
      * Find a reset record by its ID.
      * 
      * @param int $id
-     * @return object|null
+     * @return stdClass|null
      */
-    public function findResetById(int $id): ?object
+    public function findResetById(int $id): ?stdClass
     {
         return DB::table('password_resets')->where('id', $id)->first();
     }
