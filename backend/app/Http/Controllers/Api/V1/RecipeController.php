@@ -2,62 +2,125 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreRecipeRequest;
 use App\Http\Requests\Api\V1\UpdateRecipeRequest;
 use App\Http\Resources\RecipeResource;
 use App\Http\Services\RecipeService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
-class RecipeController extends Controller
+/**
+ * @group Recipes
+ *
+ * Endpoints for managing recipes.
+ */
+class RecipeController extends ApiController
 {
     /**
+     * Recipe service instance.
+     *
      * @var RecipeService
      */
-    protected $service;
+    private RecipeService $recipeService;
 
     /**
-     * @param \App\Http\Services\RecipeService $service
+     * Create a new controller instance.
+     *
+     * @param RecipeService $recipeService
      */
-    public function __construct(RecipeService $service)
+    public function __construct(RecipeService $recipeService)
     {
-        $this->service = $service;
+        $this->recipeService = $recipeService;
     }
 
     /**
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Get a list of all recipes.
+     *
+     * @param Request $request
+     * @return AnonymousResourceCollection|JsonResponse
      */
-    public function index()
+    public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
-        return $this->service->getAllRecipes();
+        $response = $this->recipeService->getAll();
+
+        if ($response->success()) {
+            return RecipeResource::collection($response->getModel());
+        }
+
+        return response()->json(['message' => $response->getMessage()], 400);
     }
 
     /**
-     * @param \App\Http\Requests\Api\V1\StoreRecipeRequest $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Store a newly created recipe.
+     *
+     * @param StoreRecipeRequest $request
+     * @return RecipeResource|JsonResponse
      */
-    public function store(StoreRecipeRequest $request)
+    public function store(StoreRecipeRequest $request): RecipeResource|JsonResponse
     {
-        return $this->service->createRecipe($request);
+        $response = $this->recipeService->store($request);
+
+        if ($response->success()) {
+            return new RecipeResource($response->getModel());
+        }
+
+        $statusCode = $response->getMessage() === 'Unauthorized' ? 401 : 400;
+        return response()->json(['message' => $response->getMessage()], $statusCode);
     }
 
     /**
-     * @param \App\Http\Requests\Api\V1\UpdateRecipeRequest $request
+     * Display the specified recipe.
+     *
      * @param string $id
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @return RecipeResource|JsonResponse
      */
-    public function update(UpdateRecipeRequest $request, string $id)
+    public function show(string $id): RecipeResource|JsonResponse
     {
-        return $this->service->updateRecipe($request, $id);
+        $response = $this->recipeService->getById($id);
+
+        if ($response->success()) {
+            return new RecipeResource($response->getModel());
+        }
+
+        return response()->json(['message' => $response->getMessage()], 404);
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
+     * Update the specified recipe.
+     *
+     * @param UpdateRecipeRequest $request
      * @param string $id
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @return RecipeResource|JsonResponse
      */
-    public function destroy(Request $request, string $id)
+    public function update(UpdateRecipeRequest $request, string $id): RecipeResource|JsonResponse
     {
-        return $this->service->deleteRecipe($request, $id);
+        $response = $this->recipeService->update($request, $id);
+
+        if ($response->success()) {
+            return new RecipeResource($response->getModel());
+        }
+
+        $statusCode = $response->getMessage() === 'Permission denied' ? 403 : 400;
+        return response()->json(['message' => $response->getMessage()], $statusCode);
+    }
+
+    /**
+     * Delete the specified recipe.
+     *
+     * @param Request $request
+     * @param string $id
+     * @return JsonResponse
+     */
+    public function destroy(Request $request, string $id): JsonResponse
+    {
+        $response = $this->recipeService->destroy($request, $id);
+
+        if ($response->success()) {
+            return response()->json(['message' => 'Recipe deleted successfully.'], 200);
+        }
+
+        $statusCode = $response->getMessage() === 'Permission denied' ? 403 : 400;
+        return response()->json(['message' => $response->getMessage()], $statusCode);
     }
 }

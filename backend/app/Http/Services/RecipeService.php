@@ -2,157 +2,190 @@
 
 namespace App\Http\Services;
 
+use App\Models\Recipe;
+use App\Models\User;
 use App\Repositories\Recipes\RecipeRepositoryInterface;
-use App\Models\Ingredient;
-use App\Models\Category;
+use App\Support\Classes\ServiceResponse;
 use Illuminate\Http\Request;
-use App\Http\Resources\RecipeResource;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
+/**
+ * Class RecipeService
+ *
+ * Handles all business logic related to recipe operations such as
+ * creating, retrieving, updating, and deleting recipes.
+ *
+ * @package App\Http\Services
+ */
 class RecipeService
 {
-    protected $recipes;
+    /**
+     * Recipe repository for data access.
+     */
+    private RecipeRepositoryInterface $recipeRepository;
+    private RecipeRelationService $relationService;
 
     /**
-     * @param \App\Repositories\Recipes\RecipeRepositoryInterface $recipes
+     * RecipeService constructor.
+     *
+     * @param RecipeRepositoryInterface $recipeRepository
      */
-    public function __construct(RecipeRepositoryInterface $recipes)
-    {
-        $this->recipes = $recipes;
+    public function __construct(
+        RecipeRepositoryInterface $recipeRepository,
+        RecipeRelationService $recipeRelation
+    ) {
+        $this->recipeRepository = $recipeRepository;
+        $this->relationService = $recipeRelation;
     }
 
     /**
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Retrieve all recipes.
+     *
+     * @return ServiceResponse
      */
-    public function getAllRecipes()
+    public function getAll(): ServiceResponse
     {
-        return response()->json([
-            'status' => 'success',
-            'data' => RecipeResource::collection($this->recipes->all())
-        ]);
-    }
-
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @return mixed|\Illuminate\Http\JsonResponse
-     */
-    public function createRecipe(Request $request)
-    {
-        $validated = $request->validated();
-        $user = $request->user();
-
-        if (!$user) {
-            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
+        try {
+            $recipes = $this->recipeRepository->all();
+            return new ServiceResponse(true, $recipes);
+        } catch (Exception $e) {
+            Log::error('RecipeService::getAll Exception: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
         }
-
-        $validated['created_by'] = $user->id;
-        $recipe = $this->recipes->create($validated);
-
-        $ingredientIds = $this->processIngredients($request->input('ingredients'));
-        $categoryIds = $this->processCategories($request->input('category'));
-
-        $this->recipes->attachIngredients($recipe, $ingredientIds);
-        $this->recipes->attachCategories($recipe, $categoryIds);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Recipe created successfully',
-            'data' => new RecipeResource($recipe)
-        ], 201);
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @param string $id
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Store a new recipe in the database.
+     *
+     * @param Request $request
+     * @return ServiceResponse
      */
-    public function updateRecipe(Request $request, string $id)
+    public function store(Request $request): ServiceResponse
     {
-        $recipe = $this->recipes->find($id);
-        $user = $request->user();
+        try {
+            DB::beginTransaction();
 
-        if ($user->role !== 'Admin' && $recipe->created_by !== $user->id) {
-            return response()->json(['status' => 'error', 'message' => 'Permission denied'], 403);
-        }
-
-        $validated = $request->validated();
-        $this->recipes->update($recipe, $validated);
-
-        $ingredientIds = $this->processIngredients($request->input('ingredients'));
-        $categoryIds = $this->processCategories($request->input('category'));
-
-        $this->recipes->attachIngredients($recipe, $ingredientIds);
-        $this->recipes->attachCategories($recipe, $categoryIds);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Recipe updated successfully',
-            'data' => new RecipeResource($recipe)
-        ]);
-    }
-
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param string $id
-     * @return mixed|\Illuminate\Http\JsonResponse
-     */
-    public function deleteRecipe(Request $request, string $id)
-    {
-        $recipe = $this->recipes->find($id);
-        $user = $request->user();
-
-        if ($user->role !== 'Admin' && $recipe->created_by !== $user->id) {
-            return response()->json(['status' => 'error', 'message' => 'Permission denied'], 403);
-        }
-
-        $recipe->ingredients()->detach();
-        $recipe->categories()->detach();
-
-        $this->recipes->delete($recipe);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Recipe deleted successfully'
-        ]);
-    }
-
-    /**
-     * @param string $ingredientsString
-     * @return array
-     */
-    private function processIngredients(string $ingredientsString): array
-    {
-        $names = preg_split('/,\s*/', trim($ingredientsString));
-        $ids = [];
-
-        foreach ($names as $name) {
-            if (!empty($name)) {
-                $ingredient = Ingredient::firstOrCreate(
-                    ['name' => trim($name)],
-                    ['unit' => 'pesos']
-                );
-                $ids[] = $ingredient->id;
+            $user = $request->user();
+            if (!$user) {
+                return new ServiceResponse(false, null, 'Unauthorized');
             }
-        }
 
-        return $ids;
+            $validated = $request->validated();
+            $validated['created_by'] = $user->id;
+
+            $recipe = $this->recipeRepository->create($validated);
+
+            $this->relationService->processRelations($request, $recipe);
+
+            DB::commit();
+            return new ServiceResponse(true, $recipe, 'Recipe created successfully');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('RecipeService::store Exception: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
+        }
     }
 
     /**
-     * @param string $categoryString
-     * @return array
+     * Retrieve a recipe by its ID.
+     *
+     * @param string $id
+     * @return ServiceResponse
      */
-    private function processCategories(string $categoryString): array
+    public function getById(string $id): ServiceResponse
     {
-        $names = preg_split('/,\s*/', trim($categoryString));
-        $ids = [];
+        try {
+            $recipe = $this->recipeRepository->find($id);
+            return new ServiceResponse(true, $recipe);
+        } catch (Exception $e) {
+            Log::error('RecipeService::getById Exception: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
+        }
+    }
 
-        foreach ($names as $name) {
-            if (!empty($name)) {
-                $category = Category::firstOrCreate(['name' => trim($name)]);
-                $ids[] = $category->id;
+    /**
+     * Update a recipe by its ID.
+     *
+     * @param Request $request
+     * @param string $id
+     * @return ServiceResponse
+     */
+    public function update(Request $request, string $id): ServiceResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            $recipe = $this->recipeRepository->find($id);
+            $user = $request->user();
+
+            $permission = $this->canUserModifyRecipe($user, $recipe);
+            if (!$permission->success()) {
+                return $permission;
             }
+
+            $validated = $request->validated();
+            $this->recipeRepository->update($recipe, $validated);
+
+            $this->relationService->processRelations($request, $recipe);
+
+            DB::commit();
+
+            $updatedRecipe = $this->recipeRepository->find($id);
+            return new ServiceResponse(true, $updatedRecipe, 'Recipe updated successfully');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('RecipeService::update Exception: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete a recipe by its ID.
+     *
+     * @param Request $request
+     * @param string $id
+     * @return ServiceResponse
+     */
+    public function destroy(Request $request, string $id): ServiceResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            $recipe = $this->recipeRepository->find($id);
+            $user = $request->user();
+
+            $permission = $this->canUserModifyRecipe($user, $recipe);
+            if (!$permission->success()) {
+                return $permission;
+            }
+
+            $this->relationService->detachRelations($recipe);
+            $deleted = $this->recipeRepository->delete($recipe);
+
+            DB::commit();
+            return new ServiceResponse($deleted, null, $deleted ? 'Recipe deleted successfully' : 'Deletion failed');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('RecipeService::destroy Exception: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
+        }
+    }
+
+    /**
+     * Check if user can modify the recipe.
+     *
+     * @param User $user
+     * @param Recipe $recipe
+     * @return ServiceResponse
+     */
+    private function canUserModifyRecipe(User $user, Recipe $recipe): ServiceResponse
+    {
+        if (!$user->can('update', $recipe)) {
+            return new ServiceResponse(false, null, 'Permission denied');
         }
 
-        return $ids;
+        return new ServiceResponse(true);
     }
 }
