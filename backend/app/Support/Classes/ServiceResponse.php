@@ -4,6 +4,8 @@ namespace App\Support\Classes;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ServiceResponse
 {
@@ -13,7 +15,7 @@ class ServiceResponse
     private $success;
 
     /**
-     * @var Model|Collection|null
+     * @var Model|Collection|JsonResource|ResourceCollection|null
      */
     private $model;
 
@@ -24,10 +26,10 @@ class ServiceResponse
 
     /**
      * @param bool $success
-     * @param Model|Collection|null $model
+     * @param Model|Collection|JsonResource|ResourceCollection|null $model
      * @param string|null $message
      */
-    public function __construct(bool $success, $model = null, string $message = null)
+    public function __construct(bool $success, $model = null, ?string $message = null)
     {
         $this->success = $success;
         $this->model = $model;
@@ -37,13 +39,13 @@ class ServiceResponse
     /**
      * @return bool
      */
-    public function success()
+    public function success(): bool
     {
         return $this->success;
     }
 
     /**
-     * @return Model|Collection|null
+     * @return Model|Collection|JsonResource|ResourceCollection|null
      */
     public function getModel()
     {
@@ -53,7 +55,7 @@ class ServiceResponse
     /**
      * @return string|null
      */
-    public function getMessage()
+    public function getMessage(): ?string
     {
         return $this->message;
     }
@@ -61,7 +63,7 @@ class ServiceResponse
     /**
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'success' => $this->success,

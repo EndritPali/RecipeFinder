@@ -1,65 +1,101 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Services;
 
-use App\Repositories\Recipes\RecipeRepository;
-use App\Repositories\Recipes\CategoryRepository;
+use App\Repositories\Recipes\RecipeRepositoryInterface;
+use App\Repositories\Recipes\CategoryRepositoryInterface;
+use App\Support\Classes\ServiceResponse;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
-class RecipeCategoryService
+/**
+ * Class RecipeCategoryService
+ *
+ * Handles the business logic for recipe-category relationships.
+ */
+final class RecipeCategoryService
 {
     /**
-     * @var 
-     */
-    protected $recipes;
-
-    /**
-     * @var 
-     */
-    protected $categories;
-
-    /**
-     * @param \App\Repositories\Recipes\RecipeRepository $recipes
-     * @param \App\Repositories\Recipes\CategoryRepository $categories
+     * Create a new RecipeCategoryService instance.
      */
     public function __construct(
-        RecipeRepository $recipes,
-        CategoryRepository $categories
-    ) {
-        $this->recipes = $recipes;
-        $this->categories = $categories;
+        private readonly RecipeRepositoryInterface $recipes,
+        private readonly CategoryRepositoryInterface $categories,
+    ) {}
+
+    /**
+     * Attach a category to a recipe.
+     *
+     * @param string $recipeId The recipe ID
+     * @param string $categoryId The category ID to attach
+     * @return ServiceResponse<null> Returns success status with no data
+     *
+     * @throws Exception When attachment fails
+     */
+    public function attachCategory(string $recipeId, string $categoryId): ServiceResponse
+    {
+        try {
+            $recipe = $this->recipes->find($recipeId);
+            $this->categories->find($categoryId);
+
+            $recipe->categories()->syncWithoutDetaching([$categoryId]);
+
+            return new ServiceResponse(
+                true,
+                null,
+                'Category attached to recipe successfully'
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to attach category to recipe', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'recipe_id' => $recipeId,
+                'category_id' => $categoryId
+            ]);
+
+            return new ServiceResponse(
+                false,
+                null,
+                'Failed to attach category to recipe'
+            );
+        }
     }
 
     /**
-     * @param string $recipeId
-     * @param string $categoryId
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Detach a category from a recipe.
+     *
+     * @param string $recipeId The recipe ID
+     * @param string $categoryId The category ID to detach
+     * @return ServiceResponse<null> Returns success status with no data
+     *
+     * @throws Exception When detachment fails
      */
-    public function attachCategory(string $recipeId, string $categoryId)
+    public function detachCategory(string $recipeId, string $categoryId): ServiceResponse
     {
-        $recipe = $this->recipes->find($recipeId);
-        $this->categories->find($categoryId);
+        try {
+            $recipe = $this->recipes->find($recipeId);
+            $recipe->categories()->detach($categoryId);
 
-        $recipe->categories()->syncWithoutDetaching([$categoryId]);
+            return new ServiceResponse(
+                true,
+                null,
+                'Category detached from recipe successfully'
+            );
+        } catch (Exception $e) {
+            Log::error('Failed to detach category from recipe', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'recipe_id' => $recipeId,
+                'category_id' => $categoryId
+            ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Category attached to recipe',
-        ]);
-    }
-
-    /**
-     * @param string $recipeId
-     * @param string $categoryId
-     * @return mixed|\Illuminate\Http\JsonResponse
-     */
-    public function detachCategory(string $recipeId, string $categoryId)
-    {
-        $recipe = $this->recipes->find($recipeId);
-        $recipe->categories()->detach($categoryId);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Category detached from recipe',
-        ]);
+            return new ServiceResponse(
+                false,
+                null,
+                'Failed to detach category from recipe'
+            );
+        }
     }
 }

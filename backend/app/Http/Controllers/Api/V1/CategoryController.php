@@ -1,23 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreCategoryRequest;
 use App\Http\Requests\Api\V1\UpdateCategoryRequest;
 use App\Http\Services\CategoryService;
+use Illuminate\Http\JsonResponse;
 use App\Models\Category;
 use Illuminate\Http\Request;
 
-class CategoryController extends Controller
+/**
+ * Class CategoryController
+ *
+ * Handles HTTP requests related to category management.
+ *
+ * @package App\Http\Controllers\Api\V1
+ */
+final class CategoryController extends ApiController
 {
     /**
-     * @var CategoryService
+     * Category service instance.
      */
-    protected $service;
+    private CategoryService $service;
 
     /**
-     * @param \App\Http\Services\CategoryService $service
+     * Create a new controller instance.
+     *
+     * @param CategoryService $service
      */
     public function __construct(CategoryService $service)
     {
@@ -25,39 +36,85 @@ class CategoryController extends Controller
     }
 
     /**
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Display a listing of categories.
+     *
+     * @return JsonResponse
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        return $this->service->getAll();
+        $response = $this->service->getAll();
+
+        if ($response->success()) {
+            return response()->json([
+                'status' => 'success',
+                'data' => $response->getModel()
+            ]);
+        }
+
+        return $this->errorResponse($response->getMessage(), 400);
     }
 
     /**
-     * @param \App\Http\Requests\Api\V1\StoreCategoryRequest $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Store a newly created category.
+     *
+     * @param StoreCategoryRequest $request
+     * @return JsonResponse
      */
-    public function store(StoreCategoryRequest $request)
+    public function store(StoreCategoryRequest $request): JsonResponse
     {
-        return $this->service->create($request);
+        $response = $this->service->create($request);
+
+        if ($response->success()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Category created successfully',
+                'data' => $response->getModel()
+            ]);
+        }
+
+        return $this->errorResponse($response->getMessage(), 400);
     }
 
     /**
-     * @param \App\Http\Requests\Api\V1\UpdateCategoryRequest $request
+     * Update the specified category.
+     *
+     * @param UpdateCategoryRequest $request
      * @param string $id
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function update(UpdateCategoryRequest $request, string $id)
     {
-        return $this->service->update($request, $id);
+        $response = $this->service->update($request, $id);
+
+        if ($response->success()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Category updated successfully',
+                'data' => $response->getModel()
+            ]);
+        }
+
+        return $this->errorResponse($response->getMessage(), 400);
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
+     * Remove the specified category.
+     *
+     * @param Request $request
      * @param string $id
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function destroy(Request $request, string $id)
+    public function destroy(Request $request, string $id): JsonResponse
     {
-        return $this->service->delete($request, $id);
+        $response = $this->service->delete($request, $id);
+
+        if ($response->success()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Category deleted successfully'
+            ]);
+        }
+
+        return $this->errorResponse($response->getMessage(), 400);
     }
 }

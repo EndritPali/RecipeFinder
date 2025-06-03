@@ -1,29 +1,59 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\RecipeResource;
-use App\Models\Recipe;
+use App\Repositories\Recipes\RecipeRepositoryInterface;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
-class MyRecipesController extends Controller
+/**
+ * Class MyRecipesController
+ *
+ * Handles HTTP requests related to user's own recipes.
+ */
+final class MyRecipesController extends ApiController
 {
-    public function myRecipes(Request $request)
+    /**
+     * Create a new MyRecipesController instance.
+     */
+    public function __construct(
+        private readonly RecipeRepositoryInterface $recipes,
+    ) {}
+
+    /**
+     * Get all recipes created by the authenticated user.
+     *
+     * @param Request $request The HTTP request
+     * @return JsonResponse Response containing user's recipes
+     */
+    public function myRecipes(Request $request): JsonResponse
     {
-        $user = $request->user();
+        try {
+            $user = $request->user();
 
-        if (!$user) {
-            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
+            if (!$user) {
+                return $this->errorResponse('Unauthorized', 401);
+            }
+
+            $recipes = $this->recipes->getByUser($user->id);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => RecipeResource::collection($recipes)
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch user recipes', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => $user?->id ?? null
+            ]);
+
+            return $this->errorResponse('Failed to fetch recipes', 500);
         }
-
-        $recipes = Recipe::with(['ingredients', 'categories'])
-            ->where('created_by', $user->id)
-            ->get();
-
-        return response()->json([
-            'status' => 'success',
-            'data' => RecipeResource::collection($recipes)
-        ]);
     }
 }

@@ -1,20 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Services;
 
 use App\Repositories\Recipes\IngredientRepositoryInterface;
-use App\Http\Requests\Api\V1\StoreIngredientRequest;
-use App\Http\Requests\Api\V1\UpdateIngredientRequest;
+use App\Support\Classes\ServiceResponse;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
-class IngredientService
+/**
+ * Class IngredientService
+ *
+ * Handles all business logic related to ingredient operations such as
+ * creating, retrieving, updating, and deleting ingredients.
+ *
+ * @package App\Http\Services
+ */
+final class IngredientService
 {
     /**
-     * @var IngredientRepositoryInterface
+     * Ingredient repository for data access.
      */
-    protected $ingredients;
+    private IngredientRepositoryInterface $ingredients;
 
     /**
-     * @param \App\Repositories\Recipes\IngredientRepositoryInterface $ingredients
+     * IngredientService constructor.
+     *
+     * @param IngredientRepositoryInterface $ingredients
      */
     public function __construct(IngredientRepositoryInterface $ingredients)
     {
@@ -22,59 +37,87 @@ class IngredientService
     }
 
     /**
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Retrieve all ingredients.
+     *
+     * @return ServiceResponse
      */
-    public function getAll()
+    public function getAll(): ServiceResponse
     {
-        $ingredients = $this->ingredients->all();
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $ingredients,
-        ]);
-    }
-    /**
-     * @param \App\Http\Requests\Api\V1\StoreIngredientRequest $request
-     * @return mixed|\Illuminate\Http\JsonResponse
-     */
-    public function create(StoreIngredientRequest $request)
-    {
-        $ingredient = $this->ingredients->create($request->validated());
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Ingredient created successfully',
-            'data' => $ingredient,
-        ], 201);
+        try {
+            $ingredients = $this->ingredients->all();
+            return new ServiceResponse(true, $ingredients);
+        } catch (Exception $e) {
+            Log::error('IngredientService::getAll Exception: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
+        }
     }
 
     /**
-     * @param \App\Http\Requests\Api\V1\UpdateIngredientRequest $request
+     * Store a new ingredient in the database.
+     *
+     * @param Request $request
+     * @return ServiceResponse
+     */
+    public function create(Request $request): ServiceResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            $validated = $request->validated();
+            $ingredient = $this->ingredients->create($validated);
+
+            DB::commit();
+            return new ServiceResponse(true, $ingredient, 'Ingredient created successfully');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('IngredientService::create Exception: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
+        }
+    }
+
+    /**
+     * Update an ingredient by its ID.
+     *
+     * @param Request $request
      * @param string $id
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @return ServiceResponse
      */
-    public function update(UpdateIngredientRequest $request, string $id)
+    public function update(Request $request, string $id): ServiceResponse
     {
-        $ingredient = $this->ingredients->update($id, $request->validated());
+        try {
+            DB::beginTransaction();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Ingredient updated successfully',
-            'data' => $ingredient,
-        ]);
+            $validated = $request->validated();
+            $ingredient = $this->ingredients->update($id, $validated);
+
+            DB::commit();
+            return new ServiceResponse(true, $ingredient, 'Ingredient updated successfully');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('IngredientService::update Exception: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
+        }
     }
 
     /**
+     * Delete an ingredient by its ID.
+     *
      * @param string $id
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @return ServiceResponse
      */
-    public function delete(string $id)
+    public function delete(string $id): ServiceResponse
     {
-        $this->ingredients->delete($id);
+        try {
+            DB::beginTransaction();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Ingredient deleted successfully',
-        ]);
+            $this->ingredients->delete($id);
+
+            DB::commit();
+            return new ServiceResponse(true, null, 'Ingredient deleted successfully');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('IngredientService::delete Exception: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
+        }
     }
 }

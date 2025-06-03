@@ -1,73 +1,112 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreCommentRequest;
 use App\Http\Requests\Api\V1\UpdateCommentRequest;
-use App\Http\Resources\CommentResource;
 use App\Http\Services\CommentService;
-use App\Models\Comment;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
-class CommentController extends Controller
+/**
+ * Class CommentController
+ *
+ * Handles HTTP requests related to comment management.
+ */
+final class CommentController extends ApiController
 {
     /**
-     * @var CommentService
+     * @param CommentService $service
      */
-    protected $service;
+    public function __construct(
+        private readonly CommentService $service,
+    ) {}
 
     /**
-     * @param \App\Http\Services\CommentService $service
+     * Display a listing of comments.
      */
-    public function __construct(CommentService $service)
+    public function index(): JsonResponse
     {
-        $this->service = $service;
+        $response = $this->service->getAllComments();
+
+        if ($response->success()) {
+            return response()->json([
+                'status' => 'success',
+                'data' => $response->getModel()
+            ]);
+        }
+
+        return $this->errorResponse($response->getMessage(), 400);
     }
 
     /**
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Store a newly created comment.
      */
-    public function index()
+    public function store(StoreCommentRequest $request): JsonResponse
     {
-        return $this->service->getAllComments();
+        $response = $this->service->createComment($request);
+
+        if ($response->success()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Comment posted successfully',
+                'data' => $response->getModel()
+            ], 201);
+        }
+
+        return $this->errorResponse($response->getMessage(), 400);
     }
 
     /**
-     * @param \App\Http\Requests\Api\V1\StoreCommentRequest $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Display the specified comment.
      */
-    public function store(StoreCommentRequest $request)
+    public function show(string $id): JsonResponse
     {
-        return $this->service->createComment($request);
+        $response = $this->service->getComment($id);
+
+        if ($response->success()) {
+            return response()->json([
+                'status' => 'success',
+                'data' => $response->getModel()
+            ]);
+        }
+
+        return $this->errorResponse($response->getMessage(), 404);
     }
 
     /**
-     * @param mixed $id
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Update the specified comment.
      */
-    public function show($id)
+    public function update(UpdateCommentRequest $request, string $id): JsonResponse
     {
-        return $this->service->getComment($id);
+        $response = $this->service->updateComment($request, $id);
+
+        if ($response->success()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Comment updated successfully',
+                'data' => $response->getModel()
+            ]);
+        }
+
+        return $this->errorResponse($response->getMessage(), 403);
     }
 
     /**
-     * @param \App\Http\Requests\Api\V1\UpdateCommentRequest $request
-     * @param mixed $id
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Remove the specified comment.
      */
-    public function update(UpdateCommentRequest $request, $id)
+    public function destroy(string $id): JsonResponse
     {
-        return $this->service->updateComment($request, $id);
-    }
+        $response = $this->service->deleteComment($id);
 
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param mixed $id
-     * @return mixed|\Illuminate\Http\JsonResponse
-     */
-    public function destroy(Request $request, $id)
-    {
-        return $this->service->deleteComment($id);
+        if ($response->success()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Comment deleted successfully'
+            ]);
+        }
+
+        return $this->errorResponse($response->getMessage(), 403);
     }
 }

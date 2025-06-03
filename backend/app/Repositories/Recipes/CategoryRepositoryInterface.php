@@ -1,38 +1,64 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repositories\Recipes;
 
 use App\Models\Category;
+use Illuminate\Database\Eloquent\Collection;
 
+/**
+ * Interface CategoryRepositoryInterface
+ *
+ * Defines the contract for category data access operations.
+ *
+ * @package App\Repositories\Recipes
+ */
 interface CategoryRepositoryInterface
 {
     /**
-     * @return \Illuminate\Database\Eloquent\Collection<int, Category>
+     * Get all categories.
+     *
+     * @return Collection<int, Category>
+     * @throws \Exception When database operation fails
      */
-    public function all();
+    public function all(): Collection;
 
     /**
+     * Find a category by ID.
+     *
      * @param string $id
      * @return Category
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When category not found
+     * @throws \Exception When database operation fails
      */
-    public function find(string $id);
+    public function find(string $id): Category;
 
     /**
-     * @param array $data
+     * Create a new category.
+     *
+     * @param array<string, mixed> $data
      * @return Category
+     * @throws \Exception When database operation fails
      */
-    public function create(array $data);
+    public function create(array $data): Category;
 
     /**
-     * @param \App\Models\Category $category
-     * @param array $data
+     * Update an existing category.
+     *
+     * @param Category $category
+     * @param array<string, mixed> $data
      * @return bool
+     * @throws \Exception When database operation fails
      */
-    public function update(Category $category, array $data);
+    public function update(Category $category, array $data): bool;
 
     /**
-     * @param \App\Models\Category $category
-     * @return bool|null
+     * Delete a category.
+     *
+     * @param Category $category
+     * @return bool
+     * @throws \Exception When database operation fails
      */
-    public function delete(Category $category);
+    public function delete(Category $category): bool;
 }

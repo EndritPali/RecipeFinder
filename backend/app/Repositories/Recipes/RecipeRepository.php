@@ -57,7 +57,7 @@ final class RecipeRepository implements RecipeRepositoryInterface
      */
     public function create(array $data): Recipe
     {
-        $requiredFields = ['title', 'description', 'created_by'];
+        $requiredFields = ['title', 'short_description', 'created_by'];
         foreach ($requiredFields as $field) {
             if (!isset($data[$field]) || empty($data[$field])) {
                 throw new InvalidArgumentException("Missing required field: {$field}");
@@ -144,5 +144,18 @@ final class RecipeRepository implements RecipeRepositoryInterface
                 previous: $e
             );
         }
+    }
+
+    /**
+     * Get all recipes created by a specific user.
+     *
+     * @param string $userId The user ID
+     * @return Collection The collection of recipes
+     */
+    public function getByUser(string $userId): Collection
+    {
+        return Recipe::with(['ingredients', 'categories'])
+            ->where('created_by', $userId)
+            ->get();
     }
 }

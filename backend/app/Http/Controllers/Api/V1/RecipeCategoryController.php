@@ -1,43 +1,67 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\V1\AttachIngredientRequest;
+use App\Http\Requests\Api\V1\AttachCategoryRequest;
 use App\Http\Services\RecipeCategoryService;
+use Illuminate\Http\JsonResponse;
 
-class RecipeCategoryController extends Controller
+/**
+ * Class RecipeCategoryController
+ *
+ * Handles HTTP requests related to recipe-category relationships.
+ */
+final class RecipeCategoryController extends ApiController
 {
     /**
-     * @var 
+     * Create a new RecipeCategoryController instance.
      */
-    protected $service;
+    public function __construct(
+        private readonly RecipeCategoryService $service,
+    ) {}
 
     /**
-     * @param \App\Http\Services\RecipeCategoryService $service
+     * Attach a category to a recipe.
+     *
+     * @param AttachCategoryRequest $request The validated request
+     * @param string $recipeId The recipe ID
+     * @return JsonResponse Response indicating success or failure
      */
-    public function __construct(RecipeCategoryService $service)
+    public function store(AttachCategoryRequest $request, string $recipeId): JsonResponse
     {
-        $this->service = $service;
+        $response = $this->service->attachCategory($recipeId, $request->validated('category_id'));
+
+        if ($response->success()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => $response->getMessage()
+            ]);
+        }
+
+        return $this->errorResponse($response->getMessage(), 400);
     }
 
     /**
-     * @param \App\Http\Requests\Api\V1\AttachIngredientRequest $request
-     * @param mixed $recipeId
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Detach a category from a recipe.
+     *
+     * @param string $recipeId The recipe ID
+     * @param string $categoryId The category ID
+     * @return JsonResponse Response indicating success or failure
      */
-    public function store(AttachIngredientRequest $request, $recipeId)
+    public function destroy(string $recipeId, string $categoryId): JsonResponse
     {
-        return $this->service->attachCategory($recipeId, $request->validated()['category_id']);
-    }
+        $response = $this->service->detachCategory($recipeId, $categoryId);
 
-    /**
-     * @param mixed $recipeId
-     * @param mixed $categoryId
-     * @return mixed|\Illuminate\Http\JsonResponse
-     */
-    public function destroy($recipeId, $categoryId)
-    {
-        return $this->service->detachCategory($recipeId, $categoryId);
+        if ($response->success()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => $response->getMessage()
+            ]);
+        }
+
+        return $this->errorResponse($response->getMessage(), 400);
     }
 }

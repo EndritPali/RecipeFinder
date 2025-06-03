@@ -7,6 +7,7 @@ namespace App\Repositories\Recipes;
 use App\Models\Recipe;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Interface for Recipe data persistence operations.
@@ -77,4 +78,12 @@ interface RecipeRepositoryInterface
      * @throws \InvalidArgumentException When invalid category IDs are provided
      */
     public function attachCategories(Recipe $recipe, array $categoryIds): void;
+
+    /**
+     * Get all recipes created by a specific user.
+     *
+     * @param string $userId The user ID
+     * @return Collection The collection of recipes
+     */
+    public function getByUser(string $userId): Collection;
 }

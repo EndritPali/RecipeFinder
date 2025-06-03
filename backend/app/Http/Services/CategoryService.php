@@ -1,19 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Services;
 
 use App\Repositories\Recipes\CategoryRepositoryInterface;
+use App\Support\Classes\ServiceResponse;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
-class CategoryService
+/**
+ * Class CategoryService
+ *
+ * Handles all business logic related to category operations such as
+ * creating, retrieving, updating, and deleting categories.
+ *
+ * @package App\Http\Services
+ */
+final class CategoryService
 {
     /**
-     * @var CategoryRepositoryInterface
+     * Category repository for data access.
      */
-    protected $categories;
+    private CategoryRepositoryInterface $categories;
 
     /**
-     * @param \App\Repositories\Recipes\CategoryRepositoryInterface $categories
+     * CategoryService constructor.
+     *
+     * @param CategoryRepositoryInterface $categories
      */
     public function __construct(CategoryRepositoryInterface $categories)
     {
@@ -21,61 +37,91 @@ class CategoryService
     }
 
     /**
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Retrieve all categories.
+     *
+     * @return ServiceResponse
      */
-    public function getAll()
+    public function getAll(): ServiceResponse
     {
-        return response()->json([
-            'status' => 'success',
-            'data' => $this->categories->all(),
-        ]);
+        try {
+            $categories = $this->categories->all();
+            return new ServiceResponse(true, $categories);
+        } catch (Exception $e) {
+            Log::error('CategoryService::getAll Exception: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
+        }
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Store a new category in the database.
+     *
+     * @param Request $request
+     * @return ServiceResponse
      */
     public function create(Request $request)
     {
-        $category = $this->categories->create($request->validated());
+        try {
+            DB::beginTransaction();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Category created successfully',
-            'data' => $category,
-        ], 201);
+            $validated = $request->validated();
+            $category = $this->categories->create($validated);
+
+            DB::commit();
+            return new ServiceResponse(true, $category, 'Category created successfully');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('CategoryService::create Exception: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
+        }
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
+     * Update a category by its ID.
+     *
+     * @param Request $request
      * @param string $id
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @return ServiceResponse
      */
     public function update(Request $request, string $id)
     {
-        $category = $this->categories->find($id);
-        $this->categories->update($category, $request->validated());
+        try {
+            $category = $this->categories->find($id);
+            $validated = $request->validated();
+            $this->categories->update($category, $request->validated());
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Category updated successfully',
-            'data' => $category,
-        ]);
+            DB::commit();
+
+            $updatedCategory = $this->categories->find($id);
+            return new ServiceResponse(true, $updatedCategory, 'Category updated successfully');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('CategoryService::update Exception: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
+        }
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
+     * Delete a category by its ID.
+     *
+     * @param Request $request
      * @param string $id
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @return ServiceResponse
      */
     public function delete(Request $request, string $id)
     {
-        $category = $this->categories->find($id);
-        $this->categories->delete($category);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Category deleted successfully',
-        ]);
+        try {
+            DB::beginTransaction();
+
+            $category = $this->categories->find($id);
+            $deleted = $this->categories->delete($category);
+
+            DB::commit();
+            return new ServiceResponse($deleted, null, $deleted ? 'Category deleted successfully' : 'Deletion failed');
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::error('CategoryService::delete Exception: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
+        }
     }
 }

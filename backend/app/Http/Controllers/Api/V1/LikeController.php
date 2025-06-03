@@ -1,35 +1,62 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\ToggleLikeRequest;
 use App\Models\Comment;
-use Illuminate\Http\Request;
+use App\Support\Classes\ServiceResponse;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
-class LikeController extends Controller
+/**
+ * Class LikeController
+ *
+ * Handles HTTP requests related to comment likes.
+ */
+final class LikeController extends ApiController
 {
-    public function toggleLike(Request $request, $id)
+    /**
+     * Toggle like status for a comment.
+     *
+     * @param ToggleLikeRequest $request The validated request
+     * @param string $id The comment ID
+     * @return JsonResponse Response indicating success or failure
+     */
+    public function toggleLike(ToggleLikeRequest $request, string $id): JsonResponse
     {
-        $user = $request->user();
-        $comment = Comment::findOrFail($id);
+        try {
+            $user = $request->user();
+            $comment = Comment::findOrFail($id);
+            $action = $request->validated('action');
 
-        $action = $request->input('action'); // 'like' or 'unlike'
+            if ($action === 'like') {
+                $comment->increment('likes');
+                $message = 'Comment liked successfully';
+            } elseif ($action === 'unlike' && $comment->likes > 0) {
+                $comment->decrement('likes');
+                $message = 'Comment unliked successfully';
+            } else {
+                return $this->errorResponse('Invalid like action', 400);
+            }
 
-        if ($action === 'like') {
-            $comment->increment('likes');
-        } elseif ($action === 'unlike' && $comment->likes > 0) {
-            $comment->decrement('likes');
-        } else {
             return response()->json([
-                'status' => 'error',
-                'message' => 'Invalid like action'
-            ], 400);
-        }
+                'status' => 'success',
+                'message' => $message,
+                'likes' => $comment->likes,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to toggle comment like', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'comment_id' => $id,
+                'user_id' => $user?->id,
+                'action' => $action ?? null
+            ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Comment ' . $action . 'd successfully',
-            'likes' => $comment->likes,
-        ]);
+            return $this->errorResponse('Failed to process like action', 500);
+        }
     }
 }
