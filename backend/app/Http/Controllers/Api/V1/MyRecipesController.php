@@ -40,7 +40,7 @@ final class MyRecipesController extends ApiController
                 return $this->errorResponse('Unauthorized', 401);
             }
 
-            $recipes = $this->recipes->getByUser($user->id);
+            $recipes = $this->recipes->getByUser((string) $user->id);
 
             return response()->json([
                 'status' => 'success',

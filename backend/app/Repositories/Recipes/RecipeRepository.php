@@ -154,7 +154,8 @@ final class RecipeRepository implements RecipeRepositoryInterface
      */
     public function getByUser(string $userId): Collection
     {
-        return Recipe::with(['ingredients', 'categories'])
+        return $this->model->newQuery()
+            ->with(['ingredients', 'categories'])
             ->where('created_by', $userId)
             ->get();
     }
