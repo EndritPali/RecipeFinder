@@ -17,6 +17,7 @@ class User extends Authenticatable
         'role',
         'created_at',
         'last_login',
+        'deleted_at',
     ];
 
     public function recipes()

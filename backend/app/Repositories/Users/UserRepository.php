@@ -31,7 +31,9 @@ final class UserRepository implements UserRepositoryInterface
      */
     public function getAll(): Collection
     {
-        return $this->model->newQuery()->get();
+        return $this->model->newQuery()
+            ->where('role', '!=', 'deleted')
+            ->get();
     }
 
     /**
@@ -40,7 +42,9 @@ final class UserRepository implements UserRepositoryInterface
     public function findById(string $id): User
     {
         try {
-            return $this->model->newQuery()->findOrFail($id);
+            return $this->model->newQuery()
+                ->where('role', '!=', 'deleted')
+                ->findOrFail($id);
         } catch (ModelNotFoundException $e) {
             throw new ModelNotFoundException(
                 "User with ID {$id} not found.",
@@ -54,7 +58,9 @@ final class UserRepository implements UserRepositoryInterface
      */
     public function find(string $id): ?User
     {
-        return $this->model->newQuery()->find($id);
+        return $this->model->newQuery()
+            ->where('role', '!=', 'deleted')
+            ->find($id);
     }
 
     /**
@@ -108,6 +114,28 @@ final class UserRepository implements UserRepositoryInterface
         } catch (\Throwable $e) {
             throw new RuntimeException(
                 "Failed to delete user {$user->id}: {$e->getMessage()}",
+                previous: $e
+            );
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function softDelete(User $user): bool
+    {
+        try {
+            $anonymizedData = [
+                'email' => "deleted_{$user->id}@deleted.user",
+                'username' => "Deleted User",
+                'role' => 'deleted',
+                'remember_token' => null,
+            ];
+
+            return $user->update($anonymizedData);
+        } catch (\Throwable $e) {
+            throw new RuntimeException(
+                "Failed to soft delete user {$user->id}: {$e->getMessage()}",
                 previous: $e
             );
         }

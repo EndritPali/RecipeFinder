@@ -139,7 +139,7 @@ final class UserService
     {
         try {
             $user = $this->userRepository->findById($id);
-            $deleted = $this->userRepository->delete($user);
+            $deleted = $this->userRepository->softDelete($user);
 
             if (!$deleted) {
                 throw new \RuntimeException('Failed to delete user');

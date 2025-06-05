@@ -67,4 +67,13 @@ interface UserRepositoryInterface
      * @return bool True if deletion was successful, false otherwise
      */
     public function delete(User $user): bool;
+
+    /**
+     * Soft delete a user and anonymize their data.
+     *
+     * @param User $user The user instance to soft delete
+     * @throws \RuntimeException When soft deletion fails
+     * @return bool True if soft deletion was successful, false otherwise
+     */
+    public function softDelete(User $user): bool;
 }
