@@ -1,12 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repositories\Recipes;
 
 use App\Models\SavedRecipe;
 use App\Repositories\Recipes\SavedRecipeRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class SavedRecipeRepository implements SavedRecipeRepositoryInterface
+/**
+ * Repository implementation for saved recipe persistence operations.
+ */
+final class SavedRecipeRepository implements SavedRecipeRepositoryInterface
 {
     /**
      * @param string $userId
@@ -35,13 +41,20 @@ class SavedRecipeRepository implements SavedRecipeRepositoryInterface
      * @param string $userId
      * @param string $recipeId
      * @return SavedRecipe
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public function create(string $userId, string $recipeId): SavedRecipe
     {
-        return SavedRecipe::create([
+        $savedRecipe = SavedRecipe::create([
             'user_id' => $userId,
             'recipe_id' => $recipeId,
         ]);
+
+        if (!$savedRecipe) {
+            throw new ModelNotFoundException('Failed to create saved recipe');
+        }
+
+        return $savedRecipe;
     }
 
     /**

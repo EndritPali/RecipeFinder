@@ -13,19 +13,20 @@ export const useSavedRecipes = () => {
     setError(null);
     try {
       const response = await api.get('v1/saved-recipes');
-      const mappedRecipes = response.data.map(item => ({
-        key: item.recipe.id,
-        recipetitle: item.recipe.title,
-        category: item.recipe.category?.name || 'Uncategorized',
-        shortdescription: item.recipe.short_description,
-        ingredients: item.recipe.ingredients,
-        preparation: item.recipe.instructions,
-        preptime: item.recipe.preparation_time,
-        servings: item.recipe.servings,
-        rating: item.recipe.rating,
-        cooktime: item.recipe.cooking_time,
-        image: item.recipe.image_url,
-        savedId: item.id,
+      const recipesData = response.data.data || []; 
+      const mappedRecipes = recipesData.map(recipe => ({
+        key: recipe.id,
+        recipetitle: recipe.title,
+        category: recipe.category?.name || 'Uncategorized',
+        shortdescription: recipe.short_description,
+        ingredients: recipe.ingredients,
+        preparation: recipe.instructions,
+        preptime: recipe.preparation_time,
+        servings: recipe.servings,
+        rating: recipe.rating,
+        cooktime: recipe.cooking_time,
+        image: recipe.image_url,
+        savedId: recipe.id, 
       }));
       setSavedRecipes(mappedRecipes);
     } catch (error) {
@@ -97,4 +98,4 @@ export const useSavedRecipes = () => {
     saveRecipe,
     unsaveRecipe
   };
-};
+}; 

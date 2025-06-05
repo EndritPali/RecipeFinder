@@ -1,24 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreSavedRecipesRequest;
 use App\Http\Services\SavedRecipeService;
-use Illuminate\Http\Request;
-use App\Models\SavedRecipe;
-use App\Models\Recipe;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
-class SavedRecipeController extends Controller
+/**
+ * Controller for managing saved recipe operations.
+ */
+final class SavedRecipeController extends Controller
 {
     /**
      * @var SavedRecipeService
      */
-    protected $service;
+    private SavedRecipeService $service;
 
     /**
-     * @param \App\Http\Services\SavedRecipeService $service
+     * @param SavedRecipeService $service
      */
     public function __construct(SavedRecipeService $service)
     {
@@ -26,36 +29,39 @@ class SavedRecipeController extends Controller
     }
 
     /**
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Get all saved recipes for the authenticated user.
      */
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         return $this->service->getSavedRecipes();
     }
 
     /**
-     * @param \App\Http\Requests\Api\V1\StoreSavedRecipesRequest $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Save a recipe for the authenticated user.
+     *
+     * @param StoreSavedRecipesRequest $request
      */
-    public function store(StoreSavedRecipesRequest $request)
+    public function store(StoreSavedRecipesRequest $request): JsonResponse
     {
         return $this->service->saveRecipe($request);
     }
 
     /**
+     * Check if a recipe is saved by the authenticated user.
+     *
      * @param string $recipeId
-     * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function show(string $recipeId)
+    public function show(string $recipeId): JsonResponse
     {
         return $this->service->isRecipeSaved($recipeId);
     }
 
     /**
+     * Remove a saved recipe for the authenticated user.
+     *
      * @param string $recipeId
-     * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function destroy(string $recipeId)
+    public function destroy(string $recipeId): JsonResponse
     {
         return $this->service->removeSavedRecipe($recipeId);
     }
