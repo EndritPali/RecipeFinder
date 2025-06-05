@@ -11,16 +11,23 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        gap: 16px;
+        justify-content: space-between;
 
-        .ant-avatar {
-            height: 70px;
-            width: 70px;
-            border-radius: 50%;
-            object-fit: cover;
+        .user__header {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
 
-            svg {
-                font-size: 2rem;
+            .ant-avatar {
+                height: 70px;
+                width: 70px;
+                border-radius: 50%;
+                object-fit: cover;
+
+                svg {
+                    font-size: 2rem;
+                }
             }
         }
     }

@@ -1,23 +1,47 @@
-import React, { useState, useEffect } from 'react';
-import { Drawer, Card, Space, Avatar, message } from 'antd';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Drawer, Card, Space, Avatar, message, Button } from 'antd';
+import { useDeleteUsers } from '../../hooks/useDeleteUsers';
+import { useFetchUsers } from '../../hooks/useFetchUsers';
 import {
     BookOutlined, CalendarOutlined, UserOutlined,
     SafetyCertificateOutlined, IdcardOutlined,
-    MailOutlined, KeyOutlined, EditOutlined
+    MailOutlined, KeyOutlined, EditOutlined,
+    DeleteOutlined
 } from '@ant-design/icons';
 
 import api from '../../Services/api';
 import useAuth from '../../hooks/useAuth';
 import DrawerInput from './DrawerInputs';
 import '../scss/AccountDrawer.scss';
+import { useNavigate } from 'react-router-dom';
 
 export default function AccountDrawer({ open, onClose }) {
-    const { currentUser } = useAuth();
+    const { currentUser, logout } = useAuth();
     const [recipes, setRecipes] = useState([]);
     const [editing, setEditing] = useState(null);
     const [loading, setLoading] = useState(false);
     const [editedEmail, setEditedEmail] = useState('');
     const [editedPassword, setEditedPassword] = useState('');
+
+    const { fetchUsers } = useFetchUsers();
+    const { deleteUser } = useDeleteUsers(fetchUsers);
+    const navigate = useNavigate();
+
+    const handleDelete = useCallback(async (id) => {
+        const msg =
+            'Are you sure you want to delete your account?'
+
+        if (window.confirm(msg)) {
+            try {
+                await deleteUser(id);
+                await logout()
+                navigate('/')
+            } catch (err) {
+                console.error("Deletion error:", err);
+                alert("Something went wrong during deletion");
+            }
+        }
+    }, [deleteUser, logout, navigate]);
 
     useEffect(() => {
         if (open) {
@@ -56,8 +80,16 @@ export default function AccountDrawer({ open, onClose }) {
             loading={loading ? 1 : 0}
         >
             <div className="user">
-                <Avatar icon={<UserOutlined />} />
-                <h2>{currentUser?.username}</h2>
+                <div className="user__header">
+                    <Avatar icon={<UserOutlined />} />
+                    <h2>{currentUser?.username}</h2>
+                </div>
+                <Button
+                    className='delete-btn'
+                    onClick={() => handleDelete(currentUser?.id)}
+                >
+                    <DeleteOutlined />
+                </Button>
             </div>
 
             <Card title={<Space><UserOutlined /> User Profile</Space>}>

@@ -59,7 +59,7 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/comments/{id}/like', [LikeController::class, 'toggleLike']);
 
-        Route::apiResource('users', UserController::class)->only(['update']);
+        Route::apiResource('users', UserController::class)->only(['update', 'destroy']);
     });
 
 
@@ -67,6 +67,6 @@ Route::prefix('v1')->group(function () {
         Route::get('/auth/password-reset/pending', [PasswordResetController::class, 'getPendingRequests']);
         Route::post('/auth/password-reset/process', [PasswordResetController::class, 'processResetRequest']);
 
-        Route::apiResource('users', UserController::class)->except(['update']);
+        Route::apiResource('users', UserController::class)->except(['update', 'destroy']);
     });
 });
