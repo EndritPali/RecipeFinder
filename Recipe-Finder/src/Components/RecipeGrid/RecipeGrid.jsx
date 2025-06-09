@@ -49,7 +49,7 @@ export default function RecipeGrid() {
     };
 
     const skeletonItems = Array.from({ length: batchSize }).map((_, index) => (
-        <div key={index} style={{ width: 550, margin: '0 1rem' }}>
+        <div className='skeleton-container' key={index} style={{ width: 550, margin: '0 1rem' }}>
             <Skeleton active paragraph={{ rows: 3 }} />
         </div>
     ));

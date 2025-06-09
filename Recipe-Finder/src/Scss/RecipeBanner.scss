@@ -235,6 +235,11 @@
 
 @media screen and (min-width: 1450px) {
     .recipe-banner {
-        min-width: 560px;
+        min-width: 100%;
+        padding: 12px 30px 12px 8px;
+
+        .recipe-banner__img {
+            min-width: 280px;
+        }
     }
 }
