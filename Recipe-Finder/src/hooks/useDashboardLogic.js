@@ -50,16 +50,18 @@ export function useDashboardLogic(searchTerm, setIsModalOpen, setSelectedItem) {
             : recipeColumns(handleShowModal, handleDelete);
     }, [isUserDashboard, handleShowModal, handleDelete]);
 
+    const dataSource = useMemo(() =>{
+        return isUserDashboard
+        ? users.filter(user => user.key !== currentUser?.id)
+        : recipes;
+    }, [isUserDashboard, users, recipes, currentUser?.id]);
+
     const filteredData = useMemo(() => {
-        const source = isUserDashboard
-            ? users.filter(user => user.key !== currentUser?.id)
-            : recipes;
-    
-        return source.filter(item => {
+        return dataSource.filter(item => {
             const term = isUserDashboard ? item.username : item.recipetitle;
             return (term || '').toLowerCase().includes(searchTerm.toLowerCase());
         });
-    }, [users, recipes, isUserDashboard, searchTerm, currentUser?.id]);
+    }, [dataSource, isUserDashboard, searchTerm]);
 
     return {
         isUserDashboard,

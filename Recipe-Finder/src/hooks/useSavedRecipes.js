@@ -76,6 +76,11 @@ export const useSavedRecipes = () => {
     };
     
     savedRecipesEvent.addEventListener('changed', handleChange);
+
+    const user = localStorage.getItem('user');
+    if(user) {
+      fetchSavedRecipes();
+    }
     
     return () => {
       savedRecipesEvent.removeEventListener('changed', handleChange);

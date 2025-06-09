@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import useBatchSize from '../../hooks/useBatchSize';
 import { useFetchRecipes } from '../../hooks/useFetchRecipes';
 import { useUserAccount } from '../../hooks/useUserAccount';
@@ -17,10 +17,9 @@ export default function RecipeGrid() {
     const batchSize = useBatchSize();
     const [currentPage, setCurrentPage] = useState(0);
 
-    const filteredRecipes = useMemo(() =>
-        recipes.filter(recipe => recipe.category === 'With benefits'),
-        [recipes]
-    );
+    const filteredRecipes = useMemo(() => {
+        return recipes.filter(recipe => recipe.category === 'With benefits');
+    }, [recipes]);
 
     const startIndex = batchSize === Infinity ? 0 : currentPage * batchSize;
     const endIndex = batchSize === Infinity ? filteredRecipes.length : startIndex + batchSize;
@@ -39,10 +38,10 @@ export default function RecipeGrid() {
         if (hasPrev) setCurrentPage(prev => prev - 1);
     };
 
-    const handleOpenModal = recipe => {
+    const handleOpenModal = useCallback(recipe => {
         setSelectedRecipe(recipe);
         setIsModalOpen(true);
-    };
+    }, []);
 
     const handleCloseModal = () => {
         setIsModalOpen(false);

@@ -1,5 +1,5 @@
 import { Space } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { EditOutlined, UserDeleteOutlined } from '@ant-design/icons';
 import React from 'react';
 
 export const columns = (onEdit, onDelete) => [
@@ -32,7 +32,7 @@ export const columns = (onEdit, onDelete) => [
         render: (_, record) => (
             <Space size="middle" className='btn-space'>
                 <button className='edit-btn' onClick={() => onEdit(record)}> <EditOutlined /> </button>
-                <button className='delete-btn' onClick={() => onDelete(record.key)}> <DeleteOutlined /> </button>
+                <button className='delete-btn' onClick={() => onDelete(record.key)}> <UserDeleteOutlined /> </button>
             </Space>
         ),
     },

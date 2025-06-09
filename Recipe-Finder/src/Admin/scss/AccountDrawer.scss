@@ -13,6 +13,16 @@
         align-items: center;
         justify-content: space-between;
 
+        .delete-btn{
+            font-size: 18px;
+            padding: 10px;
+
+            &:hover{
+                color: red;
+                border-color: red ;
+            }
+        }
+
         .user__header {
             display: flex;
             flex-direction: row;

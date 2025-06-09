@@ -6,7 +6,7 @@ import {
     BookOutlined, CalendarOutlined, UserOutlined,
     SafetyCertificateOutlined, IdcardOutlined,
     MailOutlined, KeyOutlined, EditOutlined,
-    DeleteOutlined
+    UserDeleteOutlined
 } from '@ant-design/icons';
 
 import api from '../../Services/api';
@@ -88,7 +88,7 @@ export default function AccountDrawer({ open, onClose }) {
                     className='delete-btn'
                     onClick={() => handleDelete(currentUser?.id)}
                 >
-                    <DeleteOutlined />
+                    <UserDeleteOutlined />
                 </Button>
             </div>
 

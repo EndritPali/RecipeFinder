@@ -1,29 +1,28 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 export default function useAccountModal(externalSetIsOpen, externalSetMode) {
     const [isAccountModalOpenLocal, setIsAccountModalOpenLocal] = useState(false);
     const [modalModeLocal, setModalModeLocal] = useState('login');
 
-    const openAccountModal = (mode) => {
+    const openAccountModal = useCallback((mode) => {
         setModalModeLocal(mode);
         setIsAccountModalOpenLocal(true);
         if (externalSetMode && externalSetIsOpen) {
             externalSetMode(mode);
             externalSetIsOpen(true);
         }
-    };
+    }, [externalSetIsOpen, externalSetMode]);
 
-    const closeAccountModal = () => {
+    const closeAccountModal = useCallback(() => {
         setIsAccountModalOpenLocal(false);
         if (externalSetIsOpen) {
             externalSetIsOpen(false);
         }
-    };
+    }, [externalSetIsOpen]);
 
-    return {
+    return useMemo(() => ({
         isAccountModalOpen: externalSetIsOpen ? isAccountModalOpenLocal : isAccountModalOpenLocal,
         modalMode: externalSetMode ? modalModeLocal : modalModeLocal,
         openAccountModal,
         closeAccountModal
-    };
-}
+    }), [isAccountModalOpenLocal, modalModeLocal, openAccountModal, closeAccountModal, externalSetIsOpen, externalSetMode])}
