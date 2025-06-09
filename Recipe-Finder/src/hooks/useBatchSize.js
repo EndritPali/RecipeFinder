@@ -6,7 +6,7 @@ export default function useBatchPagination() {
     useEffect(() => {
         const updateBatchSize = () => {
             const width = window.innerWidth;
-        if (width < 1025) setBatchSize(4); 
+        if (width < 1110) setBatchSize(4); 
             else setBatchSize(5);                  
         };
 

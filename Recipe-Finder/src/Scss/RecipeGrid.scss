@@ -297,16 +297,16 @@
     }
 }
 
-//// awkward middle ground
-//// @media screen and (min-width: 1100px) and (max-width: 1350px) {
-////     .recipe-grid {
-////         padding: 50px 50px;
+// awkward middle ground
+@media screen and (min-width: 1100px) and (max-width: 1350px) {
+    .recipe-grid {
+        padding: 50px 50px;
 
-////         .recipe-grid__wrapper {
-////             gap: 18px;
-////         }
-////     }
-//// }
+        .recipe-grid__wrapper {
+            gap: 18px;
+        }
+    }
+}
 
 
 @media screen and (max-width: 1440px) {
