@@ -7,6 +7,7 @@ namespace App\Repositories\Users\Contracts;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 /**
  * Interface for user data persistence operations.
@@ -22,6 +23,14 @@ interface UserRepositoryInterface
      * @return Collection<int, User>
      */
     public function getAll(): Collection;
+
+    /**
+     * Retrieve paginated users.
+     *
+     * @param int|null $perPage Number of users per page (defaults to 15, bounded between 1 and 100)
+     * @return LengthAwarePaginator
+     */
+    public function getPaginated(?int $perPage = null): LengthAwarePaginator;
 
     /**
      * Find a user by their ID or throw an exception.

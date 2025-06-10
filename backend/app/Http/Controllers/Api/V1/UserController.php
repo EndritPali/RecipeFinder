@@ -9,7 +9,9 @@ use App\Http\Requests\Api\V1\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Services\Auth\UserService;
 use Illuminate\Http\JsonResponse;
+use App\Repositories\Users\Contracts\UserRepositoryInterface;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Request;
 
 /**
  * Controller for managing user resources.
@@ -22,28 +24,39 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 final class UserController extends ApiController
 {
     /**
+     * @var UserRepositoryInterface
+     */
+    private $userRepository;
+
+    /**
+     * @var UserService
+     */
+    private $userService;
+
+    /**
+     * @param UserRepositoryInterface $userRepository Repository for user operations
      * @param UserService $userService Service for user management operations
      */
     public function __construct(
-        private readonly UserService $userService
-    ) {}
+        UserRepositoryInterface $userRepository,
+        UserService $userService
+    ) {
+        $this->userRepository = $userRepository;
+        $this->userService = $userService;
+    }
 
     /**
-     * List all users.
+     * Display a listing of users.
      *
-     * Retrieves a paginated list of all users in the system.
-     *
-     * @return AnonymousResourceCollection|JsonResponse Collection of users or error response
+     * @param Request $request
+     * @return AnonymousResourceCollection
      */
-    public function index(): AnonymousResourceCollection|JsonResponse
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $response = $this->userService->getAll();
+        $perPage = $request->get('per_page') ? (int) $request->get('per_page') : null;
+        $users = $this->userRepository->getPaginated($perPage);
 
-        if (!$response->success()) {
-            return $this->errorResponse($response->getMessage(), 400);
-        }
-
-        return UserResource::collection($response->getModel());
+        return UserResource::collection($users);
     }
 
     /**
@@ -71,13 +84,12 @@ final class UserController extends ApiController
      */
     public function show(string $id): UserResource|JsonResponse
     {
-        $response = $this->userService->getById($id);
-
-        if (!$response->success()) {
-            return $this->errorResponse($response->getMessage(), 404);
+        try {
+            $user = $this->userRepository->findById($id);
+            return new UserResource($user);
+        } catch (\Exception $e) {
+            return $this->errorResponse('User not found', 404);
         }
-
-        return new UserResource($response->getModel());
     }
 
     /**
@@ -106,16 +118,19 @@ final class UserController extends ApiController
      */
     public function destroy(string $id): JsonResponse
     {
-        $response = $this->userService->destroy($id);
+        try {
+            $user = $this->userRepository->findById($id);
+            $deleted = $this->userRepository->softDelete($user);
 
-        if (!$response->success()) {
-            return $this->errorResponse($response->getMessage(), 500);
+            if (!$deleted) {
+                return $this->errorResponse('Failed to delete user', 500);
+            }
+
+            return response()->json([
+                'message' => 'User deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return $this->errorResponse('User not found', 404);
         }
-
-        return response()->json([
-            'message' => 'User deleted successfully.'
-        ]);
     }
-
-
 }

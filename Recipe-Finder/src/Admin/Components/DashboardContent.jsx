@@ -1,7 +1,7 @@
 import '../scss/DashboardContent.scss';
 import DashboardFilter from './DashboardFilter';
 import RecipeModal from '../Templates/RecipeModal';
-import RecipeGrid from '../Templates/GridSort';
+import GridSort from '../Templates/GridSort';
 import UserModal from '../Templates/UserModal';
 import { Table } from 'antd';
 import { useState } from 'react';
@@ -21,14 +21,22 @@ export default function DashboardContent() {
         fetchUsers,
         fetchRecipes,
         handleShowModal,
+        userPagination,
+        recipePagination,
+        handleRecipeTableChange,
+        handleUserTableChange,
         handleDelete
     } = useDashboardLogic(searchTerm, setIsModalOpen, setSelectedItem);
 
     const handleCloseModal = () => {
         if (isUserDashboard) {
-            fetchUsers();
+            fetchUsers(userPagination.current,
+                userPagination.pageSize
+            );
         } else {
-            fetchRecipes();
+            fetchRecipes(recipePagination.current,
+                recipePagination.pageSize
+            );
         }
         setIsModalOpen(false);
         setSelectedItem(null);
@@ -36,9 +44,21 @@ export default function DashboardContent() {
 
     const handleDataChanged = () => {
         if (isUserDashboard) {
-            fetchUsers();
+            fetchUsers(userPagination.current,
+                userPagination.pageSize
+            );
         } else {
-            fetchRecipes();
+            fetchRecipes(recipePagination.current,
+                recipePagination.pageSize
+            );
+        }
+    };
+
+    const handlePaginationChange = (page, pageSize) => {
+        if (isUserDashboard) {
+            handleUserTableChange({ current: page, pageSize: pageSize });
+        } else {
+            handleRecipeTableChange({ current: page, pageSize: pageSize });
         }
     };
 
@@ -58,16 +78,20 @@ export default function DashboardContent() {
                     columns={columns}
                     dataSource={filteredData}
                     loading={loading}
-                    pagination={isUserDashboard ? { showTotal: (total) => `${total} user(s) in total`, } : {
-                        showTotal: (total) => `${total} recipe(s) in total`,
-                    }}
+                    pagination={isUserDashboard ? userPagination : recipePagination}
+                    onChange={isUserDashboard ? handleUserTableChange : handleRecipeTableChange}
                     rowKey="key"
                 />
             ) : (
-                <RecipeGrid
+                <GridSort
                     data={filteredData}
                     onEdit={handleShowModal}
                     onDelete={handleDelete}
+                    loading={loading}
+                    pagination={{
+                        ...(isUserDashboard ? userPagination : recipePagination),
+                        onChange: handlePaginationChange
+                    }}
                 />
             )}
 

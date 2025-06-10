@@ -8,7 +8,7 @@ import RecipeDetailsModal from '../Templates/RecipeDetailsModal';
 import { useState } from 'react';
 
 export default function RecipesRow() {
-  const { loading, recipes } = useFetchRecipes();
+  const { loading, recipes } = useFetchRecipes(false, false);
   const [showAll, setShowAll] = useState(false);
   const maxVisible = useResponsiveCount();
   const {

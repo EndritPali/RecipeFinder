@@ -6,6 +6,7 @@ use App\Http\Requests\Api\V1\StoreRecipeRequest;
 use App\Http\Requests\Api\V1\UpdateRecipeRequest;
 use App\Http\Resources\RecipeResource;
 use App\Http\Services\RecipeService;
+use App\Repositories\Recipes\RecipeRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -17,6 +18,14 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
  */
 class RecipeController extends ApiController
 {
+
+    /**
+     * Summary of recipeRepository
+
+     * @var RecipeRepositoryInterface 
+     */
+    private $recipeRepository;
+
     /**
      * Recipe service instance.
      *
@@ -28,10 +37,14 @@ class RecipeController extends ApiController
      * Create a new controller instance.
      *
      * @param RecipeService $recipeService
+     * @param RecipeRepositoryInterface $recipeRepository
      */
-    public function __construct(RecipeService $recipeService)
-    {
+    public function __construct(
+        RecipeService $recipeService,
+        RecipeRepositoryInterface $recipeRepository
+    ) {
         $this->recipeService = $recipeService;
+        $this->recipeRepository = $recipeRepository;
     }
 
     /**
@@ -42,13 +55,13 @@ class RecipeController extends ApiController
      */
     public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
-        $response = $this->recipeService->getAll();
-
-        if ($response->success()) {
-            return RecipeResource::collection($response->getModel());
+        $perPage = (int) $request->get('per_page', 15);
+        if ($perPage < 1 || $perPage > 100) {
+            $perPage = 15;
         }
 
-        return response()->json(['message' => $response->getMessage()], 400);
+        $paginatedRecipes = $this->recipeRepository->getPaginated($perPage);
+        return RecipeResource::collection($paginatedRecipes);
     }
 
     /**

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Repositories\Users\Contracts\UserRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use InvalidArgumentException;
 use RuntimeException;
 
@@ -34,6 +35,19 @@ final class UserRepository implements UserRepositoryInterface
         return $this->model->newQuery()
             ->where('role', '!=', 'deleted')
             ->get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getPaginated(?int $perPage = null): LengthAwarePaginator
+    {
+        $perPage = $perPage ?? 10;
+        $perPage = min(max($perPage, 1), 100);
+
+        return $this->model->newQuery()
+            ->where('role', '!=', 'deleted')
+            ->paginate($perPage);
     }
 
     /**

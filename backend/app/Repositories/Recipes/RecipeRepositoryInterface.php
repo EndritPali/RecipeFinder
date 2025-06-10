@@ -7,6 +7,7 @@ namespace App\Repositories\Recipes;
 use App\Models\Recipe;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -23,6 +24,15 @@ interface RecipeRepositoryInterface
      * @return Collection<int, Recipe> Collection of recipes with eager loaded relationships
      */
     public function all(): Collection;
+
+    /**
+     * Retrieve paginated recipes.
+     *
+     * @param int $perPage Number of recipes per page
+     * @return LengthAwarePaginator
+     */
+    public function getPaginated(int $perPage = 15): LengthAwarePaginator;
+
 
     /**
      * Find a recipe by its ID.

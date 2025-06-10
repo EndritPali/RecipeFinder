@@ -11,7 +11,7 @@ import RecipeGridColumnLeft from './RecipeGridColumnLeft';
 import RecipeGridColumnRight from './RecipeGridColumnRight';
 
 export default function RecipeGrid() {
-    const { loading, recipes } = useFetchRecipes();
+    const { loading, recipes } = useFetchRecipes(false, false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRecipe, setSelectedRecipe] = useState(null);
     const batchSize = useBatchSize();

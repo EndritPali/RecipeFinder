@@ -27,7 +27,7 @@
         width: 100%;
         display: flex;
         flex-wrap: wrap;
-        gap: 20px;
+        // gap: 20px;
 
 
         .recipe-card {
@@ -106,6 +106,25 @@
                 }
             }
         }
+
+    }
+
+    .pagination-wrap {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        position: relative;
+
+        .ant-pagination {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+
+            .ant-pagination-total-text {
+                position: absolute;
+                left: 10px;
+            }
+        }
     }
 
     .btn-space {
@@ -135,6 +154,10 @@
             position: absolute;
             left: 10px;
         }
+    }
+
+    .ant-spin-nested-loading {
+        width: 100%;
     }
 }
 

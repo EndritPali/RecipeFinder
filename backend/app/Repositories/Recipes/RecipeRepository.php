@@ -8,6 +8,7 @@ use App\Models\Recipe;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use InvalidArgumentException;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use RuntimeException;
 
 /**
@@ -32,8 +33,20 @@ final class RecipeRepository implements RecipeRepositoryInterface
     {
         return $this->model->newQuery()
             ->with(['creator', 'ingredients', 'categories'])
+            ->orderBy('id')
             ->get();
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getPaginated(int $perPage = 15): LengthAwarePaginator
+    {
+        return $this->model->newQuery()
+            ->paginate($perPage);
+    }
+
 
     /**
      * {@inheritDoc}

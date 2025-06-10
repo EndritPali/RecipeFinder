@@ -1,7 +1,7 @@
-import { Card, Row, Col, Avatar } from 'antd';
+import { Card, Row, Col, Avatar, Pagination, Spin } from 'antd';
 import { EditOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
 
-export default function GridSort({ data, onEdit, onDelete }) {
+export default function GridSort({ data, onEdit, onDelete, pagination, loading }) {
   const { Meta } = Card;
 
   const handleEdit = (item) => () => {
@@ -13,39 +13,50 @@ export default function GridSort({ data, onEdit, onDelete }) {
   };
 
   return (
-    <Row gutter={[16, 16]} className="grid-view">
-      {data.map(item => (
-        <Col key={item.key} xs={24} sm={12} md={8} lg={6}>
-          <Card
-            className="recipe-card"
-            hoverable
-            cover={
-              item.username && item.email ? (
-                <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '1rem' }}>
-                  <Avatar size={96} icon={<UserOutlined />} />
-                </div>
-              ) : (
-                <img
-                  alt={item.recipetitle }
-                  src={item.image }
-                />
-              )
-            }
-            actions={[
-              <EditOutlined key="edit" onClick={handleEdit(item)} />,
-              <DeleteOutlined key="delete" onClick={handleDelete(item)} />,
-            ]}
-          >
-            <Meta
-              title={item.recipetitle || item.username}
-              description={
-                <CardDescription item={item} />
+    <Spin spinning={loading}>
+      <Row gutter={[16, 16]} className="grid-view">
+        {data.map(item => (
+          <Col key={item.key} xs={24} sm={12} md={8} lg={6}>
+            <Card
+              className="recipe-card"
+              hoverable
+              cover={
+                item.username && item.email ? (
+                  <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '1rem' }}>
+                    <Avatar size={96} icon={<UserOutlined />} />
+                  </div>
+                ) : (
+                  <img
+                    alt={item.recipetitle}
+                    src={item.image}
+                  />
+                )
               }
-            />
-          </Card>
-        </Col>
-      ))}
-    </Row>
+              actions={[
+                <EditOutlined key="edit" onClick={handleEdit(item)} />,
+                <DeleteOutlined key="delete" onClick={handleDelete(item)} />,
+              ]}
+            >
+              <Meta
+                title={item.recipetitle || item.username}
+                description={
+                  <CardDescription item={item} />
+                }
+              />
+            </Card>
+          </Col>
+        ))}
+      </Row>
+      {pagination &&
+        <div className='pagination-wrap'>
+          <Pagination
+            {...pagination}
+            showSizeChanger
+            showTotal={(total) => `Total ${total} items`}
+          />
+        </div>
+      }
+    </Spin>
   );
 }
 

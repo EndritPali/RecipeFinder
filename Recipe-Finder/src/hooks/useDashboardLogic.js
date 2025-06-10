@@ -1,77 +1,106 @@
-import { useMemo, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useFetchRecipes } from './useFetchRecipes';
-import { useFetchUsers } from './useFetchUsers';
-import { useDeleteRecipes } from './useDeleteRecipes';
-import { useDeleteUsers } from './useDeleteUsers';
-import { columns as recipeColumns } from '../Admin/Data/Data';
-import { columns as userColumns } from '../Admin/Data/UserData';
-import useAuth from '../hooks/useAuth'; 
+import { useMemo, useCallback } from "react";
+import { useLocation } from "react-router-dom";
+import { useFetchRecipes } from "./useFetchRecipes";
+import { useFetchUsers } from "./useFetchUsers";
+import { useDeleteRecipes } from "./useDeleteRecipes";
+import { useDeleteUsers } from "./useDeleteUsers";
+import { columns as recipeColumns } from "../Admin/Data/Data";
+import { columns as userColumns } from "../Admin/Data/UserData";
+import useAuth from "../hooks/useAuth";
 
 export function useDashboardLogic(searchTerm, setIsModalOpen, setSelectedItem) {
-    const location = useLocation();
-    const isUserDashboard = location.pathname === '/admin/users';
+  const location = useLocation();
+  const isUserDashboard = location.pathname === "/admin/users";
 
-    const { currentUser, isAuthenticated } = useAuth(); 
-    const userRole = currentUser?.role;
-    const isUser = userRole === 'User';
+  const { currentUser, isAuthenticated } = useAuth();
+  const userRole = currentUser?.role;
+  const isUser = userRole === "User";
 
-    const { recipes, loading: loadingRecipes, fetchRecipes } = useFetchRecipes(isUser);
-    const { users, loading: loadingUsers, fetchUsers } = useFetchUsers();
+  const {
+    recipes,
+    loading: loadingRecipes,
+    fetchRecipes,
+    pagination: recipePagination,
+    handleTableChange: handleRecipeTableChange,
+  } = useFetchRecipes(isUser);
 
-    const loading = !isAuthenticated || (isUserDashboard ? loadingUsers : loadingRecipes);
+  const {
+    users,
+    loading: loadingUsers,
+    fetchUsers,
+    pagination: userPagination,
+    handleTableChange: handleUserTableChange,
+  } = useFetchUsers();
 
-    const { deleteRecipe } = useDeleteRecipes(fetchRecipes);
-    const { deleteUser } = useDeleteUsers(fetchUsers);
+  const loading =
+    !isAuthenticated || (isUserDashboard ? loadingUsers : loadingRecipes);
 
-    const handleShowModal = useCallback((record) => {
-        setSelectedItem(record);
-        setIsModalOpen(true);
-    }, [setIsModalOpen, setSelectedItem]);
+  const { deleteRecipe } = useDeleteRecipes(() => {
+    fetchRecipes(recipePagination.current, recipePagination.pageSize);
+  });
 
-    const handleDelete = useCallback(async (id) => {
-        const msg = isUserDashboard
-            ? 'Are you sure you want to delete this user?'
-            : 'Are you sure you want to delete this recipe?';
+  const { deleteUser } = useDeleteUsers(() => {
+    fetchUsers(userPagination.current, userPagination.pageSize);
+  });
 
-        if (window.confirm(msg)) {
-            try {
-                isUserDashboard ? await deleteUser(id) : await deleteRecipe(id);
-            } catch (err) {
-                console.error("Deletion error:", err);
-                alert("Something went wrong during deletion");
-            }
+  const handleShowModal = useCallback(
+    (record) => {
+      setSelectedItem(record);
+      setIsModalOpen(true);
+    },
+    [setIsModalOpen, setSelectedItem]
+  );
+
+  const handleDelete = useCallback(
+    async (id) => {
+      const msg = isUserDashboard
+        ? "Are you sure you want to delete this user?"
+        : "Are you sure you want to delete this recipe?";
+
+      if (window.confirm(msg)) {
+        try {
+          isUserDashboard ? await deleteUser(id) : await deleteRecipe(id);
+        } catch (err) {
+          console.error("Deletion error:", err);
+          alert("Something went wrong during deletion");
         }
-    }, [deleteUser, deleteRecipe, isUserDashboard]);
+      }
+    },
+    [deleteUser, deleteRecipe, isUserDashboard]
+  );
 
-    const columns = useMemo(() => {
-        return isUserDashboard
-            ? userColumns(handleShowModal, handleDelete)
-            : recipeColumns(handleShowModal, handleDelete);
-    }, [isUserDashboard, handleShowModal, handleDelete]);
+  const columns = useMemo(() => {
+    return isUserDashboard
+      ? userColumns(handleShowModal, handleDelete)
+      : recipeColumns(handleShowModal, handleDelete);
+  }, [isUserDashboard, handleShowModal, handleDelete]);
 
-    const dataSource = useMemo(() =>{
-        return isUserDashboard
-        ? users.filter(user => user.key !== currentUser?.id)
-        : recipes;
-    }, [isUserDashboard, users, recipes, currentUser?.id]);
+  const dataSource = useMemo(() => {
+    return isUserDashboard
+      ? users.filter((user) => user.key !== currentUser?.id)
+      : recipes;
+  }, [isUserDashboard, users, recipes, currentUser?.id]);
 
-    const filteredData = useMemo(() => {
-        return dataSource.filter(item => {
-            const term = isUserDashboard ? item.username : item.recipetitle;
-            return (term || '').toLowerCase().includes(searchTerm.toLowerCase());
-        });
-    }, [dataSource, isUserDashboard, searchTerm]);
+  const filteredData = useMemo(() => {
+    return dataSource.filter((item) => {
+      const term = isUserDashboard ? item.username : item.recipetitle;
+      return (term || "").toLowerCase().includes(searchTerm.toLowerCase());
+    });
+  }, [dataSource, isUserDashboard, searchTerm]);
 
-    return {
-        isUserDashboard,
-        filteredData,
-        columns,
-        loading,
-        fetchUsers,
-        fetchRecipes,
-        handleShowModal,
-        handleDelete,
-        currentUser
-    };
+  return {
+    isUserDashboard,
+    filteredData,
+    columns,
+    loading,
+    fetchUsers,
+    fetchRecipes,
+    handleShowModal,
+    handleUserTableChange,
+    handleRecipeTableChange,
+    userPagination,
+    recipePagination,
+    handleDelete,
+    currentUser,
+  };
 }
