@@ -172,4 +172,15 @@ final class RecipeRepository implements RecipeRepositoryInterface
             ->where('created_by', $userId)
             ->get();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getByUserPaginated(string $userId, int $perPage = 15): LengthAwarePaginator
+    {
+        return $this->model->newQuery()
+            ->with(['ingredients', 'categories'])
+            ->where('created_by', $userId)
+            ->paginate($perPage);
+    }
 }

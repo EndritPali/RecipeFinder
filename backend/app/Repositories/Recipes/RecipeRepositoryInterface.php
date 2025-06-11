@@ -96,4 +96,13 @@ interface RecipeRepositoryInterface
      * @return Collection The collection of recipes
      */
     public function getByUser(string $userId): Collection;
+
+    /**
+     * Get paginated recipes created by a specific user.
+     *
+     * @param string $userId The user ID
+     * @param int $perPage Number of recipes per page
+     * @return LengthAwarePaginator
+     */
+    public function getByUserPaginated(string $userId, int $perPage = 15): LengthAwarePaginator;
 }
