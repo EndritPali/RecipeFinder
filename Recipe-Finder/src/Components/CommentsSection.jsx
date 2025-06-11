@@ -3,14 +3,14 @@ import { useState } from 'react';
 import '../Scss/CommentSection.scss';
 import CommentsTemplate from '../Templates/CommentTemplate';
 import circleRight from '../assets/circle-right.svg';
-import { Button, Skeleton, message } from 'antd';
+import { Button, Skeleton, message, Pagination } from 'antd';
 import CreateCommentModal from '../Templates/CreateCommentModal';
 import CommentButtons from '../Templates/CommentButtons';
 import api from '../Services/api';
 import useAuth from '../hooks/useAuth';
 
 export default function CommentsSection() {
-    const { comments, loading, refreshComments } = useFetchComments();
+    const { comments, loading, refreshComments, handleTableChange, pagination } = useFetchComments();
     const { currentUser, isAuthenticated } = useAuth();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,11 +54,15 @@ export default function CommentsSection() {
         }
     };
 
+    const handlePaginationChange = (page, pageSize) => {
+        handleTableChange({ current: page, pageSize });
+    };
+
     return (
         <>
             <div className="comments__wrapper">
                 <div className="comments__header">
-                    <h2>Comments ({comments.length})</h2>
+                    <h2>Comments ({pagination.total})</h2>
                     <div className="comments__header-arrow">
                         <img src={circleRight} alt="circle-right" />
                     </div>
@@ -66,7 +70,7 @@ export default function CommentsSection() {
 
                 <div className="comments__section">
                     {loading ? (
-                        Array.from({ length: 3 }).map((_, index) => (
+                        Array.from({ length: pagination.pageSize }).map((_, index) => (
                             <div key={index} style={{ width: 300, margin: '0 1rem' }}>
                                 <Skeleton active paragraph={{ rows: 2 }} />
                             </div>
@@ -100,13 +104,24 @@ export default function CommentsSection() {
                     )}
                 </div>
 
-                <Button
-                    onClick={handleOpenModal}
-                    className="create-comment-button"
-                    disabled={!isAuthenticated}
-                >
-                    Comment
-                </Button>
+                <div className="comments__pagination">
+                    <Button
+                        onClick={handleOpenModal}
+                        className="create-comment-button"
+                        disabled={!isAuthenticated}
+                    >
+                        Comment
+                    </Button>
+
+                    <Pagination
+                        current={pagination.current}
+                        pageSize={pagination.pageSize}
+                        total={pagination.total}
+                        onChange={handlePaginationChange}
+                        showSizeChanger
+                    />
+                </div>
+
             </div>
 
             <CreateCommentModal

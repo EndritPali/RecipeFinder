@@ -6,6 +6,7 @@ namespace App\Repositories\Comments;
 
 use App\Models\Comment;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Class CommentRepository
@@ -82,5 +83,21 @@ final class CommentRepository implements CommentRepositoryInterface
     public function delete(Comment $comment): void
     {
         $comment->delete();
+    }
+
+    /**
+     * Get paginated comments with their associated users.
+     *
+     * @param int|null $perPage Number of items per page (default: 10)
+     * @return LengthAwarePaginator Returns a paginator instance of comments with eager loaded users
+     */
+    public function getPaginated(?int $perPage = null): LengthAwarePaginator
+    {
+        $perPage = $perPage ?? 10;
+        $perPage = min(max($perPage, 1), 100);
+
+        return Comment::with('user')
+            ->latest()
+            ->paginate($perPage);
     }
 }

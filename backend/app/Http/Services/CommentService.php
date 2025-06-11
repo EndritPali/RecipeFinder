@@ -12,7 +12,9 @@ use App\Support\Classes\ServiceResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 use Exception;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Class CommentService
@@ -29,32 +31,25 @@ final class CommentService
     ) {}
 
     /**
-     * Retrieve all comments with their users.
+     * Retrieve paginated comments with their users.
      *
-     * @return ServiceResponse<ResourceCollection> Returns a collection of comments with their associated users
+     * @param int|null $perPage Number of items per page
+     * @return LengthAwarePaginator Returns a paginated collection of comments with their associated users
      *
      * @throws Exception When database query fails
      */
-    public function getAllComments(): ServiceResponse
+    public function getAllComments(?int $perPage = null): LengthAwarePaginator
     {
         try {
-            $comments = $this->repository->getAllWithUser();
-
-            return new ServiceResponse(
-                true,
-                CommentResource::collection($comments)
-            );
+            return $this->repository->getPaginated($perPage);
         } catch (Exception $e) {
-            Log::error('Failed to get all comments', [
+            Log::error('Failed to get paginated comments', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'per_page' => $perPage
             ]);
 
-            return new ServiceResponse(
-                false,
-                null,
-                'Failed to retrieve comments'
-            );
+            throw $e;
         }
     }
 

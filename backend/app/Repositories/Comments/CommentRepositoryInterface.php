@@ -6,6 +6,7 @@ namespace App\Repositories\Comments;
 
 use App\Models\Comment;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Interface CommentRepositoryInterface
@@ -20,6 +21,14 @@ interface CommentRepositoryInterface
      * @return Collection<int, Comment> Returns a collection of comments with eager loaded users
      */
     public function getAllWithUser(): Collection;
+
+    /**
+     * Get paginated comments with their associated users.
+     *
+     * @param int|null $perPage Number of items per page (default: 10)
+     * @return LengthAwarePaginator Returns a paginator instance of comments with eager loaded users
+     */
+    public function getPaginated(?int $perPage = null): LengthAwarePaginator;
 
     /**
      * Create a new comment.
