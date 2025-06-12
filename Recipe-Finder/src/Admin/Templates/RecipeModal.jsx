@@ -54,7 +54,7 @@ export default function RecipeModal({ open, onOk, onCancel, mode = 'create', ite
                         <Form.Item name="category">
                             <Select placeholder='Select Category'>
                                 <Select.Option value='With Features'>With Features</Select.Option>
-                                <Select.Option value='With benefits'>With benefits</Select.Option>
+                                <Select.Option value='With Benefits'>With Benefits</Select.Option>
                             </Select>
                         </Form.Item>
                         <Form.Item name="rating">

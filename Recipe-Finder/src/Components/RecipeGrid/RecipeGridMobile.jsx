@@ -10,7 +10,7 @@ export default function RecipeGridMobile() {
     const { recipes } = useFetchRecipes();
 
     const filteredRecipes = useMemo(() =>
-        recipes.filter(recipe => recipe.category === 'With benefits'),
+        recipes.filter(recipe => recipe.category === 'With Benefits'),
         [recipes]
     );
 
@@ -57,9 +57,9 @@ export default function RecipeGridMobile() {
                     <div className="recipe-grid-mobile__header-primary">
                         <h3>With benefits</h3>
                     </div>
-                    <div className="recipe-grid-mobile__header-link">
+                    {/* <div className="recipe-grid-mobile__header-link">
                         <a href="#">See all</a>
-                    </div>
+                    </div> */}
                 </div>
 
                 <div className="recipe-grid-mobile__col recipe-grid-mobile__col--first">

@@ -18,7 +18,7 @@ export default function RecipeGrid() {
     const [currentPage, setCurrentPage] = useState(0);
 
     const filteredRecipes = useMemo(() => {
-        return recipes.filter(recipe => recipe.category === 'With benefits');
+        return recipes.filter(recipe => recipe.category === 'With Benefits');
     }, [recipes]);
 
     const startIndex = batchSize === Infinity ? 0 : currentPage * batchSize;

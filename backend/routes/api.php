@@ -33,8 +33,11 @@ Route::prefix('v1')->group(function () {
     Route::apiResource('recipes', RecipeController::class)->only(['index']);
     Route::apiResource('ingredients', IngredientController::class);
     Route::apiResource('category', CategoryController::class);
-    Route::apiResource('recipe-ingredients', RecipeIngredientController::class)->only(['store', 'destroy']);
-    Route::apiResource('recipe-category', RecipeCategoryController::class)->only(['store', 'destroy']);
+    Route::post('recipes/{recipeId}/ingredients', [RecipeIngredientController::class, 'store']);
+    Route::put('recipes/{recipeId}/ingredients/{ingredientId}', [RecipeIngredientController::class, 'update']);
+    Route::delete('recipes/{recipeId}/ingredients/{ingredientId}', [RecipeIngredientController::class, 'destroy']);
+    Route::post('recipes/{recipeId}/category', [RecipeCategoryController::class, 'store']);
+    Route::delete('recipes/{recipeId}/category/{categoryId}', [RecipeCategoryController::class, 'destroy']);
     Route::apiResource('comments', CommentController::class)->only(['index', 'show']);
 
     Route::prefix('auth')->group(function () {
