@@ -41,10 +41,7 @@ final class MyRecipesController extends ApiController
                 return $this->errorResponse('Unauthorized', 401);
             }
 
-            $perPage = (int) $request->get('per_page', 15);
-            if ($perPage < 1 || $perPage > 100) {
-                $perPage = 15;
-            }
+            $perPage = $request->get('per_page') ? (int) $request->get('per_page') : null;
 
             $recipes = $this->recipes->getByUserPaginated((string) $user->id, $perPage);
             return RecipeResource::collection($recipes);

@@ -31,7 +31,7 @@ interface RecipeRepositoryInterface
      * @param int $perPage Number of recipes per page
      * @return LengthAwarePaginator
      */
-    public function getPaginated(int $perPage = 15): LengthAwarePaginator;
+    public function getPaginated(?int $perPage = null): LengthAwarePaginator;
 
 
     /**

@@ -55,12 +55,9 @@ class RecipeController extends ApiController
      */
     public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
-        $perPage = (int) $request->get('per_page', 15);
-        if ($perPage < 1 || $perPage > 100) {
-            $perPage = 15;
-        }
-
+        $perPage = $request->get('per_page') ? (int) $request->get('per_page') : null;
         $paginatedRecipes = $this->recipeRepository->getPaginated($perPage);
+
         return RecipeResource::collection($paginatedRecipes);
     }
 

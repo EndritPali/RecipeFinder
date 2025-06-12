@@ -41,8 +41,11 @@ final class RecipeRepository implements RecipeRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function getPaginated(int $perPage = 15): LengthAwarePaginator
+    public function getPaginated(?int $perPage = null): LengthAwarePaginator
     {
+        $perPage = $perPage ?? 15;
+        $perPage = min(max($perPage, 1), 100);
+
         return $this->model->newQuery()
             ->paginate($perPage);
     }
@@ -176,8 +179,11 @@ final class RecipeRepository implements RecipeRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function getByUserPaginated(string $userId, int $perPage = 15): LengthAwarePaginator
+    public function getByUserPaginated(string $userId, ?int $perPage = null): LengthAwarePaginator
     {
+        $perPage = $perPage ?? 15;
+        $perPage = min(max($perPage, 1), 100);
+
         return $this->model->newQuery()
             ->with(['ingredients', 'categories'])
             ->where('created_by', $userId)
