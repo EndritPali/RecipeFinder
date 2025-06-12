@@ -97,7 +97,7 @@ final class CommentRepository implements CommentRepositoryInterface
         $perPage = min(max($perPage, 1), 100);
 
         return Comment::with('user')
-            ->latest()
+            ->first()
             ->paginate($perPage);
     }
 }

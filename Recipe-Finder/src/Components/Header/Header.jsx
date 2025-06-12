@@ -18,7 +18,7 @@ export default function Header() {
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
-  const { recipes, loading } = useFetchRecipes();
+  const { recipes, loading } = useFetchRecipes(false, false);
   const { savedRecipes, loading: savedLoading } = useSavedRecipes();
   const { user, menuItems } = useUserAccount(setModalMode, setIsAccountModalOpen);
   const { filteredOptions, handleSearch, handleSelect } = useRecipeSearch(
