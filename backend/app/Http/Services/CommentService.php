@@ -9,6 +9,7 @@ use App\Http\Requests\Api\V1\StoreCommentRequest;
 use App\Http\Requests\Api\V1\UpdateCommentRequest;
 use App\Http\Resources\CommentResource;
 use App\Support\Classes\ServiceResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

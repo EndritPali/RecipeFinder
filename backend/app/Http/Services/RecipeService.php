@@ -19,7 +19,7 @@ use Exception;
  *
  * @package App\Http\Services
  */
-class RecipeService
+final class RecipeService
 {
     /**
      * Recipe repository for data access.

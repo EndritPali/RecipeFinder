@@ -29,20 +29,13 @@ final class UserController extends ApiController
     private $userRepository;
 
     /**
-     * @var UserService
-     */
-    private $userService;
-
-    /**
      * @param UserRepositoryInterface $userRepository Repository for user operations
-     * @param UserService $userService Service for user management operations
      */
     public function __construct(
         UserRepositoryInterface $userRepository,
-        UserService $userService
+
     ) {
         $this->userRepository = $userRepository;
-        $this->userService = $userService;
     }
 
     /**
@@ -67,7 +60,7 @@ final class UserController extends ApiController
      */
     public function store(StoreUserRequest $request): UserResource|JsonResponse
     {
-        $response = $this->userService->store($request->validated());
+        $response = UserService::store($request->validated());
 
         if (!$response->success()) {
             return $this->errorResponse($response->getMessage(), 422);
@@ -101,7 +94,7 @@ final class UserController extends ApiController
      */
     public function update(UpdateUserRequest $request, string $id): UserResource|JsonResponse
     {
-        $response = $this->userService->update($id, $request->validated());
+        $response = UserService::update($id, $request->validated());
 
         if (!$response->success()) {
             return $this->errorResponse($response->getMessage(), 422);

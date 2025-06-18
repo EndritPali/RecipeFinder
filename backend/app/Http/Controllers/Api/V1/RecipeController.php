@@ -16,7 +16,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
  *
  * Endpoints for managing recipes.
  */
-class RecipeController extends ApiController
+final class RecipeController extends ApiController
 {
 
     /**
