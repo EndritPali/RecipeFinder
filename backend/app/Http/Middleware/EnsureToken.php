@@ -25,7 +25,10 @@ class EnsureToken
         }
 
         // Authenticate user via Auth facade
-        Auth::login($session->user->first());
+        $user = $session->user;
+        if ($user instanceof \Illuminate\Contracts\Auth\Authenticatable) {
+            Auth::login($user);
+        }
 
         // Attach user to request manually
         $request->setUserResolver(fn() => $session->user);
