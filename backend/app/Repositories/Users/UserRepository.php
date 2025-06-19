@@ -53,7 +53,7 @@ final class UserRepository implements UserRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function findById(string $id): User
+    public function findById(int|string $id): User
     {
         try {
             return $this->model->newQuery()

@@ -9,6 +9,7 @@ use App\Http\Requests\Api\V1\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Services\Auth\UserService;
 use Illuminate\Http\JsonResponse;
+use App\Models\User;
 use App\Repositories\Users\Contracts\UserRepositoryInterface;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Request;
@@ -89,12 +90,15 @@ final class UserController extends ApiController
      * Update a specific user.
      *
      * @param UpdateUserRequest $request Validated request for user update
-     * @param string $id User ID
+     * @param User $user User ID
      * @return UserResource|JsonResponse Updated user resource or error response
      */
-    public function update(UpdateUserRequest $request, string $id): UserResource|JsonResponse
+    public function update(UpdateUserRequest $request, User $user): UserResource|JsonResponse
     {
-        $response = UserService::update($id, $request->validated());
+ 
+        $this->authorize('update', $user);
+
+        $response = UserService::update($user->id, $request->validated());
 
         if (!$response->success()) {
             return $this->errorResponse($response->getMessage(), 422);
@@ -106,16 +110,17 @@ final class UserController extends ApiController
     /**
      * Remove a specific user.
      *
-     * @param string $id User ID
+     * @param User $user User ID
      * @return JsonResponse Success or error response
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(User $user): JsonResponse
     {
         try {
-            $user = $this->userRepository->findById($id);
-            $deleted = $this->userRepository->softDelete($user);
+            $this->authorize('delete', $user);
 
-            if (!$deleted) {
+            $response = UserService::destroy($user->id);
+
+            if (!$response->success()) {
                 return $this->errorResponse('Failed to delete user', 500);
             }
 

@@ -39,7 +39,7 @@ interface UserRepositoryInterface
      * @throws ModelNotFoundException When user is not found
      * @return User The found user instance
      */
-    public function findById(string $id): User;
+    public function findById(int|string $id): User;
 
     /**
      * Find a user by their ID without throwing an exception.

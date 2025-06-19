@@ -25,7 +25,7 @@ class EnsureToken
         }
 
         // Authenticate user via Auth facade
-        Auth::login($session->user);
+        Auth::login($session->user->first());
 
         // Attach user to request manually
         $request->setUserResolver(fn() => $session->user);

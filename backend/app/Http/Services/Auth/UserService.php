@@ -65,7 +65,7 @@ final class UserService
      * @param string $id User ID
      * @return ServiceResponse<\App\Models\User>
      */
-    public static function getById(string $id): ServiceResponse
+    public static function getById(int|string $id): ServiceResponse
     {
         try {
             $user = self::$userRepository->findById($id);
@@ -87,7 +87,7 @@ final class UserService
      * @param array<string, mixed> $data Updated user data
      * @return ServiceResponse<\App\Models\User>
      */
-    public static function update(string $id, array $data): ServiceResponse
+    public static function update(int|string $id, array $data): ServiceResponse
     {
         try {
             DB::beginTransaction();
@@ -122,7 +122,7 @@ final class UserService
      * @param string $id User ID
      * @return ServiceResponse<null>
      */
-    public static function destroy(string $id): ServiceResponse
+    public static function destroy(int|string $id): ServiceResponse
     {
         try {
             $user = self::$userRepository->findById($id);
