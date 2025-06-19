@@ -6,6 +6,8 @@ use App\Http\Requests\Api\V1\StoreRecipeRequest;
 use App\Http\Requests\Api\V1\UpdateRecipeRequest;
 use App\Http\Resources\RecipeResource;
 use App\Http\Services\RecipeService;
+use App\Models\Recipe;
+use App\Models\User;
 use App\Repositories\Recipes\RecipeRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,12 +28,6 @@ final class RecipeController extends ApiController
      */
     private $recipeRepository;
 
-    /**
-     * Recipe service instance.
-     *
-     * @var RecipeService
-     */
-    private RecipeService $recipeService;
 
     /**
      * Create a new controller instance.
@@ -40,10 +36,8 @@ final class RecipeController extends ApiController
      * @param RecipeRepositoryInterface $recipeRepository
      */
     public function __construct(
-        RecipeService $recipeService,
         RecipeRepositoryInterface $recipeRepository
     ) {
-        $this->recipeService = $recipeService;
         $this->recipeRepository = $recipeRepository;
     }
 
@@ -69,7 +63,7 @@ final class RecipeController extends ApiController
      */
     public function store(StoreRecipeRequest $request): RecipeResource|JsonResponse
     {
-        $response = $this->recipeService->store($request);
+        $response = RecipeService::store($request);
 
         if ($response->success()) {
             return new RecipeResource($response->getModel());
@@ -87,7 +81,7 @@ final class RecipeController extends ApiController
      */
     public function show(string $id): RecipeResource|JsonResponse
     {
-        $response = $this->recipeService->getById($id);
+        $response = RecipeService::getById($id);
 
         if ($response->success()) {
             return new RecipeResource($response->getModel());
@@ -103,9 +97,10 @@ final class RecipeController extends ApiController
      * @param string $id
      * @return RecipeResource|JsonResponse
      */
-    public function update(UpdateRecipeRequest $request, string $id): RecipeResource|JsonResponse
+    public function update(UpdateRecipeRequest $request, Recipe $recipe): RecipeResource|JsonResponse
     {
-        $response = $this->recipeService->update($request, $id);
+        $this->authorize('update', $recipe);
+        $response = RecipeService::update($request, $recipe->id);
 
         if ($response->success()) {
             return new RecipeResource($response->getModel());
@@ -122,9 +117,10 @@ final class RecipeController extends ApiController
      * @param string $id
      * @return JsonResponse
      */
-    public function destroy(Request $request, string $id): JsonResponse
+    public function destroy(Request $request, Recipe $recipe): JsonResponse
     {
-        $response = $this->recipeService->destroy($request, $id);
+        $this->authorize('delete', $recipe);
+        $response = RecipeService::destroy($request, $recipe->id);
 
         if ($response->success()) {
             return response()->json(['message' => 'Recipe deleted successfully.'], 200);

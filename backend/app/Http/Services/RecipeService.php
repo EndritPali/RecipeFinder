@@ -24,8 +24,8 @@ final class RecipeService
     /**
      * Recipe repository for data access.
      */
-    private RecipeRepositoryInterface $recipeRepository;
-    private RecipeRelationService $relationService;
+    private static RecipeRepositoryInterface $recipeRepository;
+    private static RecipeRelationService $relationService;
 
     /**
      * RecipeService constructor.
@@ -36,8 +36,8 @@ final class RecipeService
         RecipeRepositoryInterface $recipeRepository,
         RecipeRelationService $recipeRelation
     ) {
-        $this->recipeRepository = $recipeRepository;
-        $this->relationService = $recipeRelation;
+        self::$recipeRepository = $recipeRepository;
+        self::$relationService = $recipeRelation;
     }
 
     /**
@@ -45,10 +45,10 @@ final class RecipeService
      *
      * @return ServiceResponse
      */
-    public function getAll(): ServiceResponse
+    public static function getAll(): ServiceResponse
     {
         try {
-            $recipes = $this->recipeRepository->all();
+            $recipes = self::$recipeRepository->all();
             return new ServiceResponse(true, $recipes);
         } catch (Exception $e) {
             Log::error('RecipeService::getAll Exception: ' . $e->getMessage());
@@ -62,7 +62,7 @@ final class RecipeService
      * @param Request $request
      * @return ServiceResponse
      */
-    public function store(Request $request): ServiceResponse
+    public static function store(Request $request): ServiceResponse
     {
         try {
             DB::beginTransaction();
@@ -75,9 +75,9 @@ final class RecipeService
             $validated = $request->validated();
             $validated['created_by'] = $user->id;
 
-            $recipe = $this->recipeRepository->create($validated);
+            $recipe = self::$recipeRepository->create($validated);
 
-            $this->relationService->processRelations($request, $recipe);
+            self::$relationService->processRelations($request, $recipe);
 
             DB::commit();
             return new ServiceResponse(true, $recipe, 'Recipe created successfully');
@@ -94,10 +94,10 @@ final class RecipeService
      * @param string $id
      * @return ServiceResponse
      */
-    public function getById(string $id): ServiceResponse
+    public static function getById(int|string $id): ServiceResponse
     {
         try {
-            $recipe = $this->recipeRepository->find($id);
+            $recipe = self::$recipeRepository->find($id);
             return new ServiceResponse(true, $recipe);
         } catch (Exception $e) {
             Log::error('RecipeService::getById Exception: ' . $e->getMessage());
@@ -112,27 +112,21 @@ final class RecipeService
      * @param string $id
      * @return ServiceResponse
      */
-    public function update(Request $request, string $id): ServiceResponse
+    public static function update(Request $request, int|string $id): ServiceResponse
     {
         try {
             DB::beginTransaction();
 
-            $recipe = $this->recipeRepository->find($id);
-            $user = $request->user();
-
-            $permission = $this->canUserModifyRecipe($user, $recipe);
-            if (!$permission->success()) {
-                return $permission;
-            }
+            $recipe = self::$recipeRepository->find($id);
 
             $validated = $request->validated();
-            $this->recipeRepository->update($recipe, $validated);
+            self::$recipeRepository->update($recipe, $validated);
 
-            $this->relationService->processRelations($request, $recipe);
+            self::$relationService->processRelations($request, $recipe);
 
             DB::commit();
 
-            $updatedRecipe = $this->recipeRepository->find($id);
+            $updatedRecipe = self::$recipeRepository->find($id);
             return new ServiceResponse(true, $updatedRecipe, 'Recipe updated successfully');
         } catch (Exception $e) {
             DB::rollBack();
@@ -148,21 +142,15 @@ final class RecipeService
      * @param string $id
      * @return ServiceResponse
      */
-    public function destroy(Request $request, string $id): ServiceResponse
+    public static function destroy(Request $request, string $id): ServiceResponse
     {
         try {
             DB::beginTransaction();
 
-            $recipe = $this->recipeRepository->find($id);
-            $user = $request->user();
+            $recipe = self::$recipeRepository->find($id);
 
-            $permission = $this->canUserModifyRecipe($user, $recipe);
-            if (!$permission->success()) {
-                return $permission;
-            }
-
-            $this->relationService->detachRelations($recipe);
-            $deleted = $this->recipeRepository->delete($recipe);
+            self::$relationService->detachRelations($recipe);
+            $deleted = self::$recipeRepository->delete($recipe);
 
             DB::commit();
             return new ServiceResponse($deleted, null, $deleted ? 'Recipe deleted successfully' : 'Deletion failed');
@@ -171,21 +159,5 @@ final class RecipeService
             Log::error('RecipeService::destroy Exception: ' . $e->getMessage());
             return new ServiceResponse(false, null, $e->getMessage());
         }
-    }
-
-    /**
-     * Check if user can modify the recipe.
-     *
-     * @param User $user
-     * @param Recipe $recipe
-     * @return ServiceResponse
-     */
-    private function canUserModifyRecipe(User $user, Recipe $recipe): ServiceResponse
-    {
-        if (!$user->can('update', $recipe)) {
-            return new ServiceResponse(false, null, 'Permission denied');
-        }
-
-        return new ServiceResponse(true);
     }
 }

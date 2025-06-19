@@ -95,7 +95,6 @@ final class UserController extends ApiController
      */
     public function update(UpdateUserRequest $request, User $user): UserResource|JsonResponse
     {
- 
         $this->authorize('update', $user);
 
         $response = UserService::update($user->id, $request->validated());
