@@ -20,6 +20,14 @@ use Illuminate\Support\Facades\Log;
 final class CategoryRepository implements CategoryRepositoryInterface
 {
     /**
+     * @param Category $model The User Eloquent model
+     */
+    public function __construct(
+        private readonly Category $model
+    ) {}
+
+
+    /**
      * Get all categories.
      *
      * @return Collection<int, Category>
@@ -43,7 +51,7 @@ final class CategoryRepository implements CategoryRepositoryInterface
      * @throws ModelNotFoundException When category not found
      * @throws Exception When database operation fails
      */
-    public function find(string $id): Category
+    public function find(int|string $id): Category
     {
         try {
             return Category::findOrFail($id);

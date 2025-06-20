@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Requests\Api\V1\StoreCategoryRequest;
 use App\Http\Requests\Api\V1\UpdateCategoryRequest;
 use App\Http\Services\CategoryService;
+use App\Repositories\Recipes\CategoryRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -23,16 +24,16 @@ final class CategoryController extends ApiController
     /**
      * Category service instance.
      */
-    private CategoryService $service;
+    private CategoryRepositoryInterface $categoryRepository;
 
     /**
      * Create a new controller instance.
      *
-     * @param CategoryService $service
+     * @param CategoryRepositoryInterface $categoryRepository
      */
-    public function __construct(CategoryService $service)
+    public function __construct(CategoryRepositoryInterface $categryRepository)
     {
-        $this->service = $service;
+        $this->categoryRepository = $categryRepository;
     }
 
     /**
@@ -42,7 +43,7 @@ final class CategoryController extends ApiController
      */
     public function index(): JsonResponse
     {
-        $response = $this->service->getAll();
+        $response = CategoryService::getAll();
 
         if ($response->success()) {
             return response()->json([
@@ -62,7 +63,7 @@ final class CategoryController extends ApiController
      */
     public function store(StoreCategoryRequest $request): JsonResponse
     {
-        $response = $this->service->create($request);
+        $response = CategoryService::create($request->validated());
 
         if ($response->success()) {
             return response()->json([
@@ -82,9 +83,9 @@ final class CategoryController extends ApiController
      * @param string $id
      * @return JsonResponse
      */
-    public function update(UpdateCategoryRequest $request, string $id)
+    public function update(UpdateCategoryRequest $request, Category $category)
     {
-        $response = $this->service->update($request, $id);
+        $response = CategoryService::update($request->validated(), $category->id);
 
         if ($response->success()) {
             return response()->json([
@@ -104,9 +105,9 @@ final class CategoryController extends ApiController
      * @param string $id
      * @return JsonResponse
      */
-    public function destroy(Request $request, string $id): JsonResponse
+    public function destroy(Category $category): JsonResponse
     {
-        $response = $this->service->delete($request, $id);
+        $response = CategoryService::delete( $category->id);
 
         if ($response->success()) {
             return response()->json([

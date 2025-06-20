@@ -24,16 +24,16 @@ final class CategoryService
     /**
      * Category repository for data access.
      */
-    private CategoryRepositoryInterface $categories;
+    private static $categoryRepository;
 
     /**
      * CategoryService constructor.
      *
-     * @param CategoryRepositoryInterface $categories
+     * @param CategoryRepositoryInterface $categoryRepository
      */
-    public function __construct(CategoryRepositoryInterface $categories)
+    public function __construct(CategoryRepositoryInterface $categoryRepository)
     {
-        $this->categories = $categories;
+        self::$categoryRepository = $categoryRepository;
     }
 
     /**
@@ -41,13 +41,13 @@ final class CategoryService
      *
      * @return ServiceResponse
      */
-    public function getAll(): ServiceResponse
+    public static function getAll(): ServiceResponse
     {
         try {
-            $categories = $this->categories->all();
+            $categories = self::$categoryRepository->all();
             return new ServiceResponse(true, $categories);
         } catch (Exception $e) {
-            Log::error('CategoryService::getAll Exception: ' . $e->getMessage());
+            Log::channel('categorieslog')->error('CategoryService::getAll Exception: ' . $e->getMessage());
             return new ServiceResponse(false, null, $e->getMessage());
         }
     }
@@ -58,19 +58,18 @@ final class CategoryService
      * @param Request $request
      * @return ServiceResponse
      */
-    public function create(Request $request)
+    public static function create(array $data)
     {
         try {
             DB::beginTransaction();
 
-            $validated = $request->validated();
-            $category = $this->categories->create($validated);
+            $category = self::$categoryRepository->create($data);
 
             DB::commit();
             return new ServiceResponse(true, $category, 'Category created successfully');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('CategoryService::create Exception: ' . $e->getMessage());
+            Log::channel('categorieslog')->error('CategoryService::create Exception: ' . $e->getMessage());
             return new ServiceResponse(false, null, $e->getMessage());
         }
     }
@@ -82,20 +81,19 @@ final class CategoryService
      * @param string $id
      * @return ServiceResponse
      */
-    public function update(Request $request, string $id)
+    public static function update(array $data, int|string $id)
     {
         try {
-            $category = $this->categories->find($id);
-            $validated = $request->validated();
-            $this->categories->update($category, $request->validated());
+            $category = self::$categoryRepository->find($id);
+            self::$categoryRepository->update($category, $data);
 
             DB::commit();
 
-            $updatedCategory = $this->categories->find($id);
+            $updatedCategory = self::$categoryRepository->find($id);
             return new ServiceResponse(true, $updatedCategory, 'Category updated successfully');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('CategoryService::update Exception: ' . $e->getMessage());
+            Log::channel('categorieslog')->error('CategoryService::update Exception: ' . $e->getMessage());
             return new ServiceResponse(false, null, $e->getMessage());
         }
     }
@@ -107,20 +105,20 @@ final class CategoryService
      * @param string $id
      * @return ServiceResponse
      */
-    public function delete(Request $request, string $id)
+    public static function delete(int|string $id)
     {
 
         try {
             DB::beginTransaction();
 
-            $category = $this->categories->find($id);
-            $deleted = $this->categories->delete($category);
+            $category = self::$categoryRepository->find($id);
+            $deleted = self::$categoryRepository->delete($category);
 
             DB::commit();
             return new ServiceResponse($deleted, null, $deleted ? 'Category deleted successfully' : 'Deletion failed');
         } catch (Exception $e) {
             DB::rollback();
-            Log::error('CategoryService::delete Exception: ' . $e->getMessage());
+            Log::channel('categorieslog')->error('CategoryService::delete Exception: ' . $e->getMessage());
             return new ServiceResponse(false, null, $e->getMessage());
         }
     }

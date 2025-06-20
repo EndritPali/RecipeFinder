@@ -32,7 +32,7 @@ interface CategoryRepositoryInterface
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When category not found
      * @throws \Exception When database operation fails
      */
-    public function find(string $id): Category;
+    public function find(int|string $id): Category;
 
     /**
      * Create a new category.
