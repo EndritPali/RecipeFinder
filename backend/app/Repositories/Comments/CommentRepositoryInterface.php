@@ -56,7 +56,7 @@ interface CommentRepositoryInterface
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When comment is not found
      */
-    public function find(string $id): Comment;
+    public function find(int|string $id): Comment;
 
     /**
      * Update an existing comment.

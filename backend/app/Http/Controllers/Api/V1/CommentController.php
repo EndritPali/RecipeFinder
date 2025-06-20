@@ -8,6 +8,8 @@ use App\Http\Requests\Api\V1\StoreCommentRequest;
 use App\Http\Requests\Api\V1\UpdateCommentRequest;
 use App\Http\Services\CommentService;
 use App\Http\Resources\CommentResource;
+use App\Models\Comment;
+use App\Repositories\Comments\CommentRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -23,12 +25,16 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
  */
 final class CommentController extends ApiController
 {
+    private $commentRepository;
+
     /**
      * Create a new controller instance.
      */
     public function __construct(
-        private readonly CommentService $service,
-    ) {}
+        CommentRepositoryInterface $commentRepository,
+    ) {
+        $this->commentRepository = $commentRepository;
+    }
 
     /**
      * Display a paginated listing of comments.
@@ -39,7 +45,8 @@ final class CommentController extends ApiController
     public function index(Request $request): AnonymousResourceCollection
     {
         $perPage = $request->get('per_page') ? (int) $request->get('per_page') : null;
-        $comments = $this->service->getAllComments($perPage);
+        $comments = $this->commentRepository->getPaginated($perPage);
+        
         return CommentResource::collection($comments);
     }
 
@@ -51,7 +58,7 @@ final class CommentController extends ApiController
      */
     public function store(StoreCommentRequest $request): CommentResource|JsonResponse
     {
-        $response = $this->service->createComment($request);
+        $response = CommentService::create($request);
 
         if (!$response->success()) {
             return $this->errorResponse($response->getMessage(), 400);
@@ -68,13 +75,12 @@ final class CommentController extends ApiController
      */
     public function show(string $id): CommentResource|JsonResponse
     {
-        $response = $this->service->getComment($id);
-
-        if (!$response->success()) {
-            return $this->errorResponse($response->getMessage(), 404);
+        try {
+            $comment = $this->commentRepository->find($id);
+            return new CommentResource($comment);
+        } catch (\Exception $e) {
+            return $this->errorResponse('Comment not found', 404);
         }
-
-        return new CommentResource($response->getModel());
     }
 
     /**
@@ -84,9 +90,10 @@ final class CommentController extends ApiController
      * @param string $id
      * @return CommentResource|JsonResponse
      */
-    public function update(UpdateCommentRequest $request, string $id): CommentResource|JsonResponse
+    public function update(UpdateCommentRequest $request, Comment $comment): CommentResource|JsonResponse
     {
-        $response = $this->service->updateComment($request, $id);
+        $this->authorize('update', $comment);
+        $response = CommentService::update($request, $comment->id);
 
         if (!$response->success()) {
             return $this->errorResponse($response->getMessage(), 403);
@@ -101,9 +108,10 @@ final class CommentController extends ApiController
      * @param string $id
      * @return JsonResponse
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(Comment $comment): JsonResponse
     {
-        $response = $this->service->deleteComment($id);
+        $this->authorize('delete', $comment);
+        $response = CommentService::destroy($comment->id);
 
         if (!$response->success()) {
             return $this->errorResponse($response->getMessage(), 403);

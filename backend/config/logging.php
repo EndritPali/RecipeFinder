@@ -96,7 +96,15 @@ return [
 
         'userslog' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/' . date('Y/m/d') . '/laravel.log'),
+            'path' => storage_path('logs/' . date('Y/m') . '/Users/laravel.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => env('LOG_DAILY_DAYS', 14),
+            'replace_placeholders' => true,
+        ],
+
+        'commentslog' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/' . date('Y/m') . '/Comments/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,

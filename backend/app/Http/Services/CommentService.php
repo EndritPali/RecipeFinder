@@ -10,10 +10,8 @@ use App\Http\Requests\Api\V1\UpdateCommentRequest;
 use App\Http\Resources\CommentResource;
 use App\Support\Classes\ServiceResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Http\Resources\Json\ResourceCollection;
 use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -24,12 +22,16 @@ use Illuminate\Pagination\LengthAwarePaginator;
  */
 final class CommentService
 {
+    private static CommentRepositoryInterface $commentRepository;
+
     /**
      * Create a new CommentService instance.
      */
     public function __construct(
-        private readonly CommentRepositoryInterface $repository,
-    ) {}
+        CommentRepositoryInterface $commentRepository
+    ) {
+        self::$commentRepository = $commentRepository;
+    }
 
     /**
      * Retrieve paginated comments with their users.
@@ -39,12 +41,12 @@ final class CommentService
      *
      * @throws Exception When database query fails
      */
-    public function getAllComments(?int $perPage = null): LengthAwarePaginator
+    public static function getAllComments(?int $perPage = null): LengthAwarePaginator
     {
         try {
-            return $this->repository->getPaginated($perPage);
+            return self::$commentRepository->getPaginated($perPage);
         } catch (Exception $e) {
-            Log::error('Failed to get paginated comments', [
+            Log::channel('commentslog')->error('Failed to get paginated comments', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'per_page' => $perPage
@@ -62,12 +64,12 @@ final class CommentService
      *
      * @throws Exception When comment creation fails
      */
-    public function createComment(StoreCommentRequest $request): ServiceResponse
+    public static function create(StoreCommentRequest $request): ServiceResponse
     {
         try {
             DB::beginTransaction();
 
-            $comment = $this->repository->create([
+            $comment = self::$commentRepository->create([
                 'user_id' => $request->user()->id,
                 'description' => $request->validated('description'),
                 'posted_at' => now(),
@@ -81,7 +83,7 @@ final class CommentService
             );
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Failed to create comment', [
+            Log::channel('commentslog')->error('Failed to create comment', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'request' => $request->validated()
@@ -103,17 +105,17 @@ final class CommentService
      *
      * @throws Exception When comment retrieval fails
      */
-    public function getComment(string $id): ServiceResponse
+    public static function getComment(int|string $id): ServiceResponse
     {
         try {
-            $comment = $this->repository->findWithUser($id);
+            $comment = self::$commentRepository->findWithUser($id);
 
             return new ServiceResponse(
                 true,
                 new CommentResource($comment)
             );
         } catch (Exception $e) {
-            Log::error('Failed to get comment', [
+            Log::channel('commentslog')->error('Failed to get comment', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'id' => $id
@@ -136,23 +138,13 @@ final class CommentService
      *
      * @throws Exception When comment update fails
      */
-    public function updateComment(UpdateCommentRequest $request, string $id): ServiceResponse
+    public static function update(UpdateCommentRequest $request, int|string $id): ServiceResponse
     {
         try {
             DB::beginTransaction();
 
-            $comment = $this->repository->find($id);
-            $user = $request->user();
-
-            if ($user->id !== $comment->user_id) {
-                return new ServiceResponse(
-                    false,
-                    null,
-                    'Unauthorized'
-                );
-            }
-
-            $updated = $this->repository->update($comment, $request->validated());
+            $comment = self::$commentRepository->find($id);
+            $updated = self::$commentRepository->update($comment, $request->validated());
 
             DB::commit();
 
@@ -162,7 +154,7 @@ final class CommentService
             );
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Failed to update comment', [
+            Log::channel('commentslog')->error('Failed to update comment', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'id' => $id,
@@ -185,23 +177,13 @@ final class CommentService
      *
      * @throws Exception When comment deletion fails
      */
-    public function deleteComment(string $id): ServiceResponse
+    public static function destroy(int|string $id): ServiceResponse
     {
         try {
             DB::beginTransaction();
 
-            $comment = $this->repository->find($id);
-            $user = Auth::user();
-
-            if ($user->id !== $comment->user_id && $user->role !== 'Admin') {
-                return new ServiceResponse(
-                    false,
-                    null,
-                    'Unauthorized'
-                );
-            }
-
-            $this->repository->delete($comment);
+            $comment = self::$commentRepository->find($id);
+            self::$commentRepository->delete($comment);
 
             DB::commit();
 
@@ -212,7 +194,7 @@ final class CommentService
             );
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Failed to delete comment', [
+            Log::channel('commentslog')->error('Failed to delete comment', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'id' => $id
