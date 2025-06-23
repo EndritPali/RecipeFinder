@@ -51,7 +51,7 @@ final class RecipeService
             $recipes = self::$recipeRepository->all();
             return new ServiceResponse(true, $recipes);
         } catch (Exception $e) {
-            Log::error('RecipeService::getAll Exception: ' . $e->getMessage());
+            Log::channel('recipeslog')->error('RecipeService::getAll Exception: ' . $e->getMessage());
             return new ServiceResponse(false, null, $e->getMessage());
         }
     }
@@ -83,7 +83,7 @@ final class RecipeService
             return new ServiceResponse(true, $recipe, 'Recipe created successfully');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('RecipeService::store Exception: ' . $e->getMessage());
+            Log::channel('recipeslog')->error('RecipeService::store Exception: ' . $e->getMessage());
             return new ServiceResponse(false, null, $e->getMessage());
         }
     }
@@ -100,7 +100,7 @@ final class RecipeService
             $recipe = self::$recipeRepository->find($id);
             return new ServiceResponse(true, $recipe);
         } catch (Exception $e) {
-            Log::error('RecipeService::getById Exception: ' . $e->getMessage());
+            Log::channel('recipeslog')->error('RecipeService::getById Exception: ' . $e->getMessage());
             return new ServiceResponse(false, null, $e->getMessage());
         }
     }
@@ -130,7 +130,7 @@ final class RecipeService
             return new ServiceResponse(true, $updatedRecipe, 'Recipe updated successfully');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('RecipeService::update Exception: ' . $e->getMessage());
+            Log::channel('recipeslog')->error('RecipeService::update Exception: ' . $e->getMessage());
             return new ServiceResponse(false, null, $e->getMessage());
         }
     }
@@ -156,7 +156,7 @@ final class RecipeService
             return new ServiceResponse($deleted, null, $deleted ? 'Recipe deleted successfully' : 'Deletion failed');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('RecipeService::destroy Exception: ' . $e->getMessage());
+            Log::channel('recipeslog')->error('RecipeService::destroy Exception: ' . $e->getMessage());
             return new ServiceResponse(false, null, $e->getMessage());
         }
     }

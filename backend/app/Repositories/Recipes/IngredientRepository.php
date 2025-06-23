@@ -20,6 +20,13 @@ use Illuminate\Support\Facades\Log;
 final class IngredientRepository implements IngredientRepositoryInterface
 {
     /**
+     * @param Ingredient $model The User Eloquent model
+     */
+    public function __construct(
+        private readonly Ingredient $model
+    ) {}
+
+    /**
      * Get all ingredients.
      *
      * @return Collection<int, Ingredient>

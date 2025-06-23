@@ -17,13 +17,18 @@ use Illuminate\Support\Facades\Log;
  */
 final class RecipeCategoryService
 {
+    private static $recipeRepository;
+    private static $catagoryRepository;
     /**
      * Create a new RecipeCategoryService instance.
      */
     public function __construct(
-        private readonly RecipeRepositoryInterface $recipes,
-        private readonly CategoryRepositoryInterface $categories,
-    ) {}
+        RecipeRepositoryInterface $recipeRepository,
+        CategoryRepositoryInterface $catagoryRepository,
+    ) {
+        self::$catagoryRepository = $catagoryRepository;
+        self::$recipeRepository = $recipeRepository;
+    }
 
     /**
      * Attach a category to a recipe.
@@ -34,11 +39,11 @@ final class RecipeCategoryService
      *
      * @throws Exception When attachment fails
      */
-    public function attachCategory(string $recipeId, string $categoryId): ServiceResponse
+    public static function attachCategory(string $recipeId, string $categoryId): ServiceResponse
     {
         try {
-            $recipe = $this->recipes->find($recipeId);
-            $this->categories->find($categoryId);
+            $recipe = self::$recipeRepository->find($recipeId);
+            self::$catagoryRepository->find($categoryId);
 
             $recipe->categories()->syncWithoutDetaching([$categoryId]);
 
@@ -48,7 +53,7 @@ final class RecipeCategoryService
                 'Category attached to recipe successfully'
             );
         } catch (Exception $e) {
-            Log::error('Failed to attach category to recipe', [
+            Log::channel('recipeslog')->error('Failed to attach category to recipe', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'recipe_id' => $recipeId,
@@ -72,10 +77,10 @@ final class RecipeCategoryService
      *
      * @throws Exception When detachment fails
      */
-    public function detachCategory(string $recipeId, string $categoryId): ServiceResponse
+    public static function detachCategory(string $recipeId, string $categoryId): ServiceResponse
     {
         try {
-            $recipe = $this->recipes->find($recipeId);
+            $recipe = self::$recipeRepository->find($recipeId);
             $recipe->categories()->detach($categoryId);
 
             return new ServiceResponse(
@@ -84,7 +89,7 @@ final class RecipeCategoryService
                 'Category detached from recipe successfully'
             );
         } catch (Exception $e) {
-            Log::error('Failed to detach category from recipe', [
+            Log::channel('recipeslog')->error('Failed to detach category from recipe', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'recipe_id' => $recipeId,

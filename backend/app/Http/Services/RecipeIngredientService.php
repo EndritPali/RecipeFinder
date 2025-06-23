@@ -19,12 +19,16 @@ use Illuminate\Support\Facades\Log;
  */
 final class RecipeIngredientService
 {
+    private static $recipeRepository;
+
     /**
      * Create a new RecipeIngredientService instance.
      */
     public function __construct(
-        private readonly RecipeRepositoryInterface $recipes,
-    ) {}
+     RecipeRepositoryInterface $recipeRepository,
+    ) {
+        self::$recipeRepository = $recipeRepository;
+    }
 
     /**
      * Attach an ingredient to a recipe.
@@ -35,12 +39,12 @@ final class RecipeIngredientService
      *
      * @throws Exception When attachment fails
      */
-    public function attachIngredient(string $recipeId, AttachIngredientRequest $request): ServiceResponse
+    public static function attachIngredient(string $recipeId, AttachIngredientRequest $request): ServiceResponse
     {
         try {
             DB::beginTransaction();
 
-            $recipe = $this->recipes->find($recipeId);
+            $recipe = self::$recipeRepository->find($recipeId);
             $recipe->ingredients()->attach($request->validated('ingredient_id'), [
                 'quantity' => $request->validated('quantity')
             ]);
@@ -54,7 +58,7 @@ final class RecipeIngredientService
             );
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Failed to attach ingredient to recipe', [
+            Log::channel('recipeslog')->error('Failed to attach ingredient to recipe', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'recipe_id' => $recipeId,
@@ -79,12 +83,12 @@ final class RecipeIngredientService
      *
      * @throws Exception When update fails
      */
-    public function updateQuantity(string $recipeId, string $ingredientId, UpdateRecipeIngredientRequest $request): ServiceResponse
+    public static function updateQuantity(string $recipeId, string $ingredientId, UpdateRecipeIngredientRequest $request): ServiceResponse
     {
         try {
             DB::beginTransaction();
 
-            $recipe = $this->recipes->find($recipeId);
+            $recipe = self::$recipeRepository->find($recipeId);
 
             if (!$recipe->ingredients()->where('ingredients.id', $ingredientId)->exists()) {
                 return new ServiceResponse(
@@ -107,7 +111,7 @@ final class RecipeIngredientService
             );
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Failed to update ingredient quantity', [
+            Log::channel('recipeslog')->error('Failed to update ingredient quantity', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'recipe_id' => $recipeId,
@@ -132,12 +136,12 @@ final class RecipeIngredientService
      *
      * @throws Exception When detachment fails
      */
-    public function detachIngredient(string $recipeId, string $ingredientId): ServiceResponse
+    public static function detachIngredient(string $recipeId, string $ingredientId): ServiceResponse
     {
         try {
             DB::beginTransaction();
 
-            $recipe = $this->recipes->find($recipeId);
+            $recipe = self::$recipeRepository->find($recipeId);
             $recipe->ingredients()->detach($ingredientId);
 
             DB::commit();
@@ -149,7 +153,7 @@ final class RecipeIngredientService
             );
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Failed to detach ingredient from recipe', [
+            Log::channel('recipeslog')->error('Failed to detach ingredient from recipe', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'recipe_id' => $recipeId,

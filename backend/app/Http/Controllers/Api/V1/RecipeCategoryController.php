@@ -16,12 +16,6 @@ use Illuminate\Http\JsonResponse;
  */
 final class RecipeCategoryController extends ApiController
 {
-    /**
-     * Create a new RecipeCategoryController instance.
-     */
-    public function __construct(
-        private readonly RecipeCategoryService $service,
-    ) {}
 
     /**
      * Attach a category to a recipe.
@@ -32,7 +26,7 @@ final class RecipeCategoryController extends ApiController
      */
     public function store(AttachCategoryRequest $request, string $recipeId): JsonResponse
     {
-        $response = $this->service->attachCategory($recipeId, $request->validated('category_id'));
+        $response = RecipeCategoryService::attachCategory($recipeId, $request->validated('category_id'));
 
         if ($response->success()) {
             return response()->json([
@@ -53,7 +47,7 @@ final class RecipeCategoryController extends ApiController
      */
     public function destroy(string $recipeId, string $categoryId): JsonResponse
     {
-        $response = $this->service->detachCategory($recipeId, $categoryId);
+        $response = RecipeCategoryService::detachCategory($recipeId, $categoryId);
 
         if ($response->success()) {
             return response()->json([

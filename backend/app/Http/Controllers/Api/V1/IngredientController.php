@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Requests\Api\V1\StoreIngredientRequest;
 use App\Http\Requests\Api\V1\UpdateIngredientRequest;
 use App\Http\Services\IngredientService;
+use App\Repositories\Recipes\IngredientRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -18,20 +19,6 @@ use Illuminate\Http\JsonResponse;
  */
 final class IngredientController extends ApiController
 {
-    /**
-     * Ingredient service instance.
-     */
-    private IngredientService $service;
-
-    /**
-     * Create a new controller instance.
-     *
-     * @param IngredientService $service
-     */
-    public function __construct(IngredientService $service)
-    {
-        $this->service = $service;
-    }
 
     /**
      * Display a listing of ingredients.
@@ -40,7 +27,7 @@ final class IngredientController extends ApiController
      */
     public function index(): JsonResponse
     {
-        $response = $this->service->getAll();
+        $response = IngredientService::getAll();
 
         if ($response->success()) {
             return response()->json([
@@ -60,7 +47,7 @@ final class IngredientController extends ApiController
      */
     public function store(StoreIngredientRequest $request): JsonResponse
     {
-        $response = $this->service->create($request);
+        $response = IngredientService::create($request);
 
         if ($response->success()) {
             return response()->json([
@@ -82,7 +69,7 @@ final class IngredientController extends ApiController
      */
     public function update(UpdateIngredientRequest $request, string $id): JsonResponse
     {
-        $response = $this->service->update($request, $id);
+        $response = IngredientService::update($request, $id);
 
         if ($response->success()) {
             return response()->json([
@@ -103,7 +90,7 @@ final class IngredientController extends ApiController
      */
     public function destroy(string $id): JsonResponse
     {
-        $response = $this->service->delete($id);
+        $response = IngredientService::delete($id);
 
         if ($response->success()) {
             return response()->json([

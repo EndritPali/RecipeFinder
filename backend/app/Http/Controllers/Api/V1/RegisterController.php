@@ -18,13 +18,6 @@ use Illuminate\Http\JsonResponse;
 final class RegisterController extends ApiController
 {
     /**
-     * @param \App\Http\Services\RegisterService $service
-     */
-    public function __construct(
-        private readonly RegisterService $service
-    ) {}
-
-    /**
      * Register a new user.
      *
      * @param RegisterRequest $request Validated registration request
@@ -33,7 +26,7 @@ final class RegisterController extends ApiController
     public function register(RegisterRequest $request): JsonResponse
     {
         $dto = RegisterUserDTO::fromArray($request->validated());
-        $response = $this->service->register($dto);
+        $response = RegisterService::register($dto);
 
         if (!$response->success()) {
             return $this->errorResponse($response->getMessage(), 422);

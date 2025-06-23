@@ -21,12 +21,16 @@ use Throwable;
  */
 final class RegisterService
 {
+      private static UserRepositoryInterface $userRepository;
+
     /**
      * @param UserRepositoryInterface $userRepository
      */
     public function __construct(
-        private readonly UserRepositoryInterface $userRepository
-    ) {}
+        UserRepositoryInterface $userRepository
+    ) {
+        self::$userRepository = $userRepository;
+    }
 
     /**
      * Register a new user.
@@ -34,12 +38,12 @@ final class RegisterService
      * @param RegisterUserDTO $dto Registration data transfer object
      * @return ServiceResponse<User> Response containing the created user or error
      */
-    public function register(RegisterUserDTO $dto): ServiceResponse
+    public static function register(RegisterUserDTO $dto): ServiceResponse
     {
         try {
             DB::beginTransaction();
 
-            $user = $this->userRepository->create([
+            $user = self::$userRepository->create([
                 'username' => $dto->username,
                 'email' => $dto->email,
                 'password_hash' => Hash::make($dto->password),

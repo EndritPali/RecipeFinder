@@ -30,7 +30,7 @@ final class SavedRecipeRepository implements SavedRecipeRepositoryInterface
      * @param string $recipeId
      * @return bool
      */
-    public function exists(string $userId, string $recipeId): bool
+    public function exists(int|string $userId, int|string $recipeId): bool
     {
         return SavedRecipe::where('user_id', $userId)
             ->where('recipe_id', $recipeId)
@@ -43,7 +43,7 @@ final class SavedRecipeRepository implements SavedRecipeRepositoryInterface
      * @return SavedRecipe
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function create(string $userId, string $recipeId): SavedRecipe
+    public function create(int|string $userId, int|string $recipeId): SavedRecipe
     {
         $savedRecipe = SavedRecipe::create([
             'user_id' => $userId,

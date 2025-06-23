@@ -4,95 +4,128 @@ declare(strict_types=1);
 
 namespace App\Http\Services;
 
-use App\Http\Requests\Api\V1\StoreSavedRecipesRequest;
-use App\Http\Resources\RecipeResource;
-use App\Models\SavedRecipe;
 use App\Repositories\Recipes\SavedRecipeRepositoryInterface;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Auth;
+use App\Support\Classes\ServiceResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 /**
- * Service class for managing saved recipe operations.
+ * Service for handling saved recipe business logic.
+ *
+ * This service implements operations for saving, retrieving, and removing saved recipes,
+ * maintaining separation of concerns and following SOLID principles.
  */
 final class SavedRecipeService
 {
     /**
-     * @var SavedRecipeRepositoryInterface
+     * Saved recipe repository for data access.
      */
-    private SavedRecipeRepositoryInterface $savedRecipeRepo;
+    private static SavedRecipeRepositoryInterface $savedRecipeRepository;
 
     /**
-     * @param SavedRecipeRepositoryInterface $savedRecipeRepo
-     */
-    public function __construct(SavedRecipeRepositoryInterface $savedRecipeRepo)
-    {
-        $this->savedRecipeRepo = $savedRecipeRepo;
-    }
-
-    /**
-     * Get all saved recipes for the authenticated user.
-     */
-    public function getSavedRecipes(): AnonymousResourceCollection
-    {
-        $userId = (string) Auth::id();
-        $savedRecipes = $this->savedRecipeRepo->getByUserId($userId);
-
-        return RecipeResource::collection($savedRecipes->map(function ($savedRecipe) {
-            $recipe = $savedRecipe->recipe;
-            $recipe->saved_id = $savedRecipe->id;
-            return $recipe;
-        }));
-    }
-
-    /**
-     * Save a recipe for the authenticated user.
+     * SavedRecipeService constructor.
      *
-     * @param StoreSavedRecipesRequest $request
+     * @param SavedRecipeRepositoryInterface $savedRecipeRepository
      */
-    public function saveRecipe(StoreSavedRecipesRequest $request): JsonResponse
+    public function __construct(SavedRecipeRepositoryInterface $savedRecipeRepository)
     {
-        $userId = (string) Auth::id();
-        $recipeId = (string) $request->recipe_id;
+        self::$savedRecipeRepository = $savedRecipeRepository;
+    }
 
-        if ($this->savedRecipeRepo->exists($userId, $recipeId)) {
-            return response()->json(['message' => 'Recipe already saved!'], 409);
+    /**
+     * Store a new saved recipe for the authenticated user.
+     *
+     * @param Request $request
+     * @return ServiceResponse
+     */
+    public static function store(Request $request): ServiceResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            $user = $request->user();
+            if (!$user) {
+                return new ServiceResponse(false, null, 'Unauthorized');
+            }
+
+            $validated = $request->validated();
+            $userId = (string)$user->id;
+            $recipeId = $validated['recipe_id'];
+
+            if (self::$savedRecipeRepository->exists($userId, $recipeId)) {
+                return new ServiceResponse(false, null, 'Recipe already saved!');
+            }
+
+            $saved = self::$savedRecipeRepository->create($userId, $recipeId);
+
+            DB::commit();
+            return new ServiceResponse(true, $saved, 'Recipe saved successfully');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('recipeslog')->error('SavedRecipeService::store Exception: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
         }
-
-        $saved = $this->savedRecipeRepo->create($userId, $recipeId);
-
-        return response()->json(new RecipeResource($saved->recipe), 201);
     }
 
     /**
-     * Check if a recipe is saved by the authenticated user.
+     * Retrieve a specific saved recipe for the authenticated user.
      *
+     * @param Request $request
      * @param string $recipeId
+     * @return ServiceResponse
      */
-    public function isRecipeSaved(string $recipeId): JsonResponse
+    public static function getById(Request $request, string $recipeId): ServiceResponse
     {
-        $userId = (string) Auth::id();
-        $exists = $this->savedRecipeRepo->exists($userId, $recipeId);
+        try {
+            $user = $request->user();
+            if (!$user) {
+                return new ServiceResponse(false, null, 'Unauthorized');
+            }
 
-        return response()->json(['saved' => $exists]);
+            $saved = self::$savedRecipeRepository->get((string)$user->id, $recipeId);
+            if (!$saved) {
+                return new ServiceResponse(false, null, 'Not found');
+            }
+
+            return new ServiceResponse(true, $saved);
+        } catch (Exception $e) {
+            Log::channel('recipeslog')->error('SavedRecipeService::getById Exception: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
+        }
     }
 
     /**
      * Remove a saved recipe for the authenticated user.
      *
+     * @param Request $request
      * @param string $recipeId
+     * @return ServiceResponse
      */
-    public function removeSavedRecipe(string $recipeId): JsonResponse
+    public static function destroy(Request $request, string $recipeId): ServiceResponse
     {
-        $userId = (string) Auth::id();
-        $saved = $this->savedRecipeRepo->get($userId, $recipeId);
+        try {
+            DB::beginTransaction();
 
-        if (!$saved) {
-            return response()->json(['message' => 'Not found'], 404);
+            $user = $request->user();
+            if (!$user) {
+                return new ServiceResponse(false, null, 'Unauthorized');
+            }
+
+            $saved = self::$savedRecipeRepository->get((string)$user->id, $recipeId);
+            if (!$saved) {
+                return new ServiceResponse(false, null, 'Not found');
+            }
+
+            self::$savedRecipeRepository->delete($saved);
+
+            DB::commit();
+            return new ServiceResponse(true, null, 'Recipe removed from saved list');
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('recipeslog')->error('SavedRecipeService::destroy Exception: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
         }
-
-        $this->savedRecipeRepo->delete($saved);
-
-        return response()->json(['message' => 'Recipe removed from saved list']);
     }
 }

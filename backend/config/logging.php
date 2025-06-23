@@ -110,6 +110,14 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'recipeslog' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/' . date('Y/m') . '/Recipes/laravel.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => env('LOG_DAILY_DAYS', 14),
+            'replace_placeholders' => true,
+        ],
+
         'categorieslog' => [
             'driver' => 'daily',
             'path' => storage_path('logs/' . date('Y/m') . '/Categories/laravel.log'),

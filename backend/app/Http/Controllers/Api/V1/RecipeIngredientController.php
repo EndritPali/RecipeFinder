@@ -18,13 +18,6 @@ use Illuminate\Http\JsonResponse;
 final class RecipeIngredientController extends ApiController
 {
     /**
-     * Create a new RecipeIngredientController instance.
-     */
-    public function __construct(
-        private readonly RecipeIngredientService $service,
-    ) {}
-
-    /**
      * Attach an ingredient to a recipe.
      *
      * @param AttachIngredientRequest $request The validated request
@@ -33,7 +26,7 @@ final class RecipeIngredientController extends ApiController
      */
     public function store(AttachIngredientRequest $request, string $recipeId): JsonResponse
     {
-        $response = $this->service->attachIngredient($recipeId, $request);
+        $response = RecipeIngredientService::attachIngredient($recipeId, $request);
 
         if ($response->success()) {
             return response()->json([
@@ -55,7 +48,7 @@ final class RecipeIngredientController extends ApiController
      */
     public function update(UpdateRecipeIngredientRequest $request, string $recipeId, string $ingredientId): JsonResponse
     {
-        $response = $this->service->updateQuantity($recipeId, $ingredientId, $request);
+        $response = RecipeIngredientService::updateQuantity($recipeId, $ingredientId, $request);
 
         if ($response->success()) {
             return response()->json([
@@ -76,7 +69,7 @@ final class RecipeIngredientController extends ApiController
      */
     public function destroy(string $recipeId, string $ingredientId): JsonResponse
     {
-        $response = $this->service->detachIngredient($recipeId, $ingredientId);
+        $response = RecipeIngredientService::detachIngredient($recipeId, $ingredientId);
 
         if ($response->success()) {
             return response()->json([

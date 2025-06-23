@@ -16,10 +16,6 @@ use Illuminate\Http\Request;
  */
 final class PasswordResetController extends Controller
 {
-    public function __construct(
-        private readonly PasswordResetService $service
-    ) {}
-
     /**
      * Handle a password reset token request.
      * 
@@ -28,7 +24,7 @@ final class PasswordResetController extends Controller
      */
     public function requestReset(RequestReset $request): JsonResponse
     {
-        return $this->service->generateResetToken($request->validated());
+        return PasswordResetService::generateResetToken($request->validated());
     }
 
     /**
@@ -39,7 +35,7 @@ final class PasswordResetController extends Controller
      */
     public function resetPassword(ResetPasswordRequest $request): JsonResponse
     {
-        return $this->service->performReset($request->validated());
+        return PasswordResetService::performReset($request->validated());
     }
 
     /**
@@ -50,7 +46,7 @@ final class PasswordResetController extends Controller
      */
     public function submitResetRequest(Request $request): JsonResponse
     {
-        return $this->service->submitResetRequest($request->all());
+        return PasswordResetService::submitResetRequest($request->all());
     }
 
     /**
@@ -60,7 +56,7 @@ final class PasswordResetController extends Controller
      */
     public function getPendingRequests(): JsonResponse
     {
-        return $this->service->fetchPendingRequests();
+        return PasswordResetService::fetchPendingRequests();
     }
 
     /**
@@ -71,6 +67,6 @@ final class PasswordResetController extends Controller
      */
     public function processResetRequest(Request $request): JsonResponse
     {
-        return $this->service->handleRequestProcessing($request->all());
+        return PasswordResetService::handleRequestProcessing($request->all());
     }
 }

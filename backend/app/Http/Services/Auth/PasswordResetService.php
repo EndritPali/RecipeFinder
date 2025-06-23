@@ -17,9 +17,13 @@ use Throwable;
  */
 final class PasswordResetService
 {
+    private static $passwordResetRepository;
+
     public function __construct(
-        private readonly PasswordResetRepositoryInterface $repo
-    ) {}
+        PasswordResetRepositoryInterface $passwordResetRepository
+    ) {
+        self::$passwordResetRepository = $passwordResetRepository;
+    }
 
     /**
      * Generate a new reset token for the user.
@@ -27,13 +31,13 @@ final class PasswordResetService
      * @param array{user_id: int} $data
      * @return JsonResponse
      */
-    public function generateResetToken(array $data): JsonResponse
+    public static function generateResetToken(array $data): JsonResponse
     {
         try {
             $token = Str::random(64);
             $expiresAt = now()->addMinutes(60);
 
-            $this->repo->updateOrInsertResetToken($data['user_id'], $token, $expiresAt);
+            self::$passwordResetRepository->updateOrInsertResetToken($data['user_id'], $token, $expiresAt);
 
             return response()->json([
                 'status' => 'success',
@@ -58,10 +62,10 @@ final class PasswordResetService
      * @param array{user_id: int, reset_token: string, password: string} $data
      * @return JsonResponse
      */
-    public function performReset(array $data): JsonResponse
+    public static function performReset(array $data): JsonResponse
     {
         try {
-            $reset = $this->repo->findResetRecord($data['user_id'], $data['reset_token']);
+            $reset = self::$passwordResetRepository->findResetRecord($data['user_id'], $data['reset_token']);
 
             if (!$reset || Carbon::parse($reset->expires_at)->isPast()) {
                 return response()->json([
@@ -70,11 +74,11 @@ final class PasswordResetService
                 ], 422);
             }
 
-            $user = $this->repo->findUserById($data['user_id']);
+            $user = self::$passwordResetRepository->findUserById($data['user_id']);
             $user->password_hash = Hash::make($data['password']);
             $user->save();
 
-            $this->repo->deleteResetByUser($data['user_id']);
+            self::$passwordResetRepository->deleteResetByUser($data['user_id']);
 
             return response()->json([
                 'status' => 'success',
@@ -98,10 +102,10 @@ final class PasswordResetService
      * @param array{username: string, email: string, last_password: string} $data
      * @return JsonResponse
      */
-    public function submitResetRequest(array $data): JsonResponse
+    public static function submitResetRequest(array $data): JsonResponse
     {
         try {
-            $user = $this->repo->findUserByCredentials($data['username'], $data['email']);
+            $user = self::$passwordResetRepository->findUserByCredentials($data['username'], $data['email']);
 
             if (!$user) {
                 return response()->json([
@@ -115,8 +119,8 @@ final class PasswordResetService
                 'status' => 'pending'
             ]);
 
-            $this->repo->deleteResetByUser($user->id);
-            $this->repo->insertResetRequest($user->id, $requestPayload, now()->addDays(3));
+            self::$passwordResetRepository->deleteResetByUser($user->id);
+            self::$passwordResetRepository->insertResetRequest($user->id, $requestPayload, now()->addDays(3));
 
             return response()->json([
                 'status' => 'success',
@@ -139,10 +143,10 @@ final class PasswordResetService
      *
      * @return JsonResponse
      */
-    public function fetchPendingRequests(): JsonResponse
+    public static function fetchPendingRequests(): JsonResponse
     {
         try {
-            $requests = $this->repo->fetchPendingRequestsWithUsers();
+            $requests = self::$passwordResetRepository->fetchPendingRequestsWithUsers();
 
             $formatted = $requests->map(function ($item) {
                 $payload = json_decode($item->reset_token, false);
@@ -177,10 +181,10 @@ final class PasswordResetService
      * @param array{reset_id: int, action: string} $data
      * @return JsonResponse
      */
-    public function handleRequestProcessing(array $data): JsonResponse
+    public static function handleRequestProcessing(array $data): JsonResponse
     {
         try {
-            $reset = $this->repo->findResetById((int) $data['reset_id']);
+            $reset = self::$passwordResetRepository->findResetById((int) $data['reset_id']);
 
             if (!$reset) {
                 return response()->json([
@@ -191,11 +195,11 @@ final class PasswordResetService
 
             if ($data['action'] === 'approve') {
                 $tempPassword = Str::random(10);
-                $user = $this->repo->findUserById($reset->user_id);
+                $user = self::$passwordResetRepository->findUserById($reset->user_id);
                 $user->password_hash = Hash::make($tempPassword);
                 $user->save();
 
-                $this->repo->deleteResetById($reset->id);
+                self::$passwordResetRepository->deleteResetById($reset->id);
 
                 return response()->json([
                     'status' => 'success',
@@ -205,7 +209,7 @@ final class PasswordResetService
                 ]);
             }
 
-            $this->repo->deleteResetById($reset->id);
+            self::$passwordResetRepository->deleteResetById($reset->id);
 
             return response()->json([
                 'status' => 'success',
