@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Auth\AuthenticationException;
 use Throwable;
+use App\Support\Classes\ServiceResponse;
 
 /**
  * Service class for handling session-based authentication operations.
@@ -23,75 +24,68 @@ use Throwable;
  */
 final class SessionAuthenticationService implements SessionAuthenticationInterface
 {
-    /**
-     * @param SessionRepositoryInterface $sessions Session repository instance
-     */
-    public function __construct(
-        private readonly SessionRepositoryInterface $sessions
-    ) {}
+    private static SessionRepositoryInterface $sessions;
+
+    public function __construct(SessionRepositoryInterface $sessions)
+    {
+        self::$sessions = $sessions;
+    }
 
     /**
      * {@inheritDoc}
      */
-    public function login(array $credentials): JsonResponse
+    public static function login(array $credentials): ServiceResponse
     {
         try {
-            if (!$this->guard()->attempt($credentials)) {
-                return $this->errorResponse('Invalid credentials', 401);
+            if (!self::guard()->attempt($credentials)) {
+                return new ServiceResponse(false, null, 'Invalid credentials');
             }
 
             /** @var User $user */
-            $user = $this->guard()->user();
+            $user = self::guard()->user();
 
             if (!$user) {
-                throw new AuthenticationException('Failed to retrieve authenticated user');
+                return new ServiceResponse(false, null, 'Failed to retrieve authenticated user');
             }
 
-            $token = $this->generateToken();
-            $this->sessions->create($user->id, $token);
+            $token = self::generateToken();
+            self::$sessions->create($user->id, $token);
 
-            return response()->json([
-                'status' => 'success',
-                'token' => $token,
-                'user' => $this->sanitizeUser($user),
-            ]);
+            return new ServiceResponse(true, $user, $token);
         } catch (Throwable $e) {
-            Log::error('SessionAuthenticationService::login Exception', [
+            Log::channel('sessionlog')->error('SessionAuthenticationService::login Exception', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return $this->errorResponse('Authentication failed', 500);
+            return new ServiceResponse(false, null, 'Authentication failed');
         }
     }
 
     /**
      * {@inheritDoc}
      */
-    public function logout(?string $token): JsonResponse
+    public static function logout(?string $token): ServiceResponse
     {
         if (empty($token)) {
-            return $this->errorResponse('Token missing', 400);
+            return new ServiceResponse(false, null, 'Token missing');
         }
 
         try {
-            $deleted = $this->sessions->deleteByToken($token);
+            $deleted = self::$sessions->deleteByToken($token);
 
             if (!$deleted) {
-                return $this->errorResponse('Invalid token or already logged out', 400);
+                return new ServiceResponse(false, null, 'Invalid token or already logged out');
             }
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Logged out successfully',
-            ]);
+            return new ServiceResponse(true, null, 'Logged out successfully');
         } catch (Throwable $e) {
-            Log::error('SessionAuthenticationService::logout Exception', [
+            Log::channel('sessionlog')->error('SessionAuthenticationService::logout Exception', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return $this->errorResponse('Logout failed', 500);
+            return new ServiceResponse(false, null, 'Logout failed');
         }
     }
 
@@ -125,7 +119,7 @@ final class SessionAuthenticationService implements SessionAuthenticationInterfa
      * @param User $user User instance to sanitize
      * @return array<string, mixed> Sanitized user data
      */
-    protected function sanitizeUser(User $user): array
+    protected static function sanitizeUser(User $user): array
     {
         return [
             'id' => $user->id,
@@ -138,7 +132,7 @@ final class SessionAuthenticationService implements SessionAuthenticationInterfa
     /**
      * Get the guard instance.
      */
-    protected function guard(): StatefulGuard
+    protected static function guard(): StatefulGuard
     {
         return Auth::guard();
     }
@@ -146,22 +140,8 @@ final class SessionAuthenticationService implements SessionAuthenticationInterfa
     /**
      * Generate a secure random token.
      */
-    protected function generateToken(): string
+    protected static function generateToken(): string
     {
         return Str::random(64);
-    }
-
-    /**
-     * Create an error response with the given message and status code.
-     *
-     * @param string $message Error message
-     * @param int $status HTTP status code
-     */
-    protected function errorResponse(string $message, int $status): JsonResponse
-    {
-        return response()->json([
-            'status' => 'error',
-            'message' => $message,
-        ], $status);
     }
 }

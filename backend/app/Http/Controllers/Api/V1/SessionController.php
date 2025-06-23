@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Requests\Api\V1\SessionLoginRequest;
-use App\Http\Services\Auth\SessionAuthenticationInterface;
+use App\Http\Services\Auth\SessionAuthenticationService;
+use App\Support\Classes\ServiceResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -18,12 +19,6 @@ use Illuminate\Http\Request;
  */
 final class SessionController extends ApiController
 {
-    /**
-     * @param SessionAuthenticationInterface $auth Authentication service instance
-     */
-    public function __construct(
-        private readonly SessionAuthenticationInterface $auth
-    ) {}
 
     /**
      * Handle user login.
@@ -33,7 +28,15 @@ final class SessionController extends ApiController
      */
     public function login(SessionLoginRequest $request): JsonResponse
     {
-        return $this->auth->login($request->validated());
+        $response = SessionAuthenticationService::login($request->validated());
+        if (!$response->success()) {
+            return $this->errorResponse($response->getMessage(), 401);
+        }
+        return response()->json([
+            'status' => 'success',
+            'token' => $response->getMessage(),
+            'user' => $response->getModel(),
+        ]);
     }
 
     /**
@@ -45,14 +48,16 @@ final class SessionController extends ApiController
     public function logout(Request $request): JsonResponse
     {
         $token = $request->bearerToken();
-
         if (!$token) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Authorization token missing',
-            ], 400);
+            return $this->errorResponse('Authorization token missing', 400);
         }
-
-        return $this->auth->logout($token);
+        $response = SessionAuthenticationService::logout($token);
+        if (!$response->success()) {
+            return $this->errorResponse($response->getMessage(), 400);
+        }
+        return response()->json([
+            'status' => 'success',
+            'message' => $response->getMessage(),
+        ]);
     }
 }

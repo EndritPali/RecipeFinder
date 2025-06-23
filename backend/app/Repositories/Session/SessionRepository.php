@@ -31,4 +31,15 @@ class SessionRepository implements SessionRepositoryInterface
     {
         return Session::where('token', $token)->delete();
     }
+
+    /**
+     * Find a session by token.
+     *
+     * @param string $token
+     * @return Session|null
+     */
+    public function findByToken(string $token): ?Session
+    {
+        return Session::with('user')->where('token', $token)->first();
+    }
 }

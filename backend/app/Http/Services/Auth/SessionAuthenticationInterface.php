@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Services\Auth;
 
 use Illuminate\Http\JsonResponse;
+use App\Support\Classes\ServiceResponse;
 
 /**
  * Interface for handling session-based authentication operations.
@@ -19,17 +20,15 @@ interface SessionAuthenticationInterface
      * Attempt to authenticate the user with provided credentials.
      *
      * @param array<string, mixed> $credentials User credentials (typically email and password)
-     * @throws \Illuminate\Auth\AuthenticationException When authentication fails due to system error
-     * @return JsonResponse JSON response containing authentication status and token if successful
+     * @return ServiceResponse
      */
-    public function login(array $credentials): JsonResponse;
+    public static function login(array $credentials): ServiceResponse;
 
     /**
      * Log out the user by invalidating the provided session token.
      *
      * @param string|null $token Session token to invalidate
-     * @throws \Illuminate\Auth\AuthenticationException When logout fails due to system error
-     * @return JsonResponse JSON response indicating logout success or failure
+     * @return ServiceResponse
      */
-    public function logout(?string $token): JsonResponse;
+    public static function logout(?string $token): ServiceResponse;
 }

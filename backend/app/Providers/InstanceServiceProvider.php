@@ -26,6 +26,8 @@ use App\Repositories\Recipes\SavedRecipeRepository;
 use App\Repositories\Users\UserRepository;
 use App\Models\User;
 use App\Repositories\Recipes\IngredientRepository;
+use App\Http\Services\Auth\SessionAuthenticationService;
+use App\Repositories\Session\SessionRepository;
 use Illuminate\Support\ServiceProvider;
 
 
@@ -102,6 +104,13 @@ class InstanceServiceProvider extends ServiceProvider
             SavedRecipeService::class,
             new SavedRecipeService(
                 new SavedRecipeRepository()
+            )
+        );
+
+        $this->app->instance(
+            SessionAuthenticationService::class,
+            new SessionAuthenticationService(
+                new SessionRepository()
             )
         );
     }

@@ -126,6 +126,14 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'sessionlog' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/' . date('Y/m') . '/Session/laravel.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => env('LOG_DAILY_DAYS', 14),
+            'replace_placeholders' => true,
+        ],
+
         'stderr' => [
             'driver' => 'monolog',
             'level' => env('LOG_LEVEL', 'debug'),

@@ -18,4 +18,12 @@ interface SessionRepositoryInterface
      * @return void
      */
     public function deleteByToken(string $token): int;
+
+    /**
+     * Find a session by token.
+     *
+     * @param string $token
+     * @return Session|null
+     */
+    public function findByToken(string $token): ?Session;
 }
