@@ -10,10 +10,11 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
 
 /**
- * Authorization policy for Recipe-related actions.
+ * Policy for recipe authorization.
  *
- * This policy determines whether a user can perform specific actions on Recipe instances.
- * It follows the principle of single responsibility by focusing solely on authorization rules.
+ * Determines whether a user can update or delete a recipe, based on admin role or ownership.
+ *
+ * @package App\Policies
  */
 final class RecipePolicy
 {

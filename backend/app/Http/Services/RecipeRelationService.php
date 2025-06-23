@@ -8,7 +8,13 @@ use App\Models\Recipe;
 use Illuminate\Http\Request;
 
 /**
- * Handles processing and management of recipe relations
+ * Service for managing recipe relationships (ingredients and categories).
+ *
+ * Handles the processing, attaching, and detaching of related models for recipes,
+ * such as ingredients and categories, based on request data. Follows SOLID and
+ * separation of concerns principles.
+ *
+ * @package App\Http\Services
  */
 class RecipeRelationService
 {

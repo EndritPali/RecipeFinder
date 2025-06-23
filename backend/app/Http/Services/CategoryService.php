@@ -78,7 +78,7 @@ final class CategoryService
      * Update a category by its ID.
      *
      * @param Request $request
-     * @param string $id
+     * @param int|string $id
      * @return ServiceResponse
      */
     public static function update(array $data, int|string $id)
@@ -102,7 +102,7 @@ final class CategoryService
      * Delete a category by its ID.
      *
      * @param Request $request
-     * @param string $id
+     * @param int|string $id
      * @return ServiceResponse
      */
     public static function delete(int|string $id)

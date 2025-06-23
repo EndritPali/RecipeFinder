@@ -5,6 +5,13 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * Base API controller for V1 endpoints.
+ *
+ * Provides common functionality for API controllers, such as error responses.
+ *
+ * @package App\Http\Controllers\Api\V1
+ */
 class ApiController extends Controller
 {
     /**

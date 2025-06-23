@@ -46,10 +46,7 @@ final class SavedRecipeService
             DB::beginTransaction();
 
             $user = $request->user();
-            if (!$user) {
-                return new ServiceResponse(false, null, 'Unauthorized');
-            }
-
+    
             $validated = $request->validated();
             $userId = (string)$user->id;
             $recipeId = $validated['recipe_id'];
@@ -80,9 +77,6 @@ final class SavedRecipeService
     {
         try {
             $user = $request->user();
-            if (!$user) {
-                return new ServiceResponse(false, null, 'Unauthorized');
-            }
 
             $saved = self::$savedRecipeRepository->get((string)$user->id, $recipeId);
             if (!$saved) {
@@ -109,9 +103,6 @@ final class SavedRecipeService
             DB::beginTransaction();
 
             $user = $request->user();
-            if (!$user) {
-                return new ServiceResponse(false, null, 'Unauthorized');
-            }
 
             $saved = self::$savedRecipeRepository->get((string)$user->id, $recipeId);
             if (!$saved) {

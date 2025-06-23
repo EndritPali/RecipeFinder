@@ -83,7 +83,7 @@ final class UserService
     /**
      * Update an existing user's information.
      *
-     * @param string $id User ID
+     * @param int|string $id User ID
      * @param array<string, mixed> $data Updated user data
      * @return ServiceResponse<\App\Models\User>
      */
@@ -119,7 +119,7 @@ final class UserService
     /**
      * Remove a user from the system.
      *
-     * @param string $id User ID
+     * @param int|string $id User ID
      * @return ServiceResponse<null>
      */
     public static function destroy(int|string $id): ServiceResponse

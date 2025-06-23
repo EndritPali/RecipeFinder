@@ -13,7 +13,7 @@ class SavedRecipePolicy
      */
     public function view(User $user, SavedRecipe $savedRecipe): Response
     {
-       return $this->isAuthenticated($user);
+        return $this->isAuthenticated($user);
     }
 
     /**
