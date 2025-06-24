@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Services;
 
+use App\Models\Recipe;
+use App\Models\User;
 use App\Repositories\Recipes\SavedRecipeRepositoryInterface;
 use App\Support\Classes\ServiceResponse;
 use Illuminate\Http\Request;
@@ -46,7 +48,7 @@ final class SavedRecipeService
             DB::beginTransaction();
 
             $user = $request->user();
-    
+
             $validated = $request->validated();
             $userId = (string)$user->id;
             $recipeId = $validated['recipe_id'];
@@ -69,16 +71,14 @@ final class SavedRecipeService
     /**
      * Retrieve a specific saved recipe for the authenticated user.
      *
-     * @param Request $request
-     * @param string $recipeId
+     * @param User $user
+     * @param Recipe $recipe
      * @return ServiceResponse
      */
-    public static function getById(Request $request, string $recipeId): ServiceResponse
+    public static function getById(User $user, Recipe $recipe): ServiceResponse
     {
         try {
-            $user = $request->user();
-
-            $saved = self::$savedRecipeRepository->get((string)$user->id, $recipeId);
+            $saved = self::$savedRecipeRepository->get((string)$user->id, (string)$recipe->id);
             if (!$saved) {
                 return new ServiceResponse(false, null, 'Not found');
             }
@@ -93,18 +93,16 @@ final class SavedRecipeService
     /**
      * Remove a saved recipe for the authenticated user.
      *
-     * @param Request $request
-     * @param string $recipeId
+     * @param User $user
+     * @param Recipe $recipe
      * @return ServiceResponse
      */
-    public static function destroy(Request $request, string $recipeId): ServiceResponse
+    public static function destroy(User $user, Recipe $recipe): ServiceResponse
     {
         try {
             DB::beginTransaction();
 
-            $user = $request->user();
-
-            $saved = self::$savedRecipeRepository->get((string)$user->id, $recipeId);
+            $saved = self::$savedRecipeRepository->get((string)$user->id, (string)$recipe->id);
             if (!$saved) {
                 return new ServiceResponse(false, null, 'Not found');
             }

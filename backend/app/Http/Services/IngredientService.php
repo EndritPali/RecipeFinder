@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Services;
 
+use App\Models\Ingredient;
 use App\Repositories\Recipes\IngredientRepositoryInterface;
 use App\Support\Classes\ServiceResponse;
 use Exception;
@@ -33,7 +34,7 @@ final class IngredientService
      */
     public function __construct(IngredientRepositoryInterface $ingredientRepository)
     {
-       self::$ingredientRepository = $ingredientRepository;
+        self::$ingredientRepository = $ingredientRepository;
     }
 
     /**
@@ -79,16 +80,16 @@ final class IngredientService
      * Update an ingredient by its ID.
      *
      * @param Request $request
-     * @param string $id
+     * @param Ingredient $ingredient
      * @return ServiceResponse
      */
-    public static function update(Request $request, string $id): ServiceResponse
+    public static function update(Request $request, Ingredient $ingredient): ServiceResponse
     {
         try {
             DB::beginTransaction();
 
             $validated = $request->validated();
-            $ingredient = self::$ingredientRepository->update($id, $validated);
+            self::$ingredientRepository->update($ingredient, $validated);
 
             DB::commit();
             return new ServiceResponse(true, $ingredient, 'Ingredient updated successfully');
@@ -102,15 +103,15 @@ final class IngredientService
     /**
      * Delete an ingredient by its ID.
      *
-     * @param string $id
+     * @param Ingredient $ingredient
      * @return ServiceResponse
      */
-    public static function delete(string $id): ServiceResponse
+    public static function delete(Ingredient $ingredient): ServiceResponse
     {
         try {
             DB::beginTransaction();
 
-            self::$ingredientRepository->delete($id);
+            self::$ingredientRepository->delete($ingredient);
 
             DB::commit();
             return new ServiceResponse(true, null, 'Ingredient deleted successfully');

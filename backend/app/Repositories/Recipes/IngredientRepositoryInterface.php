@@ -46,19 +46,19 @@ interface IngredientRepositoryInterface
     /**
      * Update an existing ingredient.
      *
-     * @param string $id
+     * @param Ingredient $ingredient
      * @param array<string, mixed> $data
-     * @return Ingredient
+     * @return bool
      * @throws \Exception When database operation fails
      */
-    public function update(string $id, array $data): Ingredient;
+    public function update(Ingredient $ingredient, array $data): bool;
 
     /**
      * Delete an ingredient.
      *
-     * @param string $id
-     * @return void
+     * @param Ingredient $ingredient
+     * @return bool
      * @throws \Exception When database operation fails
      */
-    public function delete(string $id): void;
+    public function delete(Ingredient $ingredient): bool;
 }

@@ -62,12 +62,12 @@ final class IngredientRepository implements IngredientRepositoryInterface
     /**
      * Find an ingredient by ID.
      *
-     * @param string $id
+     * @param int|string $id
      * @return Ingredient
      * @throws ModelNotFoundException When ingredient not found
      * @throws Exception When database operation fails
      */
-    public function find(string $id): Ingredient
+    public function find(int|string $id): Ingredient
     {
         try {
             return Ingredient::findOrFail($id);
@@ -83,17 +83,15 @@ final class IngredientRepository implements IngredientRepositoryInterface
     /**
      * Update an existing ingredient.
      *
-     * @param string $id
+     * @param Ingredient $ingredient
      * @param array<string, mixed> $data
-     * @return Ingredient
+     * @return bool
      * @throws Exception When database operation fails
      */
-    public function update(string $id, array $data): Ingredient
+    public function update(Ingredient $ingredient, array $data): bool
     {
         try {
-            $ingredient = $this->find($id);
-            $ingredient->update($data);
-            return $ingredient;
+            return $ingredient->update($data);
         } catch (Exception $e) {
             Log::error('IngredientRepository::update Exception: ' . $e->getMessage());
             throw $e;
@@ -103,15 +101,14 @@ final class IngredientRepository implements IngredientRepositoryInterface
     /**
      * Delete an ingredient.
      *
-     * @param string $id
-     * @return void
+     * @param Ingredient $ingredient
+     * @return bool
      * @throws Exception When database operation fails
      */
-    public function delete(string $id): void
+    public function delete(Ingredient $ingredient): bool
     {
         try {
-            $ingredient = $this->find($id);
-            $ingredient->delete();
+            return $ingredient->delete();
         } catch (Exception $e) {
             Log::error('IngredientRepository::delete Exception: ' . $e->getMessage());
             throw $e;

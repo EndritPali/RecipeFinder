@@ -7,6 +7,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\AttachCategoryRequest;
 use App\Http\Services\RecipeCategoryService;
+use App\Models\Category;
+use App\Models\Recipe;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -21,12 +23,12 @@ final class RecipeCategoryController extends ApiController
      * Attach a category to a recipe.
      *
      * @param AttachCategoryRequest $request The validated request
-     * @param string $recipeId The recipe ID
+     * @param Recipe $recipe The recipe model instance
      * @return JsonResponse Response indicating success or failure
      */
-    public function store(AttachCategoryRequest $request, string $recipeId): JsonResponse
+    public function store(AttachCategoryRequest $request, Recipe $recipe): JsonResponse
     {
-        $response = RecipeCategoryService::attachCategory($recipeId, $request->validated('category_id'));
+        $response = RecipeCategoryService::attachCategory($recipe, $request->validated('category_id'));
 
         if ($response->success()) {
             return response()->json([
@@ -41,13 +43,13 @@ final class RecipeCategoryController extends ApiController
     /**
      * Detach a category from a recipe.
      *
-     * @param string $recipeId The recipe ID
-     * @param string $categoryId The category ID
+     * @param Recipe $recipe The recipe model instance
+     * @param Category $category The category model instance
      * @return JsonResponse Response indicating success or failure
      */
-    public function destroy(string $recipeId, string $categoryId): JsonResponse
+    public function destroy(Recipe $recipe, Category $category): JsonResponse
     {
-        $response = RecipeCategoryService::detachCategory($recipeId, $categoryId);
+        $response = RecipeCategoryService::detachCategory($recipe, $category);
 
         if ($response->success()) {
             return response()->json([

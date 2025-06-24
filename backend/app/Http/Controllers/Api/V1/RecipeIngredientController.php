@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\AttachIngredientRequest;
 use App\Http\Requests\Api\V1\UpdateRecipeIngredientRequest;
 use App\Http\Services\RecipeIngredientService;
+use App\Models\Ingredient;
+use App\Models\Recipe;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -21,12 +23,12 @@ final class RecipeIngredientController extends ApiController
      * Attach an ingredient to a recipe.
      *
      * @param AttachIngredientRequest $request The validated request
-     * @param string $recipeId The recipe ID
+     * @param Recipe $recipe The recipe model instance
      * @return JsonResponse Response indicating success or failure
      */
-    public function store(AttachIngredientRequest $request, string $recipeId): JsonResponse
+    public function store(AttachIngredientRequest $request, Recipe $recipe): JsonResponse
     {
-        $response = RecipeIngredientService::attachIngredient($recipeId, $request);
+        $response = RecipeIngredientService::attachIngredient($recipe, $request);
 
         if ($response->success()) {
             return response()->json([
@@ -42,13 +44,13 @@ final class RecipeIngredientController extends ApiController
      * Update the quantity of an ingredient in a recipe.
      *
      * @param UpdateRecipeIngredientRequest $request The validated request
-     * @param string $recipeId The recipe ID
-     * @param string $ingredientId The ingredient ID
+     * @param Recipe $recipe The recipe model instance
+     * @param Ingredient $ingredient The ingredient model instance
      * @return JsonResponse Response indicating success or failure
      */
-    public function update(UpdateRecipeIngredientRequest $request, string $recipeId, string $ingredientId): JsonResponse
+    public function update(UpdateRecipeIngredientRequest $request, Recipe $recipe, Ingredient $ingredient): JsonResponse
     {
-        $response = RecipeIngredientService::updateQuantity($recipeId, $ingredientId, $request);
+        $response = RecipeIngredientService::updateQuantity($recipe, $ingredient, $request);
 
         if ($response->success()) {
             return response()->json([
@@ -63,13 +65,13 @@ final class RecipeIngredientController extends ApiController
     /**
      * Detach an ingredient from a recipe.
      *
-     * @param string $recipeId The recipe ID
-     * @param string $ingredientId The ingredient ID
+     * @param Recipe $recipe The recipe model instance
+     * @param Ingredient $ingredient The ingredient model instance
      * @return JsonResponse Response indicating success or failure
      */
-    public function destroy(string $recipeId, string $ingredientId): JsonResponse
+    public function destroy(Recipe $recipe, Ingredient $ingredient): JsonResponse
     {
-        $response = RecipeIngredientService::detachIngredient($recipeId, $ingredientId);
+        $response = RecipeIngredientService::detachIngredient($recipe, $ingredient);
 
         if ($response->success()) {
             return response()->json([

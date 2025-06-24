@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Requests\Api\V1\StoreSavedRecipesRequest;
 use App\Http\Resources\RecipeResource;
 use App\Http\Services\SavedRecipeService;
+use App\Models\Recipe;
 use App\Models\SavedRecipe;
 use App\Repositories\Recipes\SavedRecipeRepositoryInterface;
 use Illuminate\Http\JsonResponse;
@@ -77,12 +78,12 @@ final class SavedRecipeController extends ApiController
      * Display a specific saved recipe for the authenticated user.
      *
      * @param Request $request
-     * @param string $recipeId
+     * @param Recipe $recipe
      * @return RecipeResource|JsonResponse
      */
-    public function show(Request $request, string $recipeId): RecipeResource|JsonResponse
+    public function show(Request $request, Recipe $recipe): RecipeResource|JsonResponse
     {
-        $response = SavedRecipeService::getById($request, $recipeId);
+        $response = SavedRecipeService::getById($request->user(), $recipe);
 
         if ($response->success()) {
             return new RecipeResource($response->getModel()->recipe);
@@ -95,14 +96,14 @@ final class SavedRecipeController extends ApiController
      * Remove a saved recipe for the authenticated user.
      *
      * @param Request $request
-     * @param string $recipeId
+     * @param Recipe $recipe
      * @return JsonResponse
      */
-    public function destroy(Request $request, string $recipeId): JsonResponse
+    public function destroy(Request $request, Recipe $recipe): JsonResponse
     {
         $this->authorize('delete', SavedRecipe::class);
 
-        $response = SavedRecipeService::destroy($request, $recipeId);
+        $response = SavedRecipeService::destroy($request->user(), $recipe);
 
         if ($response->success()) {
             return response()->json(['message' => 'Recipe removed from saved list.'], 200);

@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Requests\Api\V1\StoreIngredientRequest;
 use App\Http\Requests\Api\V1\UpdateIngredientRequest;
 use App\Http\Services\IngredientService;
+use App\Models\Ingredient;
 use App\Repositories\Recipes\IngredientRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 
@@ -64,12 +65,12 @@ final class IngredientController extends ApiController
      * Update the specified ingredient.
      *
      * @param UpdateIngredientRequest $request
-     * @param string $id
+     * @param Ingredient $ingredient
      * @return JsonResponse
      */
-    public function update(UpdateIngredientRequest $request, string $id): JsonResponse
+    public function update(UpdateIngredientRequest $request, Ingredient $ingredient): JsonResponse
     {
-        $response = IngredientService::update($request, $id);
+        $response = IngredientService::update($request, $ingredient);
 
         if ($response->success()) {
             return response()->json([
@@ -85,12 +86,12 @@ final class IngredientController extends ApiController
     /**
      * Remove the specified ingredient.
      *
-     * @param string $id
+     * @param Ingredient $ingredient
      * @return JsonResponse
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(Ingredient $ingredient): JsonResponse
     {
-        $response = IngredientService::delete($id);
+        $response = IngredientService::delete($ingredient);
 
         if ($response->success()) {
             return response()->json([

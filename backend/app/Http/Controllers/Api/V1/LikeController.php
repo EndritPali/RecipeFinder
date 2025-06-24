@@ -22,14 +22,13 @@ final class LikeController extends ApiController
      * Toggle like status for a comment.
      *
      * @param ToggleLikeRequest $request The validated request
-     * @param string $id The comment ID
+     * @param Comment $comment The comment model instance
      * @return JsonResponse Response indicating success or failure
      */
-    public function toggleLike(ToggleLikeRequest $request, string $id): JsonResponse
+    public function toggleLike(ToggleLikeRequest $request, Comment $comment): JsonResponse
     {
         try {
             $user = $request->user();
-            $comment = Comment::findOrFail($id);
             $action = $request->validated('action');
 
             if ($action === 'like') {
@@ -51,7 +50,7 @@ final class LikeController extends ApiController
             Log::error('Failed to toggle comment like', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'comment_id' => $id,
+                'comment_id' => $comment->id,
                 'user_id' => $user?->id,
                 'action' => $action ?? null
             ]);
