@@ -46,7 +46,7 @@ Route::prefix('v1')->group(function () {
 
     Route::prefix('auth')->controller(SessionController::class)->group(function () {
         Route::post('login', 'login');
-        Route::post('logout', 'logout')->middleware('auth.token'); 
+        Route::post('logout', 'logout')->middleware('auth.token');
     });
 
     Route::post('auth/register', [RegisterController::class, 'register']);
@@ -109,7 +109,7 @@ Route::prefix('v1')->group(function () {
         // Admin Password Reset Management
         Route::prefix('auth/password-reset')->controller(PasswordResetController::class)->group(function () {
             Route::get('pending', 'getPendingRequests');
-            Route::post('process', 'handleRequestProcessing');
+            Route::post('process', 'processResetRequest');
         });
     });
 });
