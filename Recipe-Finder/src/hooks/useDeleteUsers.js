@@ -1,35 +1,21 @@
-import { useState } from "react";
-import api from "../Services/api"; 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import api from "../Services/api";
+import { message } from "antd";
 
-export const useDeleteUsers = (onSuccess) => {
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [error, setError] = useState(null);
+export const useDeleteUsers = () => {
+    const queryClient = useQueryClient();
 
-  const deleteUser = async (id) => {
-    setIsDeleting(true);
-    setError(null);
-
-    try {
-      await api.delete(`v1/users/${id}`);
-      
-      if (onSuccess) {
-        onSuccess();
-      }
-    } catch (err) {
-      setError(
-        err.response?.data?.message || 
-        err.message || 
-        'An error occurred while deleting this user'
-      );
-      console.error('Delete user error:', err);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  return {
-    deleteUser,
-    isDeleting,
-    error
-  };
+    return useMutation({
+        mutationFn: (userId) => {
+            return api.delete(`v1/users/${userId}`);
+        },
+        onSuccess: () => {
+            message.success("User deleted successfully!");
+            queryClient.invalidateQueries({ queryKey: ["users"] });
+        },
+        onError: (error) => {
+            console.error("Error deleting user:", error);
+            message.error("Failed to delete user.");
+        },
+    });
 };

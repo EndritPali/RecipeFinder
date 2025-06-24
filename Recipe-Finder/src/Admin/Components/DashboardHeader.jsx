@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AccountDrawer from '../Templates/AccountDrawer';
 import NotificationsModal from '../Templates/NotificationsModal';
-import useAuth from '../../hooks/useAuth';
+import { useAuth } from '../../context/AuthContext';
 import '../scss/DashboardHeader.scss';
 
 export default function DashboardHeader() {

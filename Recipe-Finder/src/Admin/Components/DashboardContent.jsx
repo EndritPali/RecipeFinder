@@ -19,13 +19,13 @@ export default function DashboardContent() {
         columns,
         loading,
         fetchUsers,
-        fetchRecipes,
         handleShowModal,
         userPagination,
         recipePagination,
         handleRecipeTableChange,
         handleUserTableChange,
-        handleDelete
+        handleDelete,
+        refetchRecipes
     } = useDashboardLogic(searchTerm, setIsModalOpen, setSelectedItem);
 
     const handleCloseModal = () => {
@@ -34,9 +34,7 @@ export default function DashboardContent() {
                 userPagination.pageSize
             );
         } else {
-            fetchRecipes(recipePagination.current,
-                recipePagination.pageSize
-            );
+            refetchRecipes();
         }
         setIsModalOpen(false);
         setSelectedItem(null);
@@ -48,9 +46,7 @@ export default function DashboardContent() {
                 userPagination.pageSize
             );
         } else {
-            fetchRecipes(recipePagination.current,
-                recipePagination.pageSize
-            );
+            refetchRecipes();
         }
     };
 

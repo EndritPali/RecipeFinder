@@ -3,7 +3,7 @@ import { UserOutlined } from '@ant-design/icons';
 import '../scss/NotificationsModal.scss';
 import { useState, useEffect } from 'react';
 import api from "../../Services/api";
-import useAuth from "../../hooks/useAuth";
+import { useAuth } from "../../context/AuthContext";
 import ApproveResetModal from "./ApproveResetModal";
 
 export default function NotificationsModal({ open, onOk, onCancel }) {

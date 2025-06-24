@@ -8,7 +8,7 @@ import RecipeDetailsModal from '../Templates/RecipeDetailsModal';
 import { useState } from 'react';
 
 export default function RecipesRow() {
-  const { loading, recipes } = useFetchRecipes(false, false);
+  const { isLoading, data } = useFetchRecipes({ paginate: false });
   const [showAll, setShowAll] = useState(false);
   const maxVisible = useResponsiveCount();
   const {
@@ -18,6 +18,7 @@ export default function RecipesRow() {
     handleCloseRecipeModal
   } = useRecipeModal();
 
+  const recipes = data?.recipes || [];
   const filteredRecipes = recipes.filter(recipe => recipe.category === 'With Features');
 
   const displayedRecipes = showAll ? filteredRecipes : filteredRecipes.slice(0, maxVisible);
@@ -43,7 +44,7 @@ export default function RecipesRow() {
         </div>
 
         <div className="recipes-row__content">
-          {loading ? (
+          {isLoading ? (
             Array.from({ length: maxVisible }).map((_, index) => (
               <div key={index} style={{ width: 300, margin: '0 1rem' }}>
                 <Skeleton active paragraph={{ rows: 3 }} />

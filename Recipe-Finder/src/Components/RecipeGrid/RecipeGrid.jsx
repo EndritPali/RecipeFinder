@@ -11,15 +11,16 @@ import RecipeGridColumnLeft from './RecipeGridColumnLeft';
 import RecipeGridColumnRight from './RecipeGridColumnRight';
 
 export default function RecipeGrid() {
-    const { loading, recipes } = useFetchRecipes(false, false);
+    const { isLoading, data } = useFetchRecipes({ paginate: false });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRecipe, setSelectedRecipe] = useState(null);
     const batchSize = useBatchSize();
     const [currentPage, setCurrentPage] = useState(0);
 
     const filteredRecipes = useMemo(() => {
+        const recipes = data?.recipes || [];
         return recipes.filter(recipe => recipe.category === 'With Benefits');
-    }, [recipes]);
+    }, [data]);
 
     const startIndex = batchSize === Infinity ? 0 : currentPage * batchSize;
     const endIndex = batchSize === Infinity ? filteredRecipes.length : startIndex + batchSize;
@@ -75,7 +76,7 @@ export default function RecipeGrid() {
 
                 <div className="recipe-grid__wrapper">
                     <RecipeGridColumnLeft
-                        loading={loading}
+                        loading={isLoading}
                         skeletonItems={skeletonItems}
                         displayedRecipes={displayedRecipes}
                         handleOpenModal={handleOpenModal}

@@ -7,12 +7,12 @@ import AccountModal from '../../Templates/AccountModal';
 import '../../Scss/RecipeGridMobile.scss';
 
 export default function RecipeGridMobile() {
-    const { recipes } = useFetchRecipes();
+    const { data } = useFetchRecipes({ paginate: false });
 
-    const filteredRecipes = useMemo(() =>
-        recipes.filter(recipe => recipe.category === 'With Benefits'),
-        [recipes]
-    );
+    const filteredRecipes = useMemo(() => {
+        const recipes = data?.recipes || [];
+        return recipes.filter(recipe => recipe.category === 'With Benefits');
+    }, [data]);
 
     const randomRecipe = useMemo(() => {
         if (filteredRecipes.length === 0) return null;

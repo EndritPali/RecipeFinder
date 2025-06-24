@@ -1,47 +1,56 @@
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useFetchRecipes } from "./useFetchRecipes";
 import { useFetchUsers } from "./useFetchUsers";
 import { useDeleteRecipes } from "./useDeleteRecipes";
 import { useDeleteUsers } from "./useDeleteUsers";
 import { columns as recipeColumns } from "../Admin/Data/Data";
 import { columns as userColumns } from "../Admin/Data/UserData";
-import useAuth from "../hooks/useAuth";
+import { useAuth } from "../context/AuthContext";
 
 export function useDashboardLogic(searchTerm, setIsModalOpen, setSelectedItem) {
   const location = useLocation();
+  const queryClient = useQueryClient();
   const isUserDashboard = location.pathname === "/admin/users";
 
-  const { currentUser, isAuthenticated } = useAuth();
+  const { currentUser, isLoadingAuth } = useAuth();
   const userRole = currentUser?.role;
   const isUser = userRole === "User";
 
-  const {
-    recipes,
-    loading: loadingRecipes,
-    fetchRecipes,
-    pagination: recipePagination,
-    handleTableChange: handleRecipeTableChange,
-  } = useFetchRecipes(isUser);
+  const [recipePage, setRecipePage] = useState(1);
+  const [recipePageSize, setRecipePageSize] = useState(10);
 
   const {
-    users,
-    loading: loadingUsers,
-    fetchUsers,
-    pagination: userPagination,
-    handleTableChange: handleUserTableChange,
-  } = useFetchUsers();
-
-  const loading =
-    !isAuthenticated || (isUserDashboard ? loadingUsers : loadingRecipes);
-
-  const { deleteRecipe } = useDeleteRecipes(() => {
-    fetchRecipes(recipePagination.current, recipePagination.pageSize);
+    data: recipeData,
+    isLoading: loadingRecipes,
+  } = useFetchRecipes({ 
+    onlyMine: isUser, 
+    page: recipePage, 
+    pageSize: recipePageSize,
+    enabled: !isLoadingAuth,
   });
 
-  const { deleteUser } = useDeleteUsers(() => {
-    fetchUsers(userPagination.current, userPagination.pageSize);
-  });
+  const [userPage, setUserPage] = useState(1);
+  const [userPageSize, setUserPageSize] = useState(10);
+
+  const {
+    data: userData,
+    isLoading: loadingUsers,
+  } = useFetchUsers(
+    userPage,
+    userPageSize,
+    { enabled: !isLoadingAuth && isUserDashboard }
+  );
+
+  const loading = (isLoadingAuth && !currentUser) || (isUserDashboard ? loadingUsers : loadingRecipes);
+
+  const { mutate: deleteRecipe } = useDeleteRecipes();
+  const { mutate: deleteUser } = useDeleteUsers();
+
+  const refetchRecipes = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['recipes'] });
+  }, [queryClient]);
 
   const handleShowModal = useCallback(
     (record) => {
@@ -58,28 +67,38 @@ export function useDashboardLogic(searchTerm, setIsModalOpen, setSelectedItem) {
         : "Are you sure you want to delete this recipe?";
 
       if (window.confirm(msg)) {
-        try {
-          isUserDashboard ? await deleteUser(id) : await deleteRecipe(id);
-        } catch (err) {
-          console.error("Deletion error:", err);
-          alert("Something went wrong during deletion");
-        }
+        isUserDashboard ? deleteUser(id) : deleteRecipe(id);
       }
     },
     [deleteUser, deleteRecipe, isUserDashboard]
   );
+  
+  const handleRecipeTableChange = useCallback((paginationConfig) => {
+    setRecipePage(paginationConfig.current);
+    setRecipePageSize(paginationConfig.pageSize);
+  }, []);
+
+  const handleUserTableChange = useCallback((paginationConfig) => {
+    setUserPage(paginationConfig.current);
+    setUserPageSize(paginationConfig.pageSize);
+  }, []);
 
   const columns = useMemo(() => {
     return isUserDashboard
       ? userColumns(handleShowModal, handleDelete)
       : recipeColumns(handleShowModal, handleDelete);
-  }, [isUserDashboard, handleShowModal, handleDelete]);
-
+    }, [isUserDashboard, handleShowModal, handleDelete]);
+    
   const dataSource = useMemo(() => {
-    return isUserDashboard
-      ? users.filter((user) => user.key !== currentUser?.id)
-      : recipes;
-  }, [isUserDashboard, users, recipes, currentUser?.id]);
+    if (isLoadingAuth && !currentUser) {
+      return [];
+    }
+    if (isUserDashboard) {
+        const users = userData?.users || [];
+        return users.filter((user) => user.key !== currentUser?.id);
+    }
+    return recipeData?.recipes || [];
+  }, [isUserDashboard, userData, currentUser, recipeData, isLoadingAuth]);
 
   const filteredData = useMemo(() => {
     return dataSource.filter((item) => {
@@ -88,13 +107,27 @@ export function useDashboardLogic(searchTerm, setIsModalOpen, setSelectedItem) {
     });
   }, [dataSource, isUserDashboard, searchTerm]);
 
+  const userPagination = {
+    current: userData?.meta?.current_page || 1,
+    pageSize: userData?.meta?.per_page || 10,
+    total: userData?.meta?.total || 0,
+    showSizeChanger: true,
+    showTotal: (total) => `${total} User(s) in total`,
+  };
+
+  const recipePagination = {
+    current: recipeData?.meta?.current_page || 1,
+    pageSize: recipeData?.meta?.per_page || 10,
+    total: recipeData?.meta?.total || 0,
+    showSizeChanger: true,
+    showTotal: (total) => `${total} Recipe(s) in total`,
+  };
+
   return {
     isUserDashboard,
     filteredData,
     columns,
     loading,
-    fetchUsers,
-    fetchRecipes,
     handleShowModal,
     handleUserTableChange,
     handleRecipeTableChange,
@@ -102,5 +135,6 @@ export function useDashboardLogic(searchTerm, setIsModalOpen, setSelectedItem) {
     recipePagination,
     handleDelete,
     currentUser,
+    refetchRecipes,
   };
 }

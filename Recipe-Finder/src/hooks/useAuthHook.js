@@ -1,15 +1,16 @@
-// hooks/useAuth.js
+// hooks/useAuthHook.js
 import { useState, useEffect, useCallback } from 'react';
 import api from '../Services/api';
 import auth from '../Services/auth';
 
-export default function useAuth() {
+export function useAuthHook() {
     const [currentUser, setCurrentUser] = useState(() => {
         const storedUser = localStorage.getItem('user');
         return storedUser ? JSON.parse(storedUser) : null;
     });
     
     const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -22,6 +23,8 @@ export default function useAuth() {
             } catch (error) {
                 console.error('Error fetching user data:', error);
                 setIsAuthenticated(false);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -67,6 +70,7 @@ export default function useAuth() {
     return { 
         currentUser, 
         isAuthenticated,
+        isLoadingAuth: isLoading,
         user: currentUser, 
         logout,
         fetchPendingRequests

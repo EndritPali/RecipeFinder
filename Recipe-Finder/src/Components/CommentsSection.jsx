@@ -7,7 +7,7 @@ import { Button, Skeleton, message, Pagination } from 'antd';
 import CreateCommentModal from '../Templates/CreateCommentModal';
 import CommentButtons from '../Templates/CommentButtons';
 import api from '../Services/api';
-import useAuth from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
 
 export default function CommentsSection() {
     const { comments, loading, refreshComments, handleTableChange, pagination } = useFetchComments();

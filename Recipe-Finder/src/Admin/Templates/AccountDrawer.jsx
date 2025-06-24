@@ -10,10 +10,11 @@ import {
 } from '@ant-design/icons';
 
 import api from '../../Services/api';
-import useAuth from '../../hooks/useAuth';
+import { useAuth } from '../../context/AuthContext';
 import DrawerInput from './DrawerInputs';
 import '../scss/AccountDrawer.scss';
 import { useNavigate } from 'react-router-dom';
+import NotificationsModal from './NotificationsModal';
 
 export default function AccountDrawer({ open, onClose }) {
     const { currentUser, logout } = useAuth();

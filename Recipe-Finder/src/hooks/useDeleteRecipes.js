@@ -1,35 +1,21 @@
-import { useState } from "react";
-import api from "../Services/api"; 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import api from "../Services/api";
+import { message } from "antd";
 
-export const useDeleteRecipes = (onSuccess) => {
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [error, setError] = useState(null);
+export const useDeleteRecipes = () => {
+  const queryClient = useQueryClient();
 
-  const deleteRecipe = async (id) => {
-    setIsDeleting(true);
-    setError(null);
-
-    try {
-      await api.delete(`v1/recipes/${id}`);
-      
-      if (onSuccess) {
-        onSuccess();
-      }
-    } catch (err) {
-      setError(
-        err.response?.data?.message || 
-        err.message || 
-        'An error occurred while deleting this recipe'
-      );
-      console.error('Delete recipe error:', err);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  return {
-    deleteRecipe,
-    isDeleting,
-    error
-  };
+  return useMutation({
+    mutationFn: (recipeId) => {
+      return api.delete(`v1/recipes/${recipeId}`);
+    },
+    onSuccess: () => {
+      message.success("Recipe deleted successfully!");
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
+    },
+    onError: (error) => {
+      console.error("Error deleting recipe:", error);
+      message.error("Failed to delete recipe.");
+    },
+  });
 };
