@@ -5,12 +5,14 @@ import MobileFooter from '../Components/MobileFooter.jsx'
 import RecipeGrid from '../Components/RecipeGrid/RecipeGrid.jsx'
 import RecipeGridMobile from '../Components/RecipeGrid/RecipeGridMobile.jsx'
 import RecipesRow from '../Components/RecipesRow.jsx'
-import { useSavedRecipes } from '../hooks/useSavedRecipes'
+import { useFetchSavedRecipes } from '../hooks/useSavedRecipes'
 import { useFetchRecipes } from '../hooks/useFetchRecipes.js'
+import { useAuth } from '../context/AuthContext';
 
 export default function MainLayout() {
     const { recipes } = useFetchRecipes();
-    const { savedRecipes, loading: savedLoading } = useSavedRecipes();
+    const { isAuthenticated } = useAuth();
+    const { data: savedRecipes, isLoading: savedLoading } = useFetchSavedRecipes({ enabled: isAuthenticated });
 
     return (
         <>
@@ -21,7 +23,7 @@ export default function MainLayout() {
             <CommentsSection />
 
             <MobileFooter
-                savedRecipes={savedRecipes}
+                savedRecipes={savedRecipes || []}
                 recipes={recipes}
                 savedLoading={savedLoading}
             />

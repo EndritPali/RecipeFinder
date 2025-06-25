@@ -10,11 +10,20 @@ import api from '../Services/api';
 import { useAuth } from '../context/AuthContext';
 
 export default function CommentsSection() {
-    const { comments, loading, refreshComments, handleTableChange, pagination } = useFetchComments();
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(3);
+    const { data, isLoading: loading, refetch: refreshComments } = useFetchComments(page, pageSize);
     const { currentUser, isAuthenticated } = useAuth();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedComment, setSelectedComment] = useState(null);
+
+    const comments = data?.comments || [];
+    const pagination = {
+        current: data?.meta?.current_page || page,
+        pageSize: data?.meta?.per_page || pageSize,
+        total: data?.meta?.total || 0,
+    };
 
     const handleEditComment = (comment) => {
         setSelectedComment(comment);
@@ -55,7 +64,8 @@ export default function CommentsSection() {
     };
 
     const handlePaginationChange = (page, pageSize) => {
-        handleTableChange({ current: page, pageSize });
+        setPage(page);
+        setPageSize(pageSize);
     };
 
     return (
@@ -70,7 +80,7 @@ export default function CommentsSection() {
 
                 <div className="comments__section">
                     {loading ? (
-                        Array.from({ length: pagination.pageSize }).map((_, index) => (
+                        Array.from({ length: pageSize }).map((_, index) => (
                             <div key={index} style={{ width: 300, margin: '0 1rem' }}>
                                 <Skeleton active paragraph={{ rows: 2 }} />
                             </div>

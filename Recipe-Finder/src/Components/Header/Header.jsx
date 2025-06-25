@@ -6,9 +6,10 @@ import HeaderWidgets from './HeaderWidgets';
 import AccountModal from '../../Templates/AccountModal';
 import RecipeDetailsModal from '../../Templates/RecipeDetailsModal';
 import { useFetchRecipes } from '../../hooks/useFetchRecipes';
-import { useSavedRecipes } from '../../hooks/useSavedRecipes';
+import { useFetchSavedRecipes } from '../../hooks/useSavedRecipes';
 import { useUserAccount } from '../../hooks/useUserAccount';
 import { useRecipeSearch } from '../../hooks/useRecipeSearch';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Header() {
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
@@ -19,7 +20,8 @@ export default function Header() {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
   const { recipes, loading } = useFetchRecipes(false, false);
-  const { savedRecipes, loading: savedLoading } = useSavedRecipes();
+  const { isAuthenticated } = useAuth();
+  const { data: savedRecipes, isLoading: savedLoading } = useFetchSavedRecipes({ enabled: isAuthenticated });
   const { user, menuItems } = useUserAccount(setModalMode, setIsAccountModalOpen);
   const { filteredOptions, handleSearch, handleSelect } = useRecipeSearch(
     recipes,
@@ -58,7 +60,7 @@ export default function Header() {
           handleSelect={handleSelect}
           loading={loading}
           user={user}
-          savedRecipes={savedRecipes}
+          savedRecipes={savedRecipes || []}
           savedLoading={savedLoading}
           onSavedRecipeClick={handleSavedRecipeClick}
           menuItems={menuItems}

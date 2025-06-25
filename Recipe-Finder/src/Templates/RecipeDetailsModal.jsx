@@ -1,56 +1,55 @@
 import { Modal, Card, Button, message, Space } from 'antd';
 import { StarFilled, HeartOutlined, HeartFilled } from '@ant-design/icons';
 import '../Scss/RecipeDetailsModal.scss';
-import { useSavedRecipes } from '../hooks/useSavedRecipes';
-import { useState, useEffect } from 'react';
+import { useSaveRecipe, useUnsaveRecipe, useCheckIfSaved } from '../hooks/useSavedRecipes';
+import { useAuth } from '../context/AuthContext';
+import { useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function RecipeDetailsModal({ open, onOk, onCancel, recipe }) {
-    const [isSaved, setIsSaved] = useState(false);
-    const { checkIfSaved, saveRecipe, unsaveRecipe } = useSavedRecipes();
-    const [isLoading, setIsLoading] = useState(false);
+    const queryClient = useQueryClient();
+    const { isAuthenticated } = useAuth();
+    const recipeId = recipe?.key;
+
+    const { data: isSaved, isLoading: isCheckingSaved } = useCheckIfSaved(recipeId, {
+        enabled: !!recipeId && !!open && isAuthenticated,
+    });
+
+    const { mutate: saveRecipe, isLoading: isSaving } = useSaveRecipe();
+    const { mutate: unsaveRecipe, isLoading: isUnsaving } = useUnsaveRecipe();
 
     useEffect(() => {
-        if (recipe && open) {
-            checkSavedStatus();
+        if (!open) {
+            queryClient.removeQueries({ queryKey: ['saved-status', recipeId] });
         }
-    }, [recipe, open]);
+    }, [open, recipeId, queryClient]);
 
-    const checkSavedStatus = async () => {
-        if (!recipe) return;
-
-        try {
-            const saved = await checkIfSaved(recipe.key);
-            setIsSaved(saved);
-        } catch (error) {
-            console.error('Error checking saved status:', error);
-        }
-    };
 
     const handleSaveToggle = async () => {
         if (!recipe) return;
 
-        setIsLoading(true);
-        try {
-            if (isSaved) {
-                await unsaveRecipe(recipe.key);
-                setIsSaved(false);
-                message.success('Recipe removed from favorites');
-            } else {
-                await saveRecipe(recipe.key);
-                setIsSaved(true);
-                message.success('Recipe added to favorites');
+        const mutationOptions = {
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ['saved-status', recipeId] });
+                queryClient.invalidateQueries({ queryKey: ['saved-recipes'] });
+                message.success(isSaved ? 'Recipe removed from favorites' : 'Recipe added to favorites');
+            },
+            onError: () => {
+                message.error('Failed to update favorites');
             }
-        } catch (error) {
-            console.error('Error toggling save status:', error);
-            message.error('Failed to update favorites');
-        } finally {
-            setIsLoading(false);
+        };
+
+        if (isSaved) {
+            unsaveRecipe(recipe.key, mutationOptions);
+        } else {
+            saveRecipe(recipe.key, mutationOptions);
         }
     };
 
     if (!recipe) return null;
 
     const HeartIcon = isSaved ? HeartFilled : HeartOutlined;
+    const isLoading = isCheckingSaved || isSaving || isUnsaving;
 
     return (
         <Modal
