@@ -18,7 +18,7 @@ export default function DashboardContent() {
         filteredData,
         columns,
         loading,
-        fetchUsers,
+        refetchUsers,
         handleShowModal,
         userPagination,
         recipePagination,
@@ -30,7 +30,7 @@ export default function DashboardContent() {
 
     const handleCloseModal = () => {
         if (isUserDashboard) {
-            fetchUsers(userPagination.current,
+            refetchUsers(userPagination.current,
                 userPagination.pageSize
             );
         } else {
@@ -42,7 +42,7 @@ export default function DashboardContent() {
 
     const handleDataChanged = () => {
         if (isUserDashboard) {
-            fetchUsers(userPagination.current,
+            refetchUsers(userPagination.current,
                 userPagination.pageSize
             );
         } else {

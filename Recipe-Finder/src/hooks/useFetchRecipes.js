@@ -1,5 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "../Services/api";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 const fetchRecipes = async ({ queryKey }) => {
   const [_key, { onlyMine, paginate, page, pageSize }] = queryKey;
@@ -14,7 +17,7 @@ const fetchRecipes = async ({ queryKey }) => {
     recipetitle: recipe.title,
     category: recipe.category?.name || "Uncategorized",
     createdby: recipe.created_by || "Unknown",
-    date: new Date(recipe.created_at).toLocaleDateString(),
+    date: dayjs(recipe.created_at).format("DD-MM-YYYY"),
     shortdescription: recipe.short_description,
     ingredients: recipe.ingredients,
     preparation: recipe.instructions,

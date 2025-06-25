@@ -52,6 +52,10 @@ export function useDashboardLogic(searchTerm, setIsModalOpen, setSelectedItem) {
     queryClient.invalidateQueries({ queryKey: ['recipes'] });
   }, [queryClient]);
 
+  const refetchUsers = useCallback(() => {
+    queryClient.invalidateQueries({queryKey: ['users']})
+  }, [queryClient])
+
   const handleShowModal = useCallback(
     (record) => {
       setSelectedItem(record);
@@ -136,5 +140,6 @@ export function useDashboardLogic(searchTerm, setIsModalOpen, setSelectedItem) {
     handleDelete,
     currentUser,
     refetchRecipes,
+    refetchUsers
   };
 }
