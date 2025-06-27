@@ -4,25 +4,20 @@ import { Dropdown } from 'antd';
 import AccountModal from '../Templates/AccountModal';
 import RecipeDetailsModal from '../Templates/RecipeDetailsModal';
 import useRecipeModal from '../hooks/useRecipeModal';
-import AuthDropdown from '../Templates/AuthDropdown';
 import SavedRecipesDropdown from '../Templates/SavedRecipesDropdown';
 import { useState } from 'react';
 import { useUserAccount } from '../hooks/useUserAccount';
 
 export default function MobileFooter({
-    user,
     savedRecipes,
     savedLoading,
-    menuItems,
     recipes = []
 }) {
 
     const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState('login');
 
-    const updatedUserContext = useUserAccount(setModalMode, setIsAccountModalOpen);
-    const effectiveUser = user || updatedUserContext.user;
-    const effectiveMenuItems = menuItems || updatedUserContext.menuItems;
+    const { user, menuItems } = useUserAccount(setModalMode, setIsAccountModalOpen);
 
     const {
         isRecipeModalOpen,
@@ -31,11 +26,6 @@ export default function MobileFooter({
         handleCloseRecipeModal,
         handleRollDice
     } = useRecipeModal();
-
-    const openAccountModal = (mode) => {
-        setModalMode(mode);
-        setIsAccountModalOpen(true);
-    };
 
     return (
         <>
@@ -58,25 +48,16 @@ export default function MobileFooter({
                     </div>
                     <div className="mobile-footer__bottom-right">
                         <SavedRecipesDropdown
-                            user={effectiveUser}
+                            user={user}
                             savedRecipes={savedRecipes}
                             savedLoading={savedLoading}
                             onRecipeClick={handleOpenRecipeModal}
                             trigger={<i className="far fa-bookmark" />}
                             placement="topRight"
                         />
-
-                        {effectiveUser ? (
-                            <Dropdown menu={{ items: effectiveMenuItems }} placement='topRight'>
-                                <i className="far fa-user"></i>
-                            </Dropdown>
-                        ) : (
-                            <AuthDropdown
-                                onLogin={() => openAccountModal('login')}
-                                onRegister={() => openAccountModal('register')}
-                                trigger={<i className="far fa-user" />}
-                            />
-                        )}
+                        <Dropdown menu={{ items: menuItems }} placement='topRight'>
+                            <i className="far fa-user"></i>
+                        </Dropdown>
                     </div>
                 </div>
             </div>

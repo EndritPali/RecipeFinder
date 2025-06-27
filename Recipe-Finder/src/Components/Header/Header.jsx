@@ -10,6 +10,7 @@ import { useFetchSavedRecipes } from '../../hooks/useSavedRecipes';
 import { useUserAccount } from '../../hooks/useUserAccount';
 import { useRecipeSearch } from '../../hooks/useRecipeSearch';
 import { useAuth } from '../../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function Header() {
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
@@ -19,8 +20,9 @@ export default function Header() {
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
-  const { recipes, loading } = useFetchRecipes(false, false);
   const { isAuthenticated } = useAuth();
+
+  const { recipes, loading } = useFetchRecipes(false, false);
   const { data: savedRecipes, isLoading: savedLoading } = useFetchSavedRecipes({ enabled: isAuthenticated });
   const { user, menuItems } = useUserAccount(setModalMode, setIsAccountModalOpen);
   const { filteredOptions, handleSearch, handleSelect } = useRecipeSearch(
@@ -29,6 +31,12 @@ export default function Header() {
     setIsRecipeModalOpen,
     setShowSearch
   );
+
+  const openAccountModal = (mode) => {
+    setModalMode(mode);
+    setIsAccountModalOpen(true);
+  }
+
 
   const handleSavedRecipeClick = (recipe) => {
     setSelectedRecipe(recipe);
@@ -64,6 +72,8 @@ export default function Header() {
           savedLoading={savedLoading}
           onSavedRecipeClick={handleSavedRecipeClick}
           menuItems={menuItems}
+          onLogin={() => openAccountModal('login')}
+          onRegister={() => openAccountModal('register')}
         />
       </div>
 

@@ -15,33 +15,41 @@ export default function DashboardHeader() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (user.role !== 'Admin') return;
+        if (user?.role !== 'Admin') return;
 
         const updatePendingRequests = async () => {
-            const count = await fetchPendingRequests();
-            setPendingRequests(count);
+            try {
+                const count = await fetchPendingRequests();
+                setPendingRequests(count);
+            } catch {
+                setPendingRequests(0);
+            }
         };
 
         updatePendingRequests();
         const interval = setInterval(updatePendingRequests, 30000);
         return () => clearInterval(interval);
-    }, [user.role, fetchPendingRequests]);
+    }, [user?.role, fetchPendingRequests]);
 
     const handleLogout = async () => {
-        const success = await logout();
-        if (success) {
+        try {
+            await logout();
             message.success('Logged out successfully');
             navigate('/');
-        } else {
+        } catch {
             message.error('Logout failed. Please try again.');
         }
     };
 
     const handleCloseModal = async () => {
         setIsModalOpen(false);
-        if (user.role === 'Admin') {
-            const count = await fetchPendingRequests();
-            setPendingRequests(count);
+        if (user?.role === 'Admin') {
+            try {
+                const count = await fetchPendingRequests();
+                setPendingRequests(count);
+            } catch {
+                setPendingRequests(0);
+            }
         }
     };
 
@@ -53,9 +61,9 @@ export default function DashboardHeader() {
                 </div>
 
                 <div className="dashboard-header__profile">
-                    {user.role === 'Admin' && (
+                    {user?.role === 'Admin' && (
                         <div className="dashboard-header__profile-notifications" onClick={() => setIsModalOpen(true)}>
-                            <Badge count={pendingRequests}>
+                            <Badge count={pendingRequests} showZero>
                                 <BellOutlined />
                             </Badge>
                         </div>
@@ -76,7 +84,7 @@ export default function DashboardHeader() {
                     >
                         <Avatar icon={<UserOutlined />} />
                     </Popover>
-                    <h5>{user.username || 'User'}</h5>
+                    <h5>{user?.username || 'User'}</h5>
                 </div>
             </div>
 

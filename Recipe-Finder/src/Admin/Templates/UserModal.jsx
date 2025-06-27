@@ -1,11 +1,14 @@
 import { Modal, Form, Input, Select } from 'antd';
 import { useEffect } from 'react';
-import api from '../../Services/api';
+import { useCreateUser } from '../../hooks/useCreateUser';
+import { useUpdateUser } from '../../hooks/useUpdateUser';
 import '../scss/UserModal.scss';
 
 export default function UserModal({ open, onOk, onCancel, mode = 'create', item }) {
     const isEdit = mode === 'edit';
     const [form] = Form.useForm();
+    const createUser = useCreateUser();
+    const updateUser = useUpdateUser();
 
     useEffect(() => {
         if (open) {
@@ -22,20 +25,12 @@ export default function UserModal({ open, onOk, onCancel, mode = 'create', item 
     }, [form, isEdit, item, open]);
 
     const handleFinish = async (values) => {
-        try {
-            const payload = { ...values };
-
-            if (isEdit) {
-                await api.put(`v1/users/${item.key}`, payload);
-            } else {
-                await api.post('v1/users', payload);
-            }
-
-            onOk();
-        } catch (error) {
-            console.error('Error saving user:',
-                error.response?.status === 500 ? error.response.data.errors : error);
+        if (isEdit) {
+            await updateUser.mutateAsync({ id: item.key, payload: values });
+        } else {
+            await createUser.mutateAsync(values);
         }
+        onOk();
     };
 
     const formFields = [
@@ -84,6 +79,7 @@ export default function UserModal({ open, onOk, onCancel, mode = 'create', item 
             }}
             okText={isEdit ? 'Save changes' : 'Create user'}
             title={isEdit ? 'Edit User Information' : 'Create New User'}
+            confirmLoading={isEdit ? updateUser.isLoading : createUser.isLoading}
         >
             <Form form={form} className='create-user-form' layout="vertical" onFinish={handleFinish}>
                 {formFields.map(field => (

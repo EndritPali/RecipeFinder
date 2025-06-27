@@ -1,40 +1,33 @@
-import { Form, Input, Card, Button, message } from "antd"
+import { Form, Input, Card, Button } from "antd"
 import '../Scss/ResetPassword.scss'
 import { useState } from "react"
-import api from "../Services/api"
+import { usePasswordResetRequest } from "../hooks/usePasswordRequest"
 import { useNavigate } from "react-router-dom"
 
 export default function ResetPassword() {
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmitting] = useState(false);
+    const passwordResetRequest = usePasswordResetRequest();
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [requestStatus, setRequestStatus] = useState(null);
     const navigate = useNavigate();
 
     const handleSubmit = async (values) => {
-        setIsSubmitting(true);
         try {
-            const response = await api.post('v1/auth/password-reset/submit', {
+            const data = await passwordResetRequest.mutateAsync({
                 username: values.username,
                 email: values.email,
                 last_password: values.password
             });
-
             setIsSubmitted(true);
-
-            // Store request status information if available
-            if (response.data && response.data.request_id) {
+            if (data && data.request_id) {
                 setRequestStatus({
-                    requestId: response.data.request_id,
+                    requestId: data.request_id,
                     timestamp: new Date().toLocaleString()
                 });
             }
-
-            message.success('Password reset request submitted. An administrator will review your request.');
-        } catch (error) {
+        } catch
+        (error) {
             console.error('Reset request error:', error);
-            message.error(error.response?.data?.message || 'Error submitting reset request');
-        } finally {
-            setIsSubmitting(false);
         }
     };
 

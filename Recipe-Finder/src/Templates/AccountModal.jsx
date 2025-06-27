@@ -1,59 +1,36 @@
 import { Modal, Form, Input, message } from 'antd';
-import { useState } from 'react';
-import api from '../Services/api';
+import { useEffect, useRef } from 'react';
+import { useAuth } from '../context/AuthContext';
 import '../Scss/AccountModal.scss';
 
 export default function AccountModal({ open, onOk, onCancel, mode = 'login' }) {
     const [form] = Form.useForm();
-    const [loading, setLoading] = useState(false);
     const isRegistering = mode === 'register';
+    const hasShownSuccessRef = useRef(false);
+
+    const { loginMutation, registerMutation } = useAuth()
 
     const handleFinish = async (values) => {
-        setLoading(true);
         try {
-            let response;
-
             if (isRegistering) {
-                response = await api.post('/v1/auth/register', {
-                    username: values.username,
-                    email: values.email,
-                    password: values.password,
-                    role: 'User',
-                });
-
-                if (response.data.status === 'success') {
-                    message.success('Registration Successful! Please login.');
-                    form.resetFields();
-                    onOk();
-                }
+                await registerMutation.mutateAsync(values);
+                message.success('Registration Successful! Please login.');
             } else {
-                response = await api.post('v1/auth/login', {
-                    email: values.email,
-                    password: values.password,
-                });
-
-                if (response.data.status === 'success') {
-                    localStorage.setItem('token', response.data.token);
-                    localStorage.setItem('user', JSON.stringify({
-                        username: response.data.user.username,
-                        email: response.data.user.email,
-                        date: response.data.user.created_at,
-                    }));
-
-                    message.success('Login Successful!');
-                    form.resetFields();
-                    onOk();
-                    window.location.reload();
-                }
+                await loginMutation.mutateAsync(values);
+                message.success('Login Successful!');
             }
-
+            form.resetFields();
+            onOk();
         } catch (error) {
-            console.error('Error:', error.response?.data || error);
-            message.error(isRegistering ? 'Registration failed. Please try again.' : 'Login failed. Please check your credentials.');
-        } finally {
-            setLoading(false);
+            const defaultMessage = isRegistering ? 'Registration failed.' : 'Login failed.';
+            message.error(error?.response?.data?.message || defaultMessage);
         }
     };
+
+    useEffect(() => {
+        hasShownSuccessRef.current = false;
+    }, [open, mode]);
+
 
     return (
         <Modal
@@ -63,7 +40,7 @@ export default function AccountModal({ open, onOk, onCancel, mode = 'login' }) {
             okText={isRegistering ? 'Register' : 'Sign In'}
             title={isRegistering ? 'Register new account' : 'Sign In'}
             className='account-modal-login'
-            confirmLoading={loading}
+            confirmLoading={isRegistering ? registerMutation.isLoading : loginMutation.isLoading}
         >
             <div className="auth-header">
                 <h1>Recipe <span>finder</span></h1>

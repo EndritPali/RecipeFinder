@@ -1,38 +1,35 @@
 import { Modal, Form, Input, InputNumber, Select } from 'antd';
 import '../scss/RecipeModal.scss';
 import { useRecipeForm } from '../../hooks/useRecipeForm';
-import api from '../../Services/api';
+import { useRecipeMutations } from '../../hooks/useRecipeMutations';
 import FormImageUpload from './ImgUpload';
 
 export default function RecipeModal({ open, onOk, onCancel, mode = 'create', item }) {
     const { TextArea } = Input;
     const isEdit = mode === 'edit';
     const [form] = Form.useForm();
-
     useRecipeForm(form, isEdit, item, open);
+    const { createRecipe, updateRecipe } = useRecipeMutations();
 
     const handleFinish = async (values) => {
-        try {
-            const payload = {
-                title: values.recipetitle,
-                short_description: values.shortdescription,
-                rating: Number(values.rating),
-                category: values.category,
-                image_url: values.image,
-                instructions: values.preparation,
-                ingredients: values.ingredients,
-                preparation_time: Number(values.preptime),
-                cooking_time: Number(values.cooktime),
-                servings: Number(values.servings),
-            };
-
-            await api[isEdit ? 'put' : 'post'](
-                isEdit ? `v1/recipes/${item.key}` : 'v1/recipes', payload
-            );
-            onOk();
-        } catch (error) {
-            console.error('Error saving recipe:', error);
+        const payload = {
+            title: values.recipetitle,
+            short_description: values.shortdescription,
+            rating: Number(values.rating),
+            category: values.category,
+            image_url: values.image,
+            instructions: values.preparation,
+            ingredients: values.ingredients,
+            preparation_time: Number(values.preptime),
+            cooking_time: Number(values.cooktime),
+            servings: Number(values.servings),
+        };
+        if (isEdit) {
+            await updateRecipe.mutateAsync({ id: item.key, payload });
+        } else {
+            await createRecipe.mutateAsync(payload);
         }
+        onOk();
     };
 
     return (
@@ -42,6 +39,7 @@ export default function RecipeModal({ open, onOk, onCancel, mode = 'create', ite
             onOk={() => form.submit()}
             onCancel={onCancel}
             okText={isEdit ? 'Save Changes' : 'Create Recipe'}
+            confirmLoading={isEdit ? updateRecipe.isLoading : createRecipe.isLoading}
         >
             <Form form={form} onFinish={handleFinish}>
                 <FormImageUpload form={form} />

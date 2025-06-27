@@ -1,15 +1,9 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export function useUserAccount(setModalMode, setIsAccountModalOpen) {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
+  
+  const {user} = useAuth();
 
   const openAccountModal = (mode) => {
     setModalMode(mode);
@@ -49,5 +43,5 @@ export function useUserAccount(setModalMode, setIsAccountModalOpen) {
       }
     ];
 
-  return { user, menuItems, openAccountModal };
+  return { user, menuItems };
 }

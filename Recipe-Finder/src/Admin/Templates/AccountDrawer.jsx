@@ -1,32 +1,29 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Drawer, Card, Space, Avatar, message, Button } from 'antd';
+import { useState, useCallback } from 'react';
+import { Drawer, Card, Space, Avatar, Button, Modal } from 'antd';
 import { useDeleteUsers } from '../../hooks/useDeleteUsers';
-import { useFetchUsers } from '../../hooks/useFetchUsers';
 import {
     BookOutlined, CalendarOutlined, UserOutlined,
     SafetyCertificateOutlined, IdcardOutlined,
     MailOutlined, KeyOutlined, EditOutlined,
     UserDeleteOutlined
 } from '@ant-design/icons';
-
-import api from '../../Services/api';
 import { useAuth } from '../../context/AuthContext';
 import DrawerInput from './DrawerInputs';
 import '../scss/AccountDrawer.scss';
 import { useNavigate } from 'react-router-dom';
-import NotificationsModal from './NotificationsModal';
+import { useFetchRecipes } from '../../hooks/useFetchRecipes';
+import { useUpdateUser } from '../../hooks/useUpdateUser';
 
 export default function AccountDrawer({ open, onClose }) {
-    const { currentUser, logout } = useAuth();
-    const [recipes, setRecipes] = useState([]);
+    const { user, logout } = useAuth();
     const [editing, setEditing] = useState(null);
-    const [loading, setLoading] = useState(false);
     const [editedEmail, setEditedEmail] = useState('');
     const [editedPassword, setEditedPassword] = useState('');
-
-    const { fetchUsers } = useFetchUsers();
-    const { deleteUser } = useDeleteUsers(fetchUsers);
+    const deleteUser = useDeleteUsers();
     const navigate = useNavigate();
+    const { data, isLoading } = useFetchRecipes({ onlyMine: true, paginate: false });
+    const recipeTitles = data?.recipes?.map(r => r.recipetitle).join(', ') || 'None';
+    const updateUser = useUpdateUser();
 
     const handleDelete = useCallback(async (id) => {
         const msg =
@@ -34,9 +31,9 @@ export default function AccountDrawer({ open, onClose }) {
 
         if (window.confirm(msg)) {
             try {
-                await deleteUser(id);
-                await logout()
+                await deleteUser.mutateAsync(id);
                 navigate('/')
+                await logout()
             } catch (err) {
                 console.error("Deletion error:", err);
                 alert("Something went wrong during deletion");
@@ -44,33 +41,15 @@ export default function AccountDrawer({ open, onClose }) {
         }
     }, [deleteUser, logout, navigate]);
 
-    useEffect(() => {
-        if (open) {
-            setLoading(true);
-            api.get('v1/my-recipes')
-                .then(({ data }) => setRecipes(data.data))
-                .finally(() => setLoading(false));
-        }
-    }, [open]);
-
-    const updateUser = async (payload) => {
-        try {
-            await api.put(`v1/users/${currentUser.id}`, payload);
-
-            const updatedUser = { ...currentUser, ...payload };
-            localStorage.setItem('user', JSON.stringify(updatedUser));
-
-            setEditing(null);
-            message.success('Updated successfully');
-        } catch (error) {
-            message.error(error.response?.data?.message || 'Update failed');
-        }
-    };
-
     const handleEdit = (field) => {
         setEditing(field);
-        if (field === 'email') setEditedEmail(currentUser.email || '');
+        if (field === 'email') setEditedEmail(user.email || '');
         else setEditedPassword('');
+    };
+
+    const handleUpdateUser = (field, value) => {
+        updateUser.mutate({ id: user.id, payload: { [field]: value } });
+        setEditing(null);
     };
 
     return (
@@ -78,16 +57,16 @@ export default function AccountDrawer({ open, onClose }) {
             title="Account Settings"
             open={open}
             onClose={onClose}
-            loading={loading ? 1 : 0}
+            loading={isLoading ? 1 : 0}
         >
             <div className="user">
                 <div className="user__header">
                     <Avatar icon={<UserOutlined />} />
-                    <h2>{currentUser?.username}</h2>
+                    <h2>{user?.username}</h2>
                 </div>
                 <Button
                     className='delete-btn'
-                    onClick={() => handleDelete(currentUser?.id)}
+                    onClick={() => handleDelete(user?.id)}
                 >
                     <UserDeleteOutlined />
                 </Button>
@@ -97,17 +76,17 @@ export default function AccountDrawer({ open, onClose }) {
                 <DrawerInput
                     icon={<IdcardOutlined />}
                     header="Role:"
-                    information={currentUser?.role || 'Loading...'}
+                    information={user?.role || 'Loading...'}
                 />
                 <DrawerInput
                     icon={<CalendarOutlined />}
                     header="Date Created:"
-                    information={currentUser?.created_at}
+                    information={user?.created_at}
                 />
                 <DrawerInput
                     icon={<BookOutlined />}
                     header="Recipes Created:"
-                    information={recipes.map(r => r.title).join(', ')}
+                    information={recipeTitles}
                 />
             </Card>
 
@@ -115,7 +94,7 @@ export default function AccountDrawer({ open, onClose }) {
                 <DrawerInput
                     icon={<MailOutlined />}
                     header="Email:"
-                    information={currentUser?.email}
+                    information={user?.email}
                     isEditing={editing === 'email'}
                     value={editedEmail}
                     onValueChange={setEditedEmail}
@@ -141,7 +120,7 @@ export default function AccountDrawer({ open, onClose }) {
         return editing === field ? (
             <div className="btns">
                 <button onClick={() => setEditing(null)}>Cancel</button>
-                <button onClick={() => updateUser({ [field]: value })}>Save</button>
+                <button onClick={() => handleUpdateUser(field, value)}>Save</button>
             </div>
         ) : (
             <div className="btns">

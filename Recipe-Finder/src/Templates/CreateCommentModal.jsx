@@ -2,20 +2,16 @@ import '../Scss/CreateCommentModal.scss'
 import { Modal, Avatar, Input, Form, message } from 'antd'
 import { UserOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
-import api from '../Services/api';
-import auth from '../Services/auth';
+import { useCommentMutations } from '../hooks/useCommentMutations';
+import { useAuth } from '../context/AuthContext';
 
-export default function CreateCommentModal({ open, onOk, onCancel, refreshComments, mode = 'create', comment = null }) {
+export default function CreateCommentModal({ open, onOk, onCancel, mode = 'create', comment = null }) {
     const isEdit = mode === 'edit';
     const [form] = Form.useForm();
-    const [user, setUser] = useState(null);
     const [submitting, setSubmitting] = useState(false);
+    const { addComment, editComment } = useCommentMutations();
 
-    useEffect(() => {
-        if (open) {
-            auth.getCurrentUser().then(setUser);
-        }
-    }, [open]);
+    const { user } = useAuth();
 
     useEffect(() => {
         if (open && isEdit && comment) {
@@ -33,22 +29,14 @@ export default function CreateCommentModal({ open, onOk, onCancel, refreshCommen
             setSubmitting(true);
 
             if (isEdit && comment) {
-                await api.put(`v1/comments/${comment.id}`, {
-                    description: values.description,
-                });
-                message.success('Comment updated successfully!');
+                await editComment.mutateAsync({ id: comment.id, description: values.description });
             } else {
-                await api.post('v1/comments', {
-                    description: values.description,
-                });
-                message.success('Comment added successfully!');
+                await addComment.mutateAsync(values.description);
             }
 
             form.resetFields();
-            refreshComments?.();
             onOk();
-        } catch (err) {
-            console.error('Submit error:', err);
+        } catch {
             message.error(`Failed to ${isEdit ? 'edit' : 'add'} comment`);
         } finally {
             setSubmitting(false);

@@ -14,8 +14,8 @@ export function useDashboardLogic(searchTerm, setIsModalOpen, setSelectedItem) {
   const queryClient = useQueryClient();
   const isUserDashboard = location.pathname === "/admin/users";
 
-  const { currentUser, isLoadingAuth } = useAuth();
-  const userRole = currentUser?.role;
+  const { user, isLoadingAuth } = useAuth();
+  const userRole = user?.role;
   const isUser = userRole === "User";
 
   const [recipePage, setRecipePage] = useState(1);
@@ -43,7 +43,7 @@ export function useDashboardLogic(searchTerm, setIsModalOpen, setSelectedItem) {
     { enabled: !isLoadingAuth && isUserDashboard }
   );
 
-  const loading = (isLoadingAuth && !currentUser) || (isUserDashboard ? loadingUsers : loadingRecipes);
+  const loading = (isLoadingAuth && !user) || (isUserDashboard ? loadingUsers : loadingRecipes);
 
   const { mutate: deleteRecipe } = useDeleteRecipes();
   const { mutate: deleteUser } = useDeleteUsers();
@@ -94,15 +94,15 @@ export function useDashboardLogic(searchTerm, setIsModalOpen, setSelectedItem) {
     }, [isUserDashboard, handleShowModal, handleDelete]);
     
   const dataSource = useMemo(() => {
-    if (isLoadingAuth && !currentUser) {
+    if (isLoadingAuth && !user) {
       return [];
     }
     if (isUserDashboard) {
         const users = userData?.users || [];
-        return users.filter((user) => user.key !== currentUser?.id);
+        return users.filter((user) => user.key !== user?.id);
     }
     return recipeData?.recipes || [];
-  }, [isUserDashboard, userData, currentUser, recipeData, isLoadingAuth]);
+  }, [isUserDashboard, userData, user, recipeData, isLoadingAuth]);
 
   const filteredData = useMemo(() => {
     return dataSource.filter((item) => {
@@ -138,7 +138,7 @@ export function useDashboardLogic(searchTerm, setIsModalOpen, setSelectedItem) {
     userPagination,
     recipePagination,
     handleDelete,
-    currentUser,
+    user,
     refetchRecipes,
     refetchUsers
   };

@@ -3,9 +3,9 @@ import { useAuth } from '../context/AuthContext';
 import { Spin, Layout } from 'antd';
 
 export default function IsAdminGuard({ children }) {
-    const { currentUser, isLoadingAuth } = useAuth();
+    const { user, isLoadingAuth } = useAuth();
 
-    if (isLoadingAuth && !currentUser) {
+    if (isLoadingAuth && !user) {
         return (
             <Layout style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                 <Spin size="large" />
@@ -13,7 +13,7 @@ export default function IsAdminGuard({ children }) {
         );
     }
 
-    if (currentUser?.role !== 'Admin') {
+    if (user?.role !== 'Admin') {
         return <ForbiddenPage />;
     }
 

@@ -1,44 +1,82 @@
-// hooks/useAuthHook.js
-import { useState, useEffect, useCallback } from 'react';
 import api from '../Services/api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import auth from '../Services/auth';
+import { useCallback } from 'react';
 
 export function useAuthHook() {
-    const [currentUser, setCurrentUser] = useState(() => {
-        const storedUser = localStorage.getItem('user');
-        return storedUser ? JSON.parse(storedUser) : null;
-    });
-    
-    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
-    const [isLoading, setIsLoading] = useState(true);
+    const queryClient = useQueryClient();
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const userData = await auth.getCurrentUser();
-                if (userData) {
-                    setCurrentUser(userData);
-                    setIsAuthenticated(true);
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-                setIsAuthenticated(false);
-            } finally {
-                setIsLoading(false);
+    const {
+        data: user,
+        isLoading,
+        isError,
+        error,
+    } = useQuery({
+        queryKey: ['currentUser'],
+        queryFn: auth.getCurrentUser,
+        staleTime: 1000 * 60 * 5,
+        retry: false,
+        onSuccess: (data) => {
+            if (data) {
+                localStorage.setItem('user', JSON.stringify(data));
+            } else {
+                localStorage.removeItem('user');
             }
-        };
+        },
+        onError: () => {
+            localStorage.removeItem('user')
+            localStorage.removeItem('token')
+        }
+    })
 
-        fetchUserData();
-    }, []);
+    const loginMutation = useMutation({
+        mutationFn: async ({ email, password }) => {
+            const response = await api.post('v1/auth/login', { email, password });
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+            return response.data.user
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+        },
+        onError: () => {
+            localStorage.removeItem('user')
+            localStorage.removeItem('token')
+        }
+    })
 
+    const registerMutation = useMutation({
+        mutationFn: async ({ username, email, password }) => {
+            const response = await api.post('v1/auth/register', {
+                username,
+                email,
+                password,
+                role: 'User',
+            });
+            return response.data;
+        }
+    })
+
+    const logoutMutation = useMutation({
+        mutationFn: async () => {
+            const response = await api.post('v1/auth/logout');
+            return response.data.user
+        },
+        onSuccess: () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+            queryClient.clear()
+        }
+    })
+
+    const isAuthenticated = !!user;
 
     const fetchPendingRequests = useCallback(async () => {
-        if (!isAuthenticated || currentUser?.role !== 'Admin') return 0;
-        
+        if (!isAuthenticated || user?.role !== 'Admin') return 0;
         try {
             const token = localStorage.getItem('token');
             if (!token) return 0;
-
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             const response = await api.get('v1/auth/password-reset/pending');
             return Array.isArray(response.data?.data) ? response.data.data.length : 0;
@@ -46,33 +84,29 @@ export function useAuthHook() {
             console.error('Error fetching pending requests:', error);
             return 0;
         }
-    }, [isAuthenticated, currentUser?.role]);
+    }, [isAuthenticated, user?.role]);
 
-    const logout = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            if (token) {
-                api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                await api.post('v1/auth/logout');
-            }
-            
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            setCurrentUser(null);
-            setIsAuthenticated(false);
-            return true;
-        } catch (error) {
-            console.error('Logout error:', error);
-            return false;
-        }
-    };
-
-    return { 
-        currentUser, 
+    return {
+        user,
         isAuthenticated,
-        isLoadingAuth: isLoading,
-        user: currentUser, 
-        logout,
-        fetchPendingRequests
+        isLoading,
+        isError,
+        error,
+        loginMutation,
+        registerMutation,
+        logoutMutation,
+        login: loginMutation.mutateAsync,
+        register: registerMutation.mutateAsync,
+        registerStatus: {
+            isLoading: registerMutation.isLoading,
+            isError: registerMutation.isError,
+            error: registerMutation.error,
+            data: registerMutation.data,
+        },
+        logout: logoutMutation.mutateAsync,
+        logoutStatus: {
+            isLoading: logoutMutation.isLoading,
+        },
+        fetchPendingRequests,
     };
 }

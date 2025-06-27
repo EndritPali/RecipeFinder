@@ -7,9 +7,6 @@ import {
   LeftOutlined,
   RightOutlined,
   LockOutlined,
-  AppstoreOutlined,
-  TeamOutlined,
-  LogoutOutlined
 } from '@ant-design/icons';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -19,10 +16,10 @@ const { Sider } = Layout;
 
 export default function DashboardSider() {
   const [collapsed, setCollapsed] = useState(false);
-  const { currentUser } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
 
-  const isUser = currentUser?.role === 'User';
+  const isUser = user?.role === 'User';
 
   const menuItems = [
     {
@@ -59,12 +56,6 @@ export default function DashboardSider() {
 
   const toggleCollapse = () => setCollapsed(!collapsed);
 
-  const handleMenuClick = (e) => {
-    if (e.key === 'logout') {
-      // Handle logout
-    }
-  };
-
   return (
     <Sider {...siderProps}>
       <div className="ant-menu-children-wrapper">
@@ -73,7 +64,6 @@ export default function DashboardSider() {
           mode="inline"
           selectedKeys={[location.pathname]}
           items={menuItems}
-          onClick={handleMenuClick}
         />
       </div>
 
