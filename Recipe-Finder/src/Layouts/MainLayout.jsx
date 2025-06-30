@@ -1,12 +1,12 @@
 import './index.scss'
-import CommentsSection from '../Components/CommentsSection.jsx'
-import Header from '../Components/Header/Header.jsx'
-import MobileFooter from '../Components/MobileFooter.jsx'
-import RecipeGrid from '../Components/RecipeGrid/RecipeGrid.jsx'
-import RecipeGridMobile from '../Components/RecipeGrid/RecipeGridMobile.jsx'
-import RecipesRow from '../Components/RecipesRow.jsx'
-import { useFetchSavedRecipes } from '../hooks/useSavedRecipes'
-import { useFetchRecipes } from '../hooks/useFetchRecipes.js'
+import CommentsSection from '@/features/comments/components/CommentsSection.jsx'
+import Header from '../Components/common/header/Header.jsx'
+import MobileFooter from '@/Components/common/MobileFooter.jsx'
+import RecipeGrid from '../features/recipes/components/RecipeGrid/RecipeGrid.jsx'
+import RecipeGridMobile from '../features/recipes/components/RecipeGrid/RecipeGridMobile.jsx'
+import RecipesRow from '../features/recipes/components/RecipesRow.jsx'
+import { useFetchSavedRecipes } from '@/features/recipes/hooks/useSavedRecipes'
+import { useFetchRecipes } from "@/features/recipes/hooks/useFetchRecipes";
 import { useAuth } from '../context/AuthContext';
 
 export default function MainLayout() {

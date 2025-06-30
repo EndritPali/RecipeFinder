@@ -1,4 +1,4 @@
-import ForbiddenPage from "../Components/ForbiddenPage";
+import ForbiddenPage from "../Components/ui/ForbiddenPage";
 import { useAuth } from '../context/AuthContext';
 import { Spin, Layout } from 'antd';
 

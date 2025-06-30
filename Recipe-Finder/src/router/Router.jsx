@@ -1,10 +1,10 @@
 import { useRoutes } from 'react-router-dom';
-import MainLayout from '../Layouts/MainLayout';
-import DashboardLayout from '../Admin/Layouts/Dashboard';
-import ResetPassword from '../Pages/ResetPassword';
-import DashboardContent from '../Admin/Components/DashboardContent';
-import IsAuthenticatedGuard from '../Guards/IsAuthenticatedGuard';
-import IsAdminGuard from '../Guards/isAdminGuard';
+import MainLayout from '../layouts/MainLayout';
+import DashboardLayout from '../layouts/Dashboard';
+import ResetPassword from '../features/auth/Pages/ResetPassword';
+import DashboardContent from '../features/admin/components/DashboardContent';
+import IsAuthenticatedGuard from '../guards/IsAuthenticatedGuard';
+import IsAdminGuard from '../guards/IsAdminGuard';
 
 export default function Router() {
   const routes = useRoutes([

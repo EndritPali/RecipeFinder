@@ -1,6 +1,6 @@
-import  { useState, useEffect } from 'react';
-import auth from '../Services/auth';
-import ForbiddenPage from '../Components/ForbiddenPage';
+import { useState, useEffect } from 'react';
+import auth from '@/lib/api/auth';
+import ForbiddenPage from '../Components/ui/ForbiddenPage';
 
 export default function IsAuthenticatedGuard({ children }) {
 

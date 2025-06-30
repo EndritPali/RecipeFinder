@@ -1,0 +1,80 @@
+@use '@/Scss/Variables.scss' as *;
+
+.dashboard-filter {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+
+    .recipe-action-button {
+        button {
+            border: none;
+            padding: 7px 15px;
+            height: 38px;
+            font-size: 16px;
+            background-color: $primary-color ;
+            color: #fff;
+            border-radius: 5px;
+        }
+    }
+
+    .filter-section {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+
+        .search-bar {
+            padding: 7px 15px;
+            border: 1px solid $light-gray;
+            color: $light-gray;
+            border-radius: 5px;
+
+
+            input {
+                border: none;
+                padding: 0px 11px;
+                background-color: transparent;
+
+                &:focus {
+                    border: none;
+                    box-shadow: none;
+                }
+
+                &::placeholder {
+                    color: $light-gray;
+                    font-size: 16px;
+                }
+            }
+        }
+
+
+        .ant-radio-group {
+            display: flex;
+
+            .ant-radio-button-wrapper {
+                font-size: 16px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: $mobile-size) {
+    .dashboard-filter {
+        gap: 20px;
+
+        .filter-section {
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+
+            .ant-radio-group {
+                display: none;
+            }
+        }
+    }
+}

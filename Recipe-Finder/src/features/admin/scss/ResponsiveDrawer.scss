@@ -1,0 +1,55 @@
+@use '@/Scss/Variables.scss' as *;
+
+.ant-drawer-left {
+    display: none;
+
+    .ant-drawer-content-wrapper {
+        width: 40% !important;
+    }
+
+    .responsive-only {
+
+        .ant-drawer-body {
+            padding: 24px 10px;
+        }
+
+        .ant-drawer-header {
+            .ant-drawer-header-title {
+                display: flex;
+                flex-direction: row-reverse;
+            }
+        }
+
+        &-menu {
+            background-color: #fff;
+
+            .ant-menu-item {
+                color: #000;
+
+                &:hover {
+                    color: $light-gray !important;
+                }
+            }
+
+            .ant-menu-item-selected {
+                background-color: $primary-color;
+                color: #fff;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: $tablet-size) {
+    .ant-drawer-left {
+        display: flex;
+    }
+}
+
+@media screen and (max-width: $mobile-size) {
+    .ant-drawer-left {
+        .ant-drawer-content-wrapper {
+            width: 100% !important;
+        }
+    }
+
+}
