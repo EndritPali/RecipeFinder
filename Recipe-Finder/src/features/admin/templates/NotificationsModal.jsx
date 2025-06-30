@@ -2,8 +2,8 @@ import { Modal, List, Avatar, Button, Spin, message } from "antd";
 import { UserOutlined } from '@ant-design/icons';
 import '../scss/NotificationsModal.scss';
 import { useState, useEffect } from 'react';
-import api from "../../../lib/api/api";
-import { useAuth } from "../../../context/AuthContext";
+import api from "@/lib/api/api";
+import { useAuth } from "@/context/AuthContext";
 import ApproveResetModal from "./ApproveResetModal";
 
 export default function NotificationsModal({ open, onOk, onCancel }) {

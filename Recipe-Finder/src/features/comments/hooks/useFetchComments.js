@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import api from "../../../lib/api/api";
+import api from "@/lib/api/api";
 import { useQuery } from "@tanstack/react-query";
 
 dayjs.extend(relativeTime);

@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 
 const { Sider } = Layout;
 

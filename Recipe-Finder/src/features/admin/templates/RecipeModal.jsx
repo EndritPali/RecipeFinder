@@ -12,22 +12,10 @@ export default function RecipeModal({ open, onOk, onCancel, mode = 'create', ite
     const { createRecipe, updateRecipe } = useRecipeMutations();
 
     const handleFinish = async (values) => {
-        const payload = {
-            title: values.recipetitle,
-            short_description: values.shortdescription,
-            rating: Number(values.rating),
-            category: values.category,
-            image_url: values.image,
-            instructions: values.preparation,
-            ingredients: values.ingredients,
-            preparation_time: Number(values.preptime),
-            cooking_time: Number(values.cooktime),
-            servings: Number(values.servings),
-        };
         if (isEdit) {
-            await updateRecipe.mutateAsync({ id: item.key, payload });
+            await updateRecipe.mutateAsync({ id: item.key, values });
         } else {
-            await createRecipe.mutateAsync(payload);
+            await createRecipe.mutateAsync(values);
         }
         onOk();
     };
