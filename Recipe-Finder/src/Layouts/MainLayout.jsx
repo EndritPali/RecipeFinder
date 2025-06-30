@@ -10,7 +10,8 @@ import { useFetchRecipes } from "@/features/recipes/hooks/useFetchRecipes";
 import { useAuth } from '../context/AuthContext';
 
 export default function MainLayout() {
-    const { recipes } = useFetchRecipes();
+    const { data } = useFetchRecipes();
+    const recipes = data?.recipes || [];
     const { isAuthenticated } = useAuth();
     const { data: savedRecipes, isLoading: savedLoading } = useFetchSavedRecipes({ enabled: isAuthenticated });
 
