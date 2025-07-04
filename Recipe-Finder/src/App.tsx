@@ -1,3 +1,4 @@
+import "@/lib/echo";
 import { Routes, Route } from 'react-router-dom';
 import Router from './router/Router';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';

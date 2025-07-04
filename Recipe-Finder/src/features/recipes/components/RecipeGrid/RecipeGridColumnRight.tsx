@@ -1,4 +1,6 @@
-export default function RecipeGridColumnRight({ user, openAccountModal, randomRecipe, handleOpenModal }: any) {
+import { HeartFilled, HeartOutlined } from '@ant-design/icons';
+
+export default function RecipeGridColumnRight({ user, openAccountModal, randomRecipe, handleOpenModal, isSaved }: any) {
     return (
         <div className="recipe-grid__col recipe-grid__col--second">
             <div className="recipe-grid__card recipe-grid__card--first">
@@ -24,7 +26,8 @@ export default function RecipeGridColumnRight({ user, openAccountModal, randomRe
                     }}
                 >
                     <div className="recipe-grid__wishlist-bar">
-                        <i className="far fa-heart recipe-grid__wishlist-bar-icon"></i>
+                        {isSaved ? <HeartFilled className='recipe-grid__wishlist-bar-icon' />
+                            : <HeartOutlined className='recipe-grid__wishlist-bar-icon' />}
                         <button onClick={() => handleOpenModal(randomRecipe)}>Start cook</button>
                     </div>
                     <div className="recipe-grid__col-info">

@@ -9,8 +9,11 @@ import CommentButtons from '@/features/comments/components/CommentButtons.jsx';
 import { useAuth } from '@/context/AuthContext';
 import { useCommentMutations } from '../hooks/useCommentMutations';
 import { MappedComment } from '@/types/comment';
+import { useCommentEvents } from '../hooks/useCommentEvents';
 
 export default function CommentsSection() {
+    useCommentEvents(() => refreshComments());
+    
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(3);
     const { data, isLoading: loading, refetch: refreshComments } = useFetchComments(page, pageSize);

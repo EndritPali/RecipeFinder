@@ -6,6 +6,7 @@ import api from "@/lib/api/api";
 import { useAuth } from "@/context/AuthContext";
 import ApproveResetModal from "./ApproveResetModal";
 import { NotificationsModalProps, ResetRequest, ResetInfo } from '@/types/admin';
+import { usePasswordResetEvents } from "../hooks/usePasswordResetEvents";
 
 export default function NotificationsModal({ open, onOk, onCancel }: NotificationsModalProps) {
     const [resetRequests, setResetRequests] = useState<ResetRequest[]>([]);
@@ -33,6 +34,8 @@ export default function NotificationsModal({ open, onOk, onCancel }: Notificatio
             setLoading(false);
         }
     };
+
+    usePasswordResetEvents(fetchResetRequests);
 
     const handleAction = async (resetId: string, action: 'approve' | 'deny') => {
         try {

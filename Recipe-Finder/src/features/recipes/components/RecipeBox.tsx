@@ -1,4 +1,3 @@
-import React from 'react';
 import { RecipeBoxProps } from '@/types/recipe';
 import StarShape from '@/assets/star-filled.svg';
 import '@/Scss/RecipeBox.scss';

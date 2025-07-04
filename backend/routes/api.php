@@ -35,7 +35,6 @@ Route::post('/upload-image', function (Request $request) {
     return response()->json(['url' => url('images/' . $filename)]);
 });
 
-
 Route::prefix('v1')->group(function () {
 
     // --- Public Routes ---
@@ -56,7 +55,6 @@ Route::prefix('v1')->group(function () {
         Route::post('reset', 'resetPassword');
         Route::post('submit', 'submitResetRequest');
     });
-
 
     // --- Authenticated User Routes ---
     Route::middleware(['auth.token', 'role:User,Admin'])->group(function () {
@@ -93,7 +91,6 @@ Route::prefix('v1')->group(function () {
         // User self-management
         Route::apiResource('users', UserController::class)->only(['update', 'destroy']);
     });
-
 
     // --- Admin-Only Routes ---
     Route::middleware(['auth.token', 'role:Admin'])->group(function () {

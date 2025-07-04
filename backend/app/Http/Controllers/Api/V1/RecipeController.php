@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Events\RecipeCreated;
 use App\Http\Requests\Api\V1\StoreRecipeRequest;
 use App\Http\Requests\Api\V1\UpdateRecipeRequest;
 use App\Http\Resources\RecipeResource;
@@ -66,6 +67,8 @@ final class RecipeController extends ApiController
         $response = RecipeService::store($request);
 
         if ($response->success()) {
+            // $recipe = $response->getModel();
+            // broadcast(new RecipeCreated($recipe));
             return new RecipeResource($response->getModel());
         }
 

@@ -64,6 +64,9 @@ export default function RecipeModal({ open, onOk, onCancel, mode = 'create', ite
                         ))}
                     </div>
                 </div>
+                <Form.Item style={{ display: 'none' }}>
+                    <button type="submit" tabIndex={-1}></button>
+                </Form.Item>
             </Form>
         </Modal>
     );

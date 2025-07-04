@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Services;
 
+use App\Events\RecipeIsSaved;
 use App\Models\Recipe;
 use App\Models\User;
 use App\Repositories\Recipes\SavedRecipeRepositoryInterface;

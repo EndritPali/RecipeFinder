@@ -83,6 +83,9 @@ export default function ResetPassword() {
                                     Submit
                                 </Button>
                             </div>
+                            <Form.Item style={{ display: 'none' }}>
+                                <button type="submit" tabIndex={-1}></button>
+                            </Form.Item>
                         </Form>
                     ) : (
                         <div className="reset-success">

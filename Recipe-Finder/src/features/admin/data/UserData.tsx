@@ -1,6 +1,5 @@
 import { Space } from 'antd';
 import { EditOutlined, UserDeleteOutlined } from '@ant-design/icons';
-import React from 'react';
 import type { FixedType } from 'rc-table/lib/interface';
 
 export const columns = (onEdit: (record: any) => void, onDelete: (record: any) => void) => [

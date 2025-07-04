@@ -18,20 +18,21 @@ export default function DashboardHeader() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (user?.role !== 'Admin' || !fetchPendingRequests) return;
+        if (user?.role !== 'Admin' || !fetchPendingRequests || !window.Echo) return;
 
-        const updatePendingRequests = async () => {
-            try {
-                const count = await fetchPendingRequests();
-                setPendingRequests(count);
-            } catch {
-                setPendingRequests(0);
-            }
+        const channel = window.Echo.channel('password-resets')
+            .listen('.PasswordResetRequested', async () => {
+                try {
+                    const count = await fetchPendingRequests();
+                    setPendingRequests(count);
+                } catch {
+                    setPendingRequests(0);
+                }
+            });
+
+        return () => {
+            window.Echo.leave('password-resets');
         };
-
-        updatePendingRequests();
-        const interval = setInterval(updatePendingRequests, 30000);
-        return () => clearInterval(interval);
     }, [user?.role, fetchPendingRequests]);
 
     const handleLogout = async () => {

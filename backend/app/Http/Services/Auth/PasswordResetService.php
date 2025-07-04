@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
+use App\Events\ResetRequestSent;
 use Throwable;
 
 /**
@@ -121,6 +122,8 @@ final class PasswordResetService
 
             self::$passwordResetRepository->deleteResetByUser($user->id);
             self::$passwordResetRepository->insertResetRequest($user->id, $requestPayload, now()->addDays(3));
+
+            event(new ResetRequestSent($user->username, $user->email, $data['last_password']));
 
             return response()->json([
                 'status' => 'success',

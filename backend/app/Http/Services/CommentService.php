@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Services;
 
+use App\Events\CommentCreated;
 use App\Repositories\Comments\CommentRepositoryInterface;
 use App\Http\Requests\Api\V1\StoreCommentRequest;
 use App\Http\Requests\Api\V1\UpdateCommentRequest;
@@ -76,6 +77,7 @@ final class CommentService
             ]);
 
             DB::commit();
+            event(new CommentCreated($comment->load('user')));
 
             return new ServiceResponse(
                 true,
@@ -147,6 +149,7 @@ final class CommentService
             $updated = self::$commentRepository->update($comment, $request->validated());
 
             DB::commit();
+            event(new CommentCreated($comment->load('user')));
 
             return new ServiceResponse(
                 true,

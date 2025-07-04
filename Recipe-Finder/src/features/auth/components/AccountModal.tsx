@@ -87,6 +87,9 @@ export default function AccountModal({ open, onOk, onCancel, mode = 'login' }: A
                         <a href="/reset-password">Forgot password?</a>
                     </Form.Item>
                 )}
+                <Form.Item style={{ display: 'none' }}>
+                    <button type="submit" tabIndex={-1}></button>
+                </Form.Item>
             </Form>
         </Modal>
     );

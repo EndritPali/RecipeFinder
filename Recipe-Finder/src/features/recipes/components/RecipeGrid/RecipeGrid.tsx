@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import useBatchSize from '@/lib/hooks/useBatchSize';
 import { useFetchRecipes } from "@/features/recipes/hooks/useFetchRecipes";
 import { useUserAccount } from '@/features/auth/hooks/useUserAccount';
@@ -10,6 +10,8 @@ import RecipeGridHeader from '@/features/recipes/components/RecipeGrid/RecipeGri
 import RecipeGridColumnLeft from './RecipeGridColumnLeft';
 import RecipeGridColumnRight from '@/features/recipes/components/RecipeGrid/RecipeGridColumnRight';
 import { Recipe as RecipeType, MappedRecipe } from '@/types/recipe';
+import { useCheckIfSaved } from '../../hooks/useSavedRecipes';
+import { useAuth } from '@/context/AuthContext';
 import { AccountModalMode } from '@/types/auth';
 
 export default function RecipeGrid() {
@@ -60,11 +62,29 @@ export default function RecipeGrid() {
     const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState<AccountModalMode>('login');
     const { user, openAccountModal } = useUserAccount(setModalMode, setIsAccountModalOpen);
+    const [randomRecipe, setRandomRecipe] = useState<MappedRecipe | null>(null);
 
-    const randomRecipe: MappedRecipe | null = useMemo(() => {
-        if (!filteredRecipes.length) return null;
-        return filteredRecipes[Math.floor(Math.random() * filteredRecipes.length)];
-    }, [filteredRecipes]);
+    useEffect(() => {
+        if (!filteredRecipes.length) return;
+
+        const pickRandom = () => {
+            const random = filteredRecipes[Math.floor(Math.random() * filteredRecipes.length)];
+            setRandomRecipe(random);
+        };
+
+        pickRandom();
+        const interval = setInterval(pickRandom, 30000);
+
+        return () => clearInterval(interval);
+    }, [filteredRecipes])
+
+    const auth = useAuth();
+    const isAuthenticated = auth?.isAuthenticated ?? false;
+    const recipeId = randomRecipe?.key;
+
+    const { data: isSaved } = useCheckIfSaved(recipeId, {
+        enabled: !!recipeId && !!randomRecipe && isAuthenticated,
+    });
 
     return (
         <>
@@ -88,6 +108,7 @@ export default function RecipeGrid() {
                         openAccountModal={openAccountModal}
                         randomRecipe={randomRecipe}
                         handleOpenModal={handleOpenModal}
+                        isSaved={isSaved}
                     />
                 </div>
             </div>

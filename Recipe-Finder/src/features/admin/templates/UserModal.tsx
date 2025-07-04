@@ -1,5 +1,4 @@
-import React from 'react';
-import { Modal, Form, Input, Select, FormInstance } from 'antd';
+import { Modal, Form, Input, Select } from 'antd';
 import { useEffect } from 'react';
 import { useCreateUser } from '@/features/admin/hooks/useCreateUser';
 import { useUpdateUser } from '@/features/admin/hooks/useUpdateUser';
@@ -101,6 +100,9 @@ export default function UserModal({ open, onOk, onCancel, mode = 'create', item 
                         {field.input}
                     </Form.Item>
                 ))}
+                <Form.Item style={{ display: 'none' }}>
+                    <button type="submit" tabIndex={-1}></button>
+                </Form.Item>
             </Form>
         </Modal>
     );

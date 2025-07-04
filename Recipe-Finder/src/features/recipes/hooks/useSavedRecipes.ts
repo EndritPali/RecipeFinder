@@ -75,7 +75,7 @@ const checkIfSaved = async (recipeId: Recipe) => {
     }
 };
 
-export const useCheckIfSaved = (recipeId: Recipe, options = {}) => {
+export const useCheckIfSaved = (recipeId: number | any, options = {}) => {
     return useQuery({
         queryKey: ['saved-status', recipeId],
         queryFn: () => checkIfSaved(recipeId),

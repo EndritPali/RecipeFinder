@@ -7,11 +7,11 @@ import CreateUserModal from '../templates/UserModal';
 import { useLocation } from 'react-router-dom';
 
 interface DashboardFilterProps {
-  view: string;
-  setView: (view: string) => void;
-  searchTerm: string;
-  setSearchTerm: (term: string) => void;
-  onDataChanged: () => void;
+    view: string;
+    setView: (view: string) => void;
+    searchTerm: string;
+    setSearchTerm: (term: string) => void;
+    onDataChanged: () => void;
 }
 
 export default function DashboardFilter({ view, setView, searchTerm, setSearchTerm, onDataChanged }: DashboardFilterProps) {
@@ -25,7 +25,7 @@ export default function DashboardFilter({ view, setView, searchTerm, setSearchTe
 
     const handleOk = () => {
         setIsModalOpen(false);
-        // Notify parent component that data has changed and should be refreshed
+        
         if (onDataChanged) {
             onDataChanged();
         }

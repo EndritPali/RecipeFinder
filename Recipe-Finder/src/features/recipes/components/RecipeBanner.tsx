@@ -1,4 +1,3 @@
-import React from 'react';
 import { useState, useEffect } from 'react';
 import '@/Scss/RecipeBanner.scss';
 import StarShape from '@/assets/star-filled.svg';
