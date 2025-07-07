@@ -58,6 +58,7 @@ export interface ResetRequest {
     id: string;
     email: string;
     last_password: string;
+    username: string;
 }
 
 export interface ResetInfo {

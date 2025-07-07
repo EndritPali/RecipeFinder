@@ -5,6 +5,7 @@ import { useUpdateUser } from '@/features/admin/hooks/useUpdateUser';
 import '../scss/UserModal.scss';
 import { UserModalProps } from '@/types/admin';
 import type { Rule } from 'antd/es/form';
+import Upload from 'antd/es/upload/Upload';
 
 export default function UserModal({ open, onOk, onCancel, mode = 'create', item }: UserModalProps) {
     const isEdit = mode === 'edit';

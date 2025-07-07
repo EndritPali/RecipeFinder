@@ -10,6 +10,10 @@
         gap: 10px;
 
     }
+
+    .ant-avatar {
+        background-color: $primary-color;
+    }
 }
 
 @media screen and (max-width: $mobile-size) {

@@ -68,6 +68,14 @@
                     border-radius: 50%;
                     object-fit: cover;
                 }
+
+                .ant-avatar {
+                    span {
+                        font-size: 2rem;
+                    }
+
+                    background-color: $primary-color;
+                }
             }
 
             .ant-card-meta-description {

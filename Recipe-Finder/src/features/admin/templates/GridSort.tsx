@@ -10,6 +10,13 @@ export default function GridSort({ data, onEdit, onDelete, pagination, loading }
     onEdit(item);
   };
 
+  const getInitials = (name?: string) => {
+    if (!name) return '';
+    const parts = name.trim().split(' ');
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
   const handleDelete = (item: any) => () => {
     if (onDelete) onDelete(item.key);
   };
@@ -25,7 +32,9 @@ export default function GridSort({ data, onEdit, onDelete, pagination, loading }
               cover={
                 item.username && item.email ? (
                   <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '1rem' }}>
-                    <Avatar size={96} icon={<UserOutlined />} />
+                    <Avatar size={96}>
+                      {item.username ? getInitials(item.username) : <UserOutlined />}
+                    </Avatar>
                   </div>
                 ) : (
                   <img
@@ -68,8 +77,8 @@ function CardDescription({ item }: CardDescriptionProps) {
       {item.category && <p className="category">{item.category}</p>}
       {item.shortdescription && <p className="description">{item.shortdescription}</p>}
 
-      {item.email && <p className="role">{item.role}</p>}
       {item.email && <p className="email"><strong>Email:</strong> {item.email}</p>}
+      {item.email && <p className="role">{item.role}</p>}
 
       {item.createdby && <p className="author"><strong>By:</strong> {item.createdby}</p>}
       {item.date && <p className="date"><strong>Created:</strong> {item.date}</p>}

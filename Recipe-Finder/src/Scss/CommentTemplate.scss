@@ -32,8 +32,9 @@
                 width: 70px;
                 border-radius: 50px;
                 object-fit: cover;
+                background-color: $primary-color;
 
-                svg {
+                span {
                     font-size: 2rem;
                 }
             }
@@ -133,7 +134,7 @@
                     height: 50px;
                     width: 50px;
 
-                    svg {
+                    span {
                         font-size: 1rem;
                     }
                 }

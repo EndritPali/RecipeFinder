@@ -2,7 +2,7 @@ import { useFetchRecipes } from "@/features/recipes/hooks/useFetchRecipes";
 import useResponsiveCount from '@/lib/hooks/useResponsiveCount';
 import useRecipeModal from '@/features/recipes/hooks/useRecipeModal';
 import '@/Scss/RecipesRow.scss';
-import { Skeleton } from 'antd';
+import { Skeleton, Empty } from 'antd';
 import RecipeBox from './RecipeBox';
 import RecipeDetailsModal from './RecipeDetailsModal';
 import React, { useState } from 'react';
@@ -51,6 +51,8 @@ export default function RecipesRow() {
                 <Skeleton active paragraph={{ rows: 3 }} />
               </div>
             ))
+          ) : recipes.length === 0 ? (
+            <Empty className="recipes-row__content-empty" description="No recipes found" />
           ) : (
             displayedRecipes.map((recipe: MappedRecipe) => (
               <RecipeBox

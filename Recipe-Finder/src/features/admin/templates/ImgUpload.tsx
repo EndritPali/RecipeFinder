@@ -1,4 +1,4 @@
-import { Upload, Input, Form, FormInstance } from 'antd';
+import { Upload, Input, Form, FormInstance, message } from 'antd';
 import { ImgUploadProps } from '@/types/admin';
 import type { UploadChangeParam } from 'antd/es/upload';
 import type { RcFile } from 'antd/es/upload/interface';
@@ -16,18 +16,18 @@ export default function FormImageUpload({ form }: ImgUploadProps) {
             if (status === 'done' && info.file.response?.url) {
                 form.setFieldsValue({ image: info.file.response.url });
             } else if (status === 'error') {
-                console.error('Image upload failed:', info.file.response || 'Unknown error');
+                message.error('Image upload failed:', info.file.response || 'Unknown error');
             }
         },
         beforeUpload(file: RcFile) {
             const isImage = file.type.startsWith('image/');
             const isLt2M = file.size / 1024 / 1024 < 2;
             if (!isImage) {
-                console.error('Only images allowed!');
+                message.error('Only images allowed!');
                 return false;
             }
             if (!isLt2M) {
-                console.error('Image must be < 2MB!');
+                message.error('Image must be < 2MB!');
                 return false;
             }
             return true;

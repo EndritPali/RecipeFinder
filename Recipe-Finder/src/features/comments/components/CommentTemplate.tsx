@@ -1,6 +1,4 @@
 import '@/Scss/CommentTemplate.scss'
-import { Avatar, Button } from 'antd'
-import { UserOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { TemplateProps } from '@/types/comment';
 
 export default function CommentsTemplate({
@@ -10,15 +8,14 @@ export default function CommentsTemplate({
     date,
     buttons,
     onLikeToggle,
-    hasLiked
+    hasLiked,
+    avatar
 }: TemplateProps) {
     return (
         <div className="comment">
             <div className="comment__info comment__info--primary">
                 <div className="comment__profile">
-                    <Avatar>
-                        <UserOutlined />
-                    </Avatar>
+                    {avatar}
                     <h4>{name}</h4>
                 </div>
 

@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react';
-import { Drawer, Card, Space, Avatar, Button, Modal } from 'antd';
+import { Drawer, Card, Space, Avatar, Button, Modal, message } from 'antd';
 import { useDeleteUsers } from '../hooks/useDeleteUsers';
 import {
     BookOutlined, CalendarOutlined, UserOutlined,
     SafetyCertificateOutlined, IdcardOutlined,
     MailOutlined, KeyOutlined, EditOutlined,
-    UserDeleteOutlined
+    UserDeleteOutlined,
+    LogoutOutlined
 } from '@ant-design/icons';
 import { useAuth } from '@/context/AuthContext';
 import DrawerInput from './DrawerInputs';
@@ -50,6 +51,24 @@ export default function AccountDrawer({ open, onClose }: AccountDrawerProps) {
         else setEditedPassword('');
     };
 
+    const handleLogout = async () => {
+        if (!logout) return;
+        try {
+            await logout();
+            message.success('Logged out successfully');
+            navigate('/');
+        } catch {
+            message.error('Logout failed. Please try again.');
+        }
+    };
+
+    const getInitials = (name?: string) => {
+        if (!name) return '';
+        const parts = name.trim().split(' ');
+        if (parts.length === 1) return parts[0][0].toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    };
+
     const handleUpdateUser = (field: string, value: string) => {
         if (!user) return;
         updateUser.mutate({ id: user.id, payload: { [field]: value } });
@@ -65,8 +84,13 @@ export default function AccountDrawer({ open, onClose }: AccountDrawerProps) {
         >
             <div className="user">
                 <div className="user__header">
-                    <Avatar icon={<UserOutlined />} />
-                    <h2>{user?.username}</h2>
+                    <Avatar>
+                        {user?.username ? getInitials(user.username) : <UserOutlined />}
+                    </Avatar>
+                    <div className="user__header--info">
+                        <h2>{user?.username}</h2>
+                        <h3>{user?.role || 'Loading...'}</h3>
+                    </div>
                 </div>
                 <Button
                     className='delete-btn'
@@ -76,15 +100,12 @@ export default function AccountDrawer({ open, onClose }: AccountDrawerProps) {
                 </Button>
             </div>
 
-            <Card title={<Space><UserOutlined /> User Profile</Space>}>
-                <DrawerInput
-                    icon={<IdcardOutlined />}
-                    header="Role:"
-                    information={user?.role || 'Loading...'}
-                    isEditing={editing === 'role'}
-                    value={''}
-                    onValueChange={() => { }}
-                />
+            <Card
+                title={<Space>
+                    <UserOutlined />
+                    User Profile
+                </Space>}
+                className='profile-data'>
                 <DrawerInput
                     icon={<CalendarOutlined />}
                     header="Date Created:"
@@ -126,6 +147,13 @@ export default function AccountDrawer({ open, onClose }: AccountDrawerProps) {
                     {renderButtons('password', editedPassword)}
                 </DrawerInput>
             </Card>
+            <Button
+                icon={<LogoutOutlined />}
+                onClick={handleLogout}
+                className='btn__logout'
+            >
+                Log Out
+            </Button>
         </Drawer>
     );
 

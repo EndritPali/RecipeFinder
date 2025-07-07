@@ -23,6 +23,13 @@ export default function CreateCommentModal({ open, onOk, onCancel, mode = 'creat
         }
     }, [open, isEdit, comment, form]);
 
+    const getInitials = (name?: string) => {
+        if (!name) return '';
+        const parts = name.trim().split(' ');
+        if (parts.length === 1) return parts[0][0].toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    };
+
 
     const handleSubmit = async () => {
         try {
@@ -59,7 +66,9 @@ export default function CreateCommentModal({ open, onOk, onCancel, mode = 'creat
                 form={form}
             >
                 <div className="create-comment-user-data">
-                    <Avatar icon={<UserOutlined />} />
+                    <Avatar>
+                        {user?.username ? getInitials(user.username) : <UserOutlined />}
+                    </Avatar>
                     <h3>{user?.username || 'Unknown User'}</h3>
                 </div>
 

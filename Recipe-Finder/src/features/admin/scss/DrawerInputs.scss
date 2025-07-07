@@ -14,6 +14,17 @@ form {
         border-bottom: 1.5px solid $bright-gray;
         gap: 15px;
         width: 100%;
+
+        .content-data {
+            h5 {
+                font-weight: bold;
+                font-size: 15px;
+            }
+
+            p{
+                font-weight: 500;
+            }
+        }
     }
 
     &:last-child {

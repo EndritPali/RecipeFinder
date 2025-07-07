@@ -52,6 +52,17 @@
             justify-content: center;
             gap: 28px;
             max-width: 560px;
+
+            .recipes-grid-empty {
+                width: 100%;
+                min-height: 340px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background-color: $whiter-soke;
+                border-radius: 10px;
+            }
         }
 
         .recipe-grid__col.recipe-grid__col--second {

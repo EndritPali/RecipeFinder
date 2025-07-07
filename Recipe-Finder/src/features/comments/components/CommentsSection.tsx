@@ -3,17 +3,18 @@ import { useState } from 'react';
 import '@/Scss/CommentSection.scss';
 import CommentsTemplate from '@/features/comments/components/CommentTemplate';
 import circleRight from '@/assets/circle-right.svg';
-import { Button, Skeleton, Pagination } from 'antd';
+import { Button, Skeleton, Pagination, Empty, Avatar } from 'antd';
 import CreateCommentModal from '@/features/comments/components/CreateCommentModal';
 import CommentButtons from '@/features/comments/components/CommentButtons.jsx';
 import { useAuth } from '@/context/AuthContext';
 import { useCommentMutations } from '../hooks/useCommentMutations';
 import { MappedComment } from '@/types/comment';
+import { UserOutlined } from '@ant-design/icons';
 import { useCommentEvents } from '../hooks/useCommentEvents';
 
 export default function CommentsSection() {
     useCommentEvents(() => refreshComments());
-    
+
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(3);
     const { data, isLoading: loading, refetch: refreshComments } = useFetchComments(page, pageSize);
@@ -30,6 +31,13 @@ export default function CommentsSection() {
         current: data?.meta?.current_page || page,
         pageSize: data?.meta?.per_page || pageSize,
         total: data?.meta?.total || 0,
+    };
+
+    const getInitials = (name?: string) => {
+        if (!name) return '';
+        const parts = name.trim().split(' ');
+        if (parts.length === 1) return parts[0][0].toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     };
 
     const handleEditComment = (comment: MappedComment) => {
@@ -77,6 +85,8 @@ export default function CommentsSection() {
                                 <Skeleton active paragraph={{ rows: 2 }} />
                             </div>
                         ))
+                    ) : comments.length === 0 ? (
+                        <Empty className="comments-section-empty" description="No comments found" />
                     ) : (
                         comments.map((comment: MappedComment) => {
                             const isOwner = user?.id === comment.creator;
@@ -89,6 +99,11 @@ export default function CommentsSection() {
                                     comment={comment.comment}
                                     name={comment.name}
                                     likes={comment.likes}
+                                    avatar={
+                                        <Avatar>
+                                            {comment.name ? getInitials(comment.name) : <UserOutlined />}
+                                        </Avatar>
+                                    }
                                     date={comment.date}
                                     hasLiked={hasLiked}
                                     onLikeToggle={() => handleToggleLike(comment.id, hasLiked)}

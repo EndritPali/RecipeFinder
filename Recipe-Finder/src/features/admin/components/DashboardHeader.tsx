@@ -35,15 +35,12 @@ export default function DashboardHeader() {
         };
     }, [user?.role, fetchPendingRequests]);
 
-    const handleLogout = async () => {
-        if (!logout) return;
-        try {
-            await logout();
-            message.success('Logged out successfully');
-            navigate('/');
-        } catch {
-            message.error('Logout failed. Please try again.');
-        }
+
+    const getInitials = (name?: string) => {
+        if (!name) return '';
+        const parts = name.trim().split(' ');
+        if (parts.length === 1) return parts[0][0].toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     };
 
     const handleCloseModal = async () => {
@@ -80,14 +77,13 @@ export default function DashboardHeader() {
                                 <li onClick={() => setIsDrawerOpen(true)}>
                                     <p><SettingOutlined /> Account Settings</p>
                                 </li>
-                                <li className='logout' onClick={handleLogout}>
-                                    <p><LogoutOutlined /> Logout</p>
-                                </li>
                             </div>
                         }
                         trigger="click"
                     >
-                        <Avatar icon={<UserOutlined />} />
+                        <Avatar>
+                            {user?.username ? getInitials(user.username) : <UserOutlined />}
+                        </Avatar>
                     </Popover>
                     <h5>{user?.username || 'User'}</h5>
                 </div>
