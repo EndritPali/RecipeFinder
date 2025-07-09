@@ -10,7 +10,7 @@ export default function RecipeGridColumnRight({ user, openAccountModal, randomRe
                         : 'Learn how to become a master chef right now!'}
                 </h2>
                 {user ? (
-                    <a href="/admin"><button>Dashboard</button></a>
+                    <a href="/dashboard"><button>Dashboard</button></a>
                 ) : (
                     <button onClick={() => openAccountModal('login')}>Login</button>
                 )}

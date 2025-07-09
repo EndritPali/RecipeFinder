@@ -5,22 +5,11 @@ import { Skeleton } from 'antd';
 import RecipeSearch from '@/Components/common/header/RecipeSearch';
 import SavedRecipesDropdown from '@/features/recipes/components/SavedRecipesDropdown';
 import UserDropdown from '@/features/auth/components/UserDropdown';
-
-interface HeaderWidgetsProps {
-    showSearch: boolean;
-    setShowSearch: React.Dispatch<React.SetStateAction<boolean>>;
-    filteredOptions: any;
-    handleSearch: (value: string) => void;
-    handleSelect: (value: string, option: any) => void;
-    loading?: boolean;
-    user?: any;
-    savedRecipes?: any[];
-    savedLoading?: boolean;
-    onSavedRecipeClick: (recipe: any) => void;
-    menuItems: any;
-    onLogin?: () => void;
-    onRegister?: () => void;
-}
+import { useAuth } from '@/context/AuthContext';
+import { useFetchResetRequests } from '@/features/admin/hooks/useFetchRequests'
+import { usePasswordResetEvents } from '@/features/admin/hooks/usePasswordResetEvents'
+import { Badge } from 'antd'
+import { HeaderWidgetsProps } from '@/types/user';
 
 export default function HeaderWidgets({
     showSearch,
@@ -34,9 +23,15 @@ export default function HeaderWidgets({
     savedLoading,
     onSavedRecipeClick,
     menuItems,
-    onLogin,
-    onRegister
 }: HeaderWidgetsProps) {
+
+    const auth = useAuth();
+    const isAdmin = user?.role === 'Admin';
+    const { data: resetRequests, refetch } = useFetchResetRequests(isAdmin);
+    const pendingRequests = resetRequests?.length || 0;
+    const isAuthenticated = auth?.isAuthenticated ?? false;
+    usePasswordResetEvents(async () => { await refetch(); }, isAdmin);
+
     return (
         <div className="header__widgets">
             <button onClick={() => setShowSearch(prev => !prev)}>
@@ -61,11 +56,13 @@ export default function HeaderWidgets({
                 placement="bottomRight"
             />
 
-            <UserDropdown
-                menuItems={menuItems}
-                placement="bottomRight"
-                trigger={<button><img src={User} alt="user" /></button>}
-            />
+            <Badge count={pendingRequests}>
+                <UserDropdown
+                    menuItems={menuItems}
+                    placement="bottomRight"
+                    trigger={<button><img src={User} alt="user" /></button>}
+                />
+            </Badge>
         </div>
     );
 }

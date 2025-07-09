@@ -17,7 +17,7 @@ interface DashboardFilterProps {
 export default function DashboardFilter({ view, setView, searchTerm, setSearchTerm, onDataChanged }: DashboardFilterProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const location = useLocation();
-    const isUsersPage = location.pathname === '/admin/users';
+    const isUsersPage = location.pathname === '/dashboard/users';
 
     const showModal = () => {
         setIsModalOpen(true);
@@ -25,7 +25,7 @@ export default function DashboardFilter({ view, setView, searchTerm, setSearchTe
 
     const handleOk = () => {
         setIsModalOpen(false);
-        
+
         if (onDataChanged) {
             onDataChanged();
         }

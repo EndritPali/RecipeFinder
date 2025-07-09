@@ -17,7 +17,7 @@ export default function Router() {
       element: <ResetPassword />
     },
     {
-      path: '/admin',
+      path: '/dashboard',
       element: (
         <IsAuthenticatedGuard>
           <DashboardLayout />

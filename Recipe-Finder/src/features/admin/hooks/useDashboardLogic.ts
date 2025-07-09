@@ -8,9 +8,9 @@ import { useDeleteUsers } from "@/features/admin/hooks/useDeleteUsers";
 import { columns as recipeColumns } from "@/features/admin/data/Data";
 import { columns as userColumns } from "@/features/admin/data/UserData";
 import { useAuth } from "@/context/AuthContext";
-import { UserType } from '@/types/admin';
-import { MappedRecipe } from '@/types/recipe';
-import type { FetchUsersResponse } from './useFetchUsers';
+import { UserType } from "@/types/admin";
+import { MappedRecipe } from "@/types/recipe";
+import type { FetchUsersResponse } from "./useFetchUsers";
 
 interface UseDashboardLogicArgs {
   searchTerm: string;
@@ -25,19 +25,19 @@ export function useDashboardLogic(
 ) {
   const location = useLocation();
   const queryClient = useQueryClient();
-  const isUserDashboard = location.pathname === "/admin/users";
+  const isUserDashboard = location.pathname === "/dashboard/users";
 
-  const { user, isLoadingAuth } = useAuth() as { user: UserType; isLoadingAuth: boolean };
+  const { user, isLoadingAuth } = useAuth() as {
+    user: UserType;
+    isLoadingAuth: boolean;
+  };
   const userRole = user?.role;
   const isUser = userRole === "User";
 
   const [recipePage, setRecipePage] = useState(1);
   const [recipePageSize, setRecipePageSize] = useState(10);
 
-  const {
-    data: recipeData,
-    isLoading: loadingRecipes,
-  } = useFetchRecipes({
+  const { data: recipeData, isLoading: loadingRecipes } = useFetchRecipes({
     onlyMine: isUser,
     page: recipePage,
     pageSize: recipePageSize,
@@ -47,28 +47,27 @@ export function useDashboardLogic(
   const [userPage, setUserPage] = useState(1);
   const [userPageSize, setUserPageSize] = useState(10);
 
-  const {
-    data: userDataRaw,
-    isLoading: loadingUsers,
-  } = useFetchUsers(
+  const { data: userDataRaw, isLoading: loadingUsers } = useFetchUsers(
     userPage,
     userPageSize,
     { enabled: !isLoadingAuth && isUserDashboard }
   );
   const userData = userDataRaw as FetchUsersResponse | undefined;
 
-  const loading = (isLoadingAuth && !user) || (isUserDashboard ? loadingUsers : loadingRecipes);
+  const loading =
+    (isLoadingAuth && !user) ||
+    (isUserDashboard ? loadingUsers : loadingRecipes);
 
   const { mutate: deleteRecipe } = useDeleteRecipes();
   const { mutate: deleteUser } = useDeleteUsers();
 
   const refetchRecipes = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ['recipes'] });
+    queryClient.invalidateQueries({ queryKey: ["recipes"] });
   }, [queryClient]);
 
   const refetchUsers = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ['users'] })
-  }, [queryClient])
+    queryClient.invalidateQueries({ queryKey: ["users"] });
+  }, [queryClient]);
 
   const handleShowModal = useCallback(
     (record: UserType | MappedRecipe) => {
@@ -158,6 +157,6 @@ export function useDashboardLogic(
     handleDelete,
     user,
     refetchRecipes,
-    refetchUsers
+    refetchUsers,
   };
 }

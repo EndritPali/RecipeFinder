@@ -8,6 +8,10 @@ import SavedRecipesDropdown from '@/features/recipes/components/SavedRecipesDrop
 import { useState } from 'react';
 import { useUserAccount } from '@/features/auth/hooks/useUserAccount';
 import { AccountModalMode } from '@/types/auth';
+import { useAuth } from '@/context/AuthContext';
+import { useFetchResetRequests } from '@/features/admin/hooks/useFetchRequests'
+import { usePasswordResetEvents } from '@/features/admin/hooks/usePasswordResetEvents'
+import { Badge } from 'antd'
 
 interface MobileFooterProps {
     savedRecipes: any[];
@@ -21,6 +25,14 @@ export default function MobileFooter({ savedRecipes, savedLoading, recipes = [] 
 
     const { user, menuItems } = useUserAccount(setModalMode, setIsAccountModalOpen);
 
+
+    const auth = useAuth();
+    const isAdmin = user?.role === 'Admin';
+    const { data: resetRequests, refetch } = useFetchResetRequests(isAdmin);
+    const pendingRequests = resetRequests?.length || 0;
+    const isAuthenticated = auth?.isAuthenticated ?? false;
+    usePasswordResetEvents(async () => { await refetch(); }, isAdmin);
+
     const {
         isRecipeModalOpen,
         selectedRecipe,
@@ -33,7 +45,7 @@ export default function MobileFooter({ savedRecipes, savedLoading, recipes = [] 
         <>
             <div className="mobile-footer">
                 <div className="mobile-footer__top">
-                    <Link to={'/admin'}>
+                    <Link to={'/dashboard'}>
                         <i className="fas fa-globe"></i>
                     </Link>
                 </div>
@@ -57,9 +69,11 @@ export default function MobileFooter({ savedRecipes, savedLoading, recipes = [] 
                             trigger={<i className="far fa-bookmark" />}
                             placement="topRight"
                         />
-                        <Dropdown menu={{ items: menuItems as any }} placement='topRight'>
-                            <i className="far fa-user"></i>
-                        </Dropdown>
+                        <Badge count={pendingRequests}>
+                            <Dropdown menu={{ items: menuItems as any }} placement='topRight'>
+                                <i className="far fa-user"></i>
+                            </Dropdown>
+                        </Badge>
                     </div>
                 </div>
             </div>

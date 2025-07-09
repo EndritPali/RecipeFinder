@@ -28,7 +28,7 @@ export function useUserAccount(
       },
       {
         key: 'admin',
-        label: <Link to="/admin">Dashboard</Link>
+        label: <Link to="/dashboard">Dashboard</Link>
       },
     ]
     : [

@@ -94,7 +94,7 @@ Route::prefix('v1')->group(function () {
 
     // --- Admin-Only Routes ---
     Route::middleware(['auth.token', 'role:Admin'])->group(function () {
-        Route::get('/admin', fn() => response()->json(['message' => 'Dashboard']));
+        Route::get('/dashboard', fn() => response()->json(['message' => 'Dashboard']));
 
         // Admin User Management
         Route::apiResource('users', UserController::class)->except(['update', 'destroy']);

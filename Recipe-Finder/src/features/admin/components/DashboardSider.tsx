@@ -29,14 +29,14 @@ export default function DashboardSider() {
       label: <Link to="/">Home</Link>,
     },
     {
-      key: '/admin',
+      key: '/dashboard',
       icon: <DashboardOutlined />,
-      label: <Link to="/admin">Dashboard</Link>,
+      label: <Link to="/dashboard">Dashboard</Link>,
     },
     {
-      key: '/admin/users',
+      key: '/dashboard/users',
       icon: isUser ? <LockOutlined /> : <UserOutlined />,
-      label: <Link to="/admin/users">Users</Link>,
+      label: <Link to="/dashboard/users">Users</Link>,
       disabled: isUser,
     },
   ];

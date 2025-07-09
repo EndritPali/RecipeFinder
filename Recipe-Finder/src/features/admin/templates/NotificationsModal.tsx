@@ -7,11 +7,13 @@ import ApproveResetModal from "./ApproveResetModal";
 import { NotificationsModalProps, ResetInfo } from '@/types/admin';
 import { useFetchResetRequests } from "../hooks/useFetchRequests";
 import { usePasswordResetEvents } from "../hooks/usePasswordResetEvents";
+import useWindowResize from "@/lib/hooks/useWindowResize";
 
 export default function NotificationsModal({ open, onOk, onCancel }: NotificationsModalProps) {
     const { isAuthenticated, user } = useAuth() as { isAuthenticated: boolean; user: { role?: string } | null };
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [resetInfo, setResetInfo] = useState<ResetInfo | null>(null);
+    const { isMobile } = useWindowResize();
 
     const isAdmin = user?.role === 'Admin';
 
@@ -68,7 +70,7 @@ export default function NotificationsModal({ open, onOk, onCancel }: Notificatio
                     </div>
                 ) : (
                     <List
-                        itemLayout="horizontal"
+                        itemLayout={isMobile ? 'vertical' : 'horizontal'}
                         dataSource={resetRequests}
                         locale={{ emptyText: 'No password reset requests' }}
                         renderItem={item => (
