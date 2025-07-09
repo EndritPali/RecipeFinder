@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../scss/ResponsiveDrawer.scss'
 import { ResponsiveDrawerProps } from '@/types/admin';
+import { useAuth } from '@/context/AuthContext';
 
 import {
     DashboardOutlined,
@@ -13,6 +14,10 @@ import {
 
 export default function ResponsiveDrawer({ open, onClose }: ResponsiveDrawerProps) {
     const location = useLocation();
+    const auth = useAuth();
+    const user = auth?.user;
+
+    const isUser = user?.role === 'User';
 
     const menuItems = useMemo(() => {
         return [
@@ -28,8 +33,9 @@ export default function ResponsiveDrawer({ open, onClose }: ResponsiveDrawerProp
             },
             {
                 key: '/admin/users',
-                icon: <UserOutlined />,
+                icon: isUser ? <LockOutlined /> : <UserOutlined />,
                 label: <Link to="/admin/users">Users</Link>,
+                disabled: isUser,
             },
         ];
     }, []);

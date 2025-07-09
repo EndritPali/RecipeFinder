@@ -1,51 +1,35 @@
-import { Modal, List, Avatar, Button, Spin, message, Tabs } from "antd";
+import { Modal, List, Avatar, Button, Spin } from "antd";
 import { UserOutlined } from '@ant-design/icons';
 import '../scss/NotificationsModal.scss';
 import { useState, useEffect } from 'react';
 import { useAuth } from "@/context/AuthContext";
 import ApproveResetModal from "./ApproveResetModal";
 import { NotificationsModalProps, ResetInfo } from '@/types/admin';
-import { useCommentEvents } from "@/features/comments/hooks/useCommentEvents";
-import { RecentComment } from "@/types/comment";
 import { useFetchResetRequests } from "../hooks/useFetchRequests";
 import { usePasswordResetEvents } from "../hooks/usePasswordResetEvents";
 
 export default function NotificationsModal({ open, onOk, onCancel }: NotificationsModalProps) {
-    const { isAuthenticated } = useAuth() as { isAuthenticated: boolean };
+    const { isAuthenticated, user } = useAuth() as { isAuthenticated: boolean; user: { role?: string } | null };
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [resetInfo, setResetInfo] = useState<ResetInfo | null>(null);
-    const [recentComments, setRecentComments] = useState<RecentComment[]>([]);
-    const [commentsLoading, setCommentsLoading] = useState(false);
+
+    const isAdmin = user?.role === 'Admin';
 
     const {
-        resetRequests,
+        data: resetRequests,
         isLoading,
         refetch,
         approveOrDeny,
         isMutating,
-    } = useFetchResetRequests();
+    } = useFetchResetRequests(isAdmin);
 
-    usePasswordResetEvents(async () => { await refetch(); });
-
-    useCommentEvents((comment: RecentComment) => {
-        setRecentComments((prev: RecentComment[]) => [comment, ...prev].slice(0, 10));
-    });
+    usePasswordResetEvents(async () => { await refetch(); }, isAdmin);
 
     useEffect(() => {
-        if (open && isAuthenticated) {
+        if (open && isAuthenticated && isAdmin) {
             refetch();
-            fetchRecentComments();
         }
-    }, [open, isAuthenticated, refetch]);
-
-    const fetchRecentComments = async () => {
-        setCommentsLoading(true);
-        try {
-            setRecentComments([]);
-        } finally {
-            setCommentsLoading(false);
-        }
-    };
+    }, [open, isAuthenticated, isAdmin, refetch]);
 
     const handleAction = async (resetId: string, action: 'approve' | 'deny') => {
         await approveOrDeny({ resetId, action });
@@ -78,65 +62,34 @@ export default function NotificationsModal({ open, onOk, onCancel }: Notificatio
                 title="Notifications Panel"
                 footer={null}
             >
-                <Tabs defaultActiveKey="1">
-                    <Tabs.TabPane tab="Password Reset Requests" key="1">
-                        {isLoading ? (
-                            <div style={{ textAlign: 'center', padding: '20px' }}>
-                                <Spin />
-                            </div>
-                        ) : (
-                            <List
-                                itemLayout="horizontal"
-                                dataSource={resetRequests}
-                                locale={{ emptyText: 'No password reset requests' }}
-                                renderItem={item => (
-                                    <List.Item>
-                                        <List.Item.Meta
-                                            avatar={
-                                                <Avatar>
-                                                    {item.username ? getInitials(item.username) : <UserOutlined />}
-                                                </Avatar>
-                                            }
-                                            title={`Request from: ${item.email}`}
-                                            description={`Last password remembered: ${item.last_password}`}
-                                        />
-                                        <div className="list-buttons">
-                                            <Button type="primary" loading={isMutating} onClick={() => handleAction(item.id, 'approve')}>Accept</Button>
-                                            <Button loading={isMutating} onClick={() => handleAction(item.id, 'deny')}>Deny</Button>
-                                        </div>
-                                    </List.Item>
-                                )}
-                            />
+                {isLoading ? (
+                    <div style={{ textAlign: 'center', padding: '20px' }}>
+                        <Spin />
+                    </div>
+                ) : (
+                    <List
+                        itemLayout="horizontal"
+                        dataSource={resetRequests}
+                        locale={{ emptyText: 'No password reset requests' }}
+                        renderItem={item => (
+                            <List.Item>
+                                <List.Item.Meta
+                                    avatar={
+                                        <Avatar>
+                                            {item.username ? getInitials(item.username) : <UserOutlined />}
+                                        </Avatar>
+                                    }
+                                    title={`Request from: ${item.email}`}
+                                    description={`Last password remembered: ${item.last_password}`}
+                                />
+                                <div className="list-buttons">
+                                    <Button type="primary" loading={isMutating} onClick={() => handleAction(item.id, 'approve')}>Accept</Button>
+                                    <Button loading={isMutating} onClick={() => handleAction(item.id, 'deny')}>Deny</Button>
+                                </div>
+                            </List.Item>
                         )}
-                    </Tabs.TabPane>
-                    <Tabs.TabPane tab="Recent Comments" key="2">
-                        {commentsLoading ? (
-                            <div style={{ textAlign: 'center', padding: '20px' }}>
-                                <Spin />
-                            </div>
-                        ) : (
-                            <List
-                                itemLayout="horizontal"
-                                dataSource={recentComments}
-                                locale={{ emptyText: 'No recent comments' }}
-                                renderItem={(item: RecentComment) => (
-                                    <List.Item>
-                                        <List.Item.Meta
-                                            avatar={
-                                                <Avatar>
-                                                    {item.user?.username ? getInitials(item.user.username) : <UserOutlined />}
-                                                </Avatar>
-                                            }
-                                            title={item.user?.username || 'Unknown User'}
-                                            description={item.description}
-                                        />
-                                        <div style={{ fontSize: 12, color: '#888' }}>{item.posted_at}</div>
-                                    </List.Item>
-                                )}
-                            />
-                        )}
-                    </Tabs.TabPane>
-                </Tabs>
+                    />
+                )}
             </Modal>
         </>
     );

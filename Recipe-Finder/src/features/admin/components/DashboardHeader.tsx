@@ -1,40 +1,24 @@
-import { Avatar, message, Badge, Popover } from 'antd';
-import { UserOutlined, SettingOutlined, LogoutOutlined, BellOutlined } from '@ant-design/icons';
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Avatar, Badge, Popover } from 'antd';
+import { UserOutlined, SettingOutlined, BellOutlined } from '@ant-design/icons';
+import { useState } from 'react';
 import AccountDrawer from '../templates/AccountDrawer';
 import NotificationsModal from '../templates/NotificationsModal';
 import { useAuth } from '@/context/AuthContext';
 import '../scss/DashboardHeader.scss';
+import { useFetchResetRequests } from '../hooks/useFetchRequests';
+import { usePasswordResetEvents } from '../hooks/usePasswordResetEvents';
 
 export default function DashboardHeader() {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [pendingRequests, setPendingRequests] = useState(0);
     const auth = useAuth();
     const user = auth?.user;
-    const logout = auth?.logout;
-    const fetchPendingRequests = auth?.fetchPendingRequests;
-    const navigate = useNavigate();
+    const isAdmin = user?.role === 'Admin';
 
-    useEffect(() => {
-        if (user?.role !== 'Admin' || !fetchPendingRequests || !window.Echo) return;
+    const { data: resetRequests, refetch } = useFetchResetRequests(isAdmin);
+    const pendingRequests = resetRequests?.length || 0;
 
-        const channel = window.Echo.channel('password-resets')
-            .listen('.PasswordResetRequested', async () => {
-                try {
-                    const count = await fetchPendingRequests();
-                    setPendingRequests(count);
-                } catch {
-                    setPendingRequests(0);
-                }
-            });
-
-        return () => {
-            window.Echo.leave('password-resets');
-        };
-    }, [user?.role, fetchPendingRequests]);
-
+    usePasswordResetEvents(async () => { await refetch(); }, isAdmin);
 
     const getInitials = (name?: string) => {
         if (!name) return '';
@@ -45,13 +29,8 @@ export default function DashboardHeader() {
 
     const handleCloseModal = async () => {
         setIsModalOpen(false);
-        if (user?.role === 'Admin' && fetchPendingRequests) {
-            try {
-                const count = await fetchPendingRequests();
-                setPendingRequests(count);
-            } catch {
-                setPendingRequests(0);
-            }
+        if (user?.role === 'Admin') {
+            await refetch();
         }
     };
 

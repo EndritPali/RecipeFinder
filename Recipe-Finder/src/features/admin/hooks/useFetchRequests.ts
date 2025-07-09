@@ -3,10 +3,10 @@ import api from "@/lib/api/api";
 import { message } from "antd";
 import { ResetRequest } from "@/types/admin";
 
-export function useFetchResetRequests() {
+export function useFetchResetRequests(enabled: boolean = true) {
   const queryClient = useQueryClient();
 
-  const { data, isPending, refetch } = useQuery<ResetRequest[]>({
+  const query = useQuery<ResetRequest[]>({
     queryKey: ["reset-requests"],
     queryFn: async () => {
       try {
@@ -18,6 +18,7 @@ export function useFetchResetRequests() {
       }
     },
     staleTime: 1000 * 60,
+    enabled,
   });
 
   const mutation = useMutation({
@@ -48,9 +49,7 @@ export function useFetchResetRequests() {
   });
 
   return {
-    resetRequests: data || [],
-    isLoading: isPending,
-    refetch,
+    ...query,
     approveOrDeny: mutation.mutateAsync,
     isMutating: mutation.isPending,
   };

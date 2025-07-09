@@ -31,6 +31,12 @@
                 }
             }
 
+            .ant-menu-item-disabled {
+                background-color: $bright-gray !important;
+                color: gray !important;
+                border-radius: 8px;
+            }
+
             .ant-menu-item-selected {
                 background-color: $primary-color;
                 color: #fff;
