@@ -1,6 +1,5 @@
 import { Card, Row, Col, Avatar, Pagination, Spin } from 'antd';
 import { EditOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
-import { ReactNode } from 'react';
 import { GridSortProps, CardDescriptionProps } from '@/types/admin';
 
 export default function GridSort({ data, onEdit, onDelete, pagination, loading }: GridSortProps) {

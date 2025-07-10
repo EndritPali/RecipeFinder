@@ -1,6 +1,5 @@
 import { Form, Input } from "antd";
 import '../scss/DrawerInputs.scss';
-import { ReactNode } from 'react';
 import { DrawerInputProps } from '@/types/admin';
 
 export default function DrawerInput({

@@ -1,4 +1,4 @@
-import { Dropdown, Skeleton } from 'antd';
+import { Dropdown } from 'antd';
 import { MappedRecipe } from '@/types/recipe';
 
 export default function SavedRecipesDropdown({

@@ -5,7 +5,6 @@ import { Skeleton } from 'antd';
 import RecipeSearch from '@/Components/common/header/RecipeSearch';
 import SavedRecipesDropdown from '@/features/recipes/components/SavedRecipesDropdown';
 import UserDropdown from '@/features/auth/components/UserDropdown';
-import { useAuth } from '@/context/AuthContext';
 import { useFetchResetRequests } from '@/features/admin/hooks/useFetchRequests'
 import { usePasswordResetEvents } from '@/features/admin/hooks/usePasswordResetEvents'
 import { Badge } from 'antd'
@@ -25,11 +24,9 @@ export default function HeaderWidgets({
     menuItems,
 }: HeaderWidgetsProps) {
 
-    const auth = useAuth();
     const isAdmin = user?.role === 'Admin';
     const { data: resetRequests, refetch } = useFetchResetRequests(isAdmin);
     const pendingRequests = resetRequests?.length || 0;
-    const isAuthenticated = auth?.isAuthenticated ?? false;
     usePasswordResetEvents(async () => { await refetch(); }, isAdmin);
 
     return (

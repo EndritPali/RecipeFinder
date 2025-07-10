@@ -8,7 +8,6 @@ import SavedRecipesDropdown from '@/features/recipes/components/SavedRecipesDrop
 import { useState } from 'react';
 import { useUserAccount } from '@/features/auth/hooks/useUserAccount';
 import { AccountModalMode } from '@/types/auth';
-import { useAuth } from '@/context/AuthContext';
 import { useFetchResetRequests } from '@/features/admin/hooks/useFetchRequests'
 import { usePasswordResetEvents } from '@/features/admin/hooks/usePasswordResetEvents'
 import { Badge } from 'antd'
@@ -26,11 +25,9 @@ export default function MobileFooter({ savedRecipes, savedLoading, recipes = [] 
     const { user, menuItems } = useUserAccount(setModalMode, setIsAccountModalOpen);
 
 
-    const auth = useAuth();
     const isAdmin = user?.role === 'Admin';
     const { data: resetRequests, refetch } = useFetchResetRequests(isAdmin);
     const pendingRequests = resetRequests?.length || 0;
-    const isAuthenticated = auth?.isAuthenticated ?? false;
     usePasswordResetEvents(async () => { await refetch(); }, isAdmin);
 
     const {

@@ -1,4 +1,4 @@
-import { Skeleton, Empty } from 'antd';
+import { Empty } from 'antd';
 import RecipeBanner from "../RecipeBanner";
 import { MappedRecipe } from '@/types/recipe';
 

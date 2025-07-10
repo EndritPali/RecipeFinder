@@ -1,5 +1,5 @@
 import { Button, Tooltip } from "antd";
-import { UserOutlined, EditOutlined, DeleteOutlined, } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, } from '@ant-design/icons';
 
 export default function CommentButtons({ onEdit, onDelete, isOwner, isAdmin }: any) {
     const canEdit = isOwner;

@@ -1,4 +1,4 @@
-import { Upload, Input, Form, FormInstance, message } from 'antd';
+import { Upload, Input, Form, message } from 'antd';
 import { ImgUploadProps } from '@/types/admin';
 import type { UploadChangeParam } from 'antd/es/upload';
 import type { RcFile } from 'antd/es/upload/interface';
