@@ -24,11 +24,10 @@ class ServiceResponse
      */
     private $message;
 
-    /**
-     * @param bool $success
-     * @param Model|Collection|JsonResource|ResourceCollection|null $model
-     * @param string|null $message
-     */
+    /* @param bool $success
+    * @param Model|Collection|JsonResource|ResourceCollection|LengthAwarePaginator|null $model
+    * @param string|null $message
+    */
     public function __construct(bool $success, $model = null, ?string $message = null)
     {
         $this->success = $success;

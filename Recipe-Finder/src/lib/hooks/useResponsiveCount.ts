@@ -18,6 +18,7 @@ export default function useResponsiveCount() {
 function getCount(width: number) {
   if (width < 768) return 2;      
   if (width < 1175) return 3;     
-  if (width < 2000) return 5; 
+  if (width < 1900) return 5; 
+  if (width < 2000) return 6; 
   return 7;                          
 }

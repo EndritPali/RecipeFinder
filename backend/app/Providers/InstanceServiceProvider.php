@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-
 use App\Http\Services\Auth\PasswordResetService;
 use App\Http\Services\Auth\UserService;
 use App\Http\Services\CategoryService;
@@ -13,7 +12,6 @@ use App\Http\Services\RecipeIngredientService;
 use App\Http\Services\RecipeRelationService;
 use App\Http\Services\RecipeService;
 use App\Http\Services\RegisterService;
-use App\Http\Services\SavedRecipeService;
 use App\Models\Category;
 use App\Models\Comment;
 use App\Models\Ingredient;
@@ -22,7 +20,6 @@ use App\Repositories\Comments\CommentRepository;
 use App\Repositories\PasswordReset\PasswordResetRepository;
 use App\Repositories\Recipes\CategoryRepository;
 use App\Repositories\Recipes\RecipeRepository;
-use App\Repositories\Recipes\SavedRecipeRepository;
 use App\Repositories\Users\UserRepository;
 use App\Models\User;
 use App\Repositories\Recipes\IngredientRepository;
@@ -97,13 +94,6 @@ class InstanceServiceProvider extends ServiceProvider
             new RecipeCategoryService(
                 new RecipeRepository(new Recipe()),
                 new CategoryRepository(new Category())
-            )
-        );
-
-        $this->app->instance(
-            SavedRecipeService::class,
-            new SavedRecipeService(
-                new SavedRecipeRepository()
             )
         );
 

@@ -51,6 +51,7 @@
             align-items: flex-start;
             justify-content: center;
             gap: 28px;
+            width: 100%;
             max-width: 560px;
 
             .recipes-grid-empty {
@@ -209,8 +210,7 @@
 
             .recipe-grid__col.recipe-grid__col--first {
                 gap: 22px;
-
-
+                width: auto;
             }
 
             .recipe-grid__col.recipe-grid__col--second {

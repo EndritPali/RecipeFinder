@@ -14,8 +14,6 @@ use App\Repositories\PasswordReset\PasswordResetRepository;
 use App\Repositories\PasswordReset\PasswordResetRepositoryInterface;
 use App\Repositories\Recipes\CategoryRepository;
 use App\Repositories\Recipes\CategoryRepositoryInterface;
-use App\Repositories\Recipes\SavedRecipeRepository;
-use App\Repositories\Recipes\SavedRecipeRepositoryInterface;
 use App\Repositories\Recipes\RecipeRepository;
 use App\Repositories\Recipes\RecipeRepositoryInterface;
 use App\Repositories\Comments\CommentRepository;
@@ -58,11 +56,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(
             CategoryRepositoryInterface::class,
             CategoryRepository::class
-        );
-
-        $this->app->bind(
-            SavedRecipeRepositoryInterface::class,
-            SavedRecipeRepository::class
         );
 
         $this->app->bind(

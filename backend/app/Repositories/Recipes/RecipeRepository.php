@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use InvalidArgumentException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use RuntimeException;
+use App\Models\SavedRecipe;
 
 /**
  * Implementation of the RecipeRepositoryInterface for Eloquent ORM.
@@ -188,5 +189,61 @@ final class RecipeRepository implements RecipeRepositoryInterface
             ->with(['ingredients', 'categories'])
             ->where('created_by', $userId)
             ->paginate($perPage);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getSavedRecipesByUserId(string $userId): Collection
+    {
+        return SavedRecipe::with('recipe')
+            ->where('user_id', $userId)
+            ->get()
+            ->map(fn($saved) => $saved->recipe);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function savedExists(string|int $userId, string|int $recipeId): bool
+    {
+        return SavedRecipe::where('user_id', $userId)
+            ->where('recipe_id', $recipeId)
+            ->exists();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function saveRecipeForUser(string|int $userId, string|int $recipeId): SavedRecipe
+    {
+        $savedRecipe = SavedRecipe::create([
+            'user_id' => $userId,
+            'recipe_id' => $recipeId,
+        ]);
+
+        if (!$savedRecipe) {
+            throw new ModelNotFoundException('Failed to create saved recipe');
+        }
+
+        return $savedRecipe;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getSavedEntry(string $userId, string $recipeId): ?SavedRecipe
+    {
+        return SavedRecipe::where('user_id', $userId)
+            ->where('recipe_id', $recipeId)
+            ->first();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function deleteSavedEntry(SavedRecipe $savedRecipe): void
+    {
+        $savedRecipe->delete();
     }
 }

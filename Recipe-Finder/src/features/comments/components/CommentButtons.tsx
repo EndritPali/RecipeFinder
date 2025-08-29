@@ -12,11 +12,7 @@ export default function CommentButtons({ onEdit, onDelete, isOwner, isAdmin }: a
                     <EditOutlined />
                 </Button>
             ) : (
-                <Tooltip title="You cannot edit this comment">
-                    <Button className="btn-edit" disabled>
-                        <EditOutlined />
-                    </Button>
-                </Tooltip>
+               ''
             )}
 
             {canDelete ? (
@@ -24,11 +20,7 @@ export default function CommentButtons({ onEdit, onDelete, isOwner, isAdmin }: a
                     <DeleteOutlined />
                 </Button>
             ) : (
-                <Tooltip title="You cannot delete this comment">
-                    <Button className="btn-delete" disabled>
-                        <DeleteOutlined />
-                    </Button>
-                </Tooltip>
+              ''
             )}
         </>
     );

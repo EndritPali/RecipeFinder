@@ -8,7 +8,7 @@ use App\Models\Recipe;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\SavedRecipe;
 
 /**
  * Interface for Recipe data persistence operations.
@@ -105,4 +105,47 @@ interface RecipeRepositoryInterface
      * @return LengthAwarePaginator
      */
     public function getByUserPaginated(string $userId, int $perPage = 15): LengthAwarePaginator;
+
+    /**
+     * Retrieve all saved recipes for a given user as Recipe collection.
+     *
+     * @param string $userId
+     * @return Collection<int, Recipe>
+     */
+    public function getSavedRecipesByUserId(string $userId): Collection;
+
+    /**
+     * Check if a recipe is saved by a specific user.
+     *
+     * @param string|int $userId
+     * @param string|int $recipeId
+     * @return bool
+     */
+    public function savedExists(string|int $userId, string|int $recipeId): bool;
+
+    /**
+     * Create a new saved recipe entry.
+     *
+     * @param string|int $userId
+     * @param string|int $recipeId
+     * @return SavedRecipe
+     */
+    public function saveRecipeForUser(string|int $userId, string|int $recipeId): SavedRecipe;
+
+    /**
+     * Get a specific saved recipe entry.
+     *
+     * @param string $userId
+     * @param string $recipeId
+     * @return SavedRecipe|null
+     */
+    public function getSavedEntry(string $userId, string $recipeId): ?SavedRecipe;
+
+    /**
+     * Delete a saved recipe entry.
+     *
+     * @param SavedRecipe $savedRecipe
+     * @return void
+     */
+    public function deleteSavedEntry(SavedRecipe $savedRecipe): void;
 }

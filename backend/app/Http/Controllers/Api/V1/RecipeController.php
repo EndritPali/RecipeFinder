@@ -1,18 +1,17 @@
 <?php
 
 namespace App\Http\Controllers\Api\V1;
-
-use App\Events\RecipeCreated;
 use App\Http\Requests\Api\V1\StoreRecipeRequest;
 use App\Http\Requests\Api\V1\UpdateRecipeRequest;
 use App\Http\Resources\RecipeResource;
 use App\Http\Services\RecipeService;
 use App\Models\Recipe;
-use App\Models\User;
 use App\Repositories\Recipes\RecipeRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use App\Http\Requests\Api\V1\StoreSavedRecipesRequest;
+use App\Models\SavedRecipe;
 
 /**
  * @group Recipes
@@ -28,7 +27,6 @@ final class RecipeController extends ApiController
      * @var RecipeRepositoryInterface 
      */
     private $recipeRepository;
-
 
     /**
      * Create a new controller instance.
@@ -57,6 +55,29 @@ final class RecipeController extends ApiController
     }
 
     /**
+     * Get all recipes created by the authenticated user.
+     *
+     * @param Request $request
+     * @return AnonymousResourceCollection|JsonResponse
+     */
+    public function myRecipes(Request $request): AnonymousResourceCollection|JsonResponse
+    {
+        $user = $request->user();
+        if (!$user) {
+            return $this->errorResponse('Unauthorized', 401);
+        }
+
+        $perPage = $request->get('per_page') ? (int) $request->get('per_page') : null;
+        $response = RecipeService::getByUserPaginated($user, $perPage);
+
+        if ($response->success()) {
+            return RecipeResource::collection($response->getModel());
+        }
+
+        return $this->errorResponse('Failed to fetch recipes', 500);
+    }
+
+    /**
      * Store a newly created recipe.
      *
      * @param StoreRecipeRequest $request
@@ -67,8 +88,6 @@ final class RecipeController extends ApiController
         $response = RecipeService::store($request);
 
         if ($response->success()) {
-            // $recipe = $response->getModel();
-            // broadcast(new RecipeCreated($recipe));
             return new RecipeResource($response->getModel());
         }
 
@@ -130,6 +149,79 @@ final class RecipeController extends ApiController
         }
 
         $statusCode = $response->getMessage() === 'Permission denied' ? 403 : 400;
+        return response()->json(['message' => $response->getMessage()], $statusCode);
+    }
+
+    /**
+     * Display a listing of saved recipes for the authenticated user.
+     *
+     * @param Request $request
+     * @return AnonymousResourceCollection
+     */
+    public function savedIndex(Request $request): AnonymousResourceCollection
+    {
+        $user = $request->user();
+        $response = RecipeService::getSavedByUser($user);
+
+        return RecipeResource::collection($response->getModel());
+    }
+
+    /**
+     * Save a recipe for the authenticated user.
+     *
+     * @param StoreSavedRecipesRequest $request
+     * @return RecipeResource|JsonResponse
+     */
+    public function saveRecipe(StoreSavedRecipesRequest $request): RecipeResource|JsonResponse
+    {
+        $this->authorize('create', SavedRecipe::class);
+
+        $response = RecipeService::saveForUser($request);
+
+        if ($response->success()) {
+            return new RecipeResource($response->getModel()->recipe);
+        }
+
+        $statusCode = $response->getMessage() === 'Unauthorized' ? 401 : 400;
+        return response()->json(['message' => $response->getMessage()], $statusCode);
+    }
+
+    /**
+     * Display a specific saved recipe for the authenticated user.
+     *
+     * @param Request $request
+     * @param Recipe $recipe
+     * @return RecipeResource|JsonResponse
+     */
+    public function savedShow(Request $request, Recipe $recipe): RecipeResource|JsonResponse
+    {
+        $response = RecipeService::getSavedEntry($request->user(), $recipe);
+
+        if ($response->success()) {
+            return new RecipeResource($response->getModel()->recipe);
+        }
+
+        return response()->json(['message' => $response->getMessage()], 404);
+    }
+
+    /**
+     * Remove a saved recipe for the authenticated user.
+     *
+     * @param Request $request
+     * @param Recipe $recipe
+     * @return JsonResponse
+     */
+    public function savedDestroy(Request $request, Recipe $recipe): JsonResponse
+    {
+        $this->authorize('delete', SavedRecipe::class);
+
+        $response = RecipeService::removeSaved($request->user(), $recipe);
+
+        if ($response->success()) {
+            return response()->json(['message' => 'Recipe removed from saved list.'], 200);
+        }
+
+        $statusCode = $response->getMessage() === 'Unauthorized' ? 401 : 400;
         return response()->json(['message' => $response->getMessage()], $statusCode);
     }
 }

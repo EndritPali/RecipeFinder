@@ -89,7 +89,19 @@
         flex-direction: column;
         align-items: flex-start;
         justify-content: space-between;
+        position: relative;
         // gap: 137px;
+
+        &::before {
+            content: '';
+            height: 100%;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            position: absolute;
+            left: 0;
+            top: 0;
+            border-radius: 20px;
+        }
 
         .recipe-grid-mobile__wishlist-bar {
             display: flex;
@@ -97,6 +109,7 @@
             align-items: center;
             justify-content: space-between;
             width: 100%;
+            z-index: 2;
 
             .recipe-grid-mobile__bar-ico {
                 padding: 10px;
@@ -123,6 +136,7 @@
         }
 
         .recipe-grid-mobile__info {
+            z-index: 2;
 
             h2 {
                 font-size: 28px;

@@ -4,13 +4,11 @@ use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\CommentController;
 use App\Http\Controllers\Api\V1\IngredientController;
 use App\Http\Controllers\Api\V1\LikeController;
-use App\Http\Controllers\Api\V1\MyRecipesController;
 use App\Http\Controllers\Api\V1\PasswordResetController;
 use App\Http\Controllers\Api\V1\RecipeCategoryController;
 use App\Http\Controllers\Api\V1\RecipeController;
 use App\Http\Controllers\Api\V1\RecipeIngredientController;
 use App\Http\Controllers\Api\V1\RegisterController;
-use App\Http\Controllers\Api\V1\SavedRecipeController;
 use App\Http\Controllers\Api\V1\SessionController;
 use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Http\Request;
@@ -59,18 +57,18 @@ Route::prefix('v1')->group(function () {
     // --- Authenticated User Routes ---
     Route::middleware(['auth.token', 'role:User,Admin'])->group(function () {
         Route::get('auth/me', fn(Request $request) => response()->json($request->user()));
-        Route::get('my-recipes', [MyRecipesController::class, 'myRecipes']);
+        Route::get('my-recipes', [RecipeController::class, 'myRecipes']);
 
         // Recipes & Comments
         Route::apiResource('recipes', RecipeController::class)->only(['store', 'update', 'destroy']);
         Route::apiResource('comments', CommentController::class)->only(['store', 'update', 'destroy']);
 
         // Saved Recipes
-        Route::controller(SavedRecipeController::class)->prefix('saved-recipes')->name('saved-recipes.')->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::post('/', 'store')->name('store');
-            Route::get('/{recipe}', 'show')->name('show');
-            Route::delete('/{recipe}', 'destroy')->name('destroy');
+        Route::controller(RecipeController::class)->prefix('saved-recipes')->name('saved-recipes.')->group(function () {
+            Route::get('/', 'savedIndex')->name('index');
+            Route::post('/', 'saveRecipe')->name('store');
+            Route::get('/{recipe}', 'savedShow')->name('show');
+            Route::delete('/{recipe}', 'savedDestroy')->name('destroy');
         });
 
         // Likes
