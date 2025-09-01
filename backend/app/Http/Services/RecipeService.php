@@ -57,6 +57,23 @@ final class RecipeService
     }
 
     /**
+     * Retrieve paginated recipes.
+     *
+     * @param int|null $perPage
+     * @return ServiceResponse
+     */
+    public static function getPaginated(?int $perPage = null): ServiceResponse
+    {
+        try {
+            $recipes = self::$recipeRepository->getPaginated($perPage);
+            return new ServiceResponse(true, $recipes);
+        } catch (Exception $e) {
+            Log::channel('recipeslog')->error('RecipeService::getPaginated Exception: ' . $e->getMessage());
+            return new ServiceResponse(false, null, $e->getMessage());
+        }
+    }
+
+    /**
      * Retrieve recipes created by the given user with pagination.
      *
      * @param User $user

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api\V1;
+
 use App\Http\Requests\Api\V1\StoreRecipeRequest;
 use App\Http\Requests\Api\V1\UpdateRecipeRequest;
 use App\Http\Resources\RecipeResource;
@@ -49,32 +50,27 @@ final class RecipeController extends ApiController
     public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
         $perPage = $request->get('per_page') ? (int) $request->get('per_page') : null;
-        $paginatedRecipes = $this->recipeRepository->getPaginated($perPage);
 
-        return RecipeResource::collection($paginatedRecipes);
-    }
+        if ($request->boolean('mine')) {
+            $user = $request->user();
+            if (!$user) {
+                return $this->errorResponse('Unauthorized', 401);
+            }
 
-    /**
-     * Get all recipes created by the authenticated user.
-     *
-     * @param Request $request
-     * @return AnonymousResourceCollection|JsonResponse
-     */
-    public function myRecipes(Request $request): AnonymousResourceCollection|JsonResponse
-    {
-        $user = $request->user();
-        if (!$user) {
-            return $this->errorResponse('Unauthorized', 401);
+            $response = RecipeService::getByUserPaginated($user, $perPage);
+            if ($response->success()) {
+                return RecipeResource::collection($response->getModel());
+            }
+
+            return $this->errorResponse($response->getMessage() ?? 'Failed to fetch recipes', 500);
         }
 
-        $perPage = $request->get('per_page') ? (int) $request->get('per_page') : null;
-        $response = RecipeService::getByUserPaginated($user, $perPage);
-
+        $response = RecipeService::getPaginated($perPage);
         if ($response->success()) {
             return RecipeResource::collection($response->getModel());
         }
 
-        return $this->errorResponse('Failed to fetch recipes', 500);
+        return $this->errorResponse($response->getMessage() ?? 'Failed to fetch recipes', 500);
     }
 
     /**
@@ -98,25 +94,19 @@ final class RecipeController extends ApiController
     /**
      * Display the specified recipe.
      *
-     * @param string $id
-     * @return RecipeResource|JsonResponse
+     * @param Recipe $recipe
+     * @return RecipeResource
      */
-    public function show(string $id): RecipeResource|JsonResponse
+    public function show(Recipe $recipe): RecipeResource
     {
-        $response = RecipeService::getById($id);
-
-        if ($response->success()) {
-            return new RecipeResource($response->getModel());
-        }
-
-        return response()->json(['message' => $response->getMessage()], 404);
+        return new RecipeResource($recipe);
     }
 
     /**
      * Update the specified recipe.
      *
      * @param UpdateRecipeRequest $request
-     * @param string $id
+     * @param Recipe $recipe
      * @return RecipeResource|JsonResponse
      */
     public function update(UpdateRecipeRequest $request, Recipe $recipe): RecipeResource|JsonResponse
@@ -136,7 +126,7 @@ final class RecipeController extends ApiController
      * Delete the specified recipe.
      *
      * @param Request $request
-     * @param string $id
+     * @param Recipe $recipe
      * @return JsonResponse
      */
     public function destroy(Request $request, Recipe $recipe): JsonResponse
