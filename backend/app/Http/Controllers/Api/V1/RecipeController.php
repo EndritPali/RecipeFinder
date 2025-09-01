@@ -61,16 +61,11 @@ final class RecipeController extends ApiController
             if ($response->success()) {
                 return RecipeResource::collection($response->getModel());
             }
-
             return $this->errorResponse($response->getMessage() ?? 'Failed to fetch recipes', 500);
         }
 
-        $response = RecipeService::getPaginated($perPage);
-        if ($response->success()) {
-            return RecipeResource::collection($response->getModel());
-        }
-
-        return $this->errorResponse($response->getMessage() ?? 'Failed to fetch recipes', 500);
+        $paginatedRecipes = $this->recipeRepository->getPaginated($perPage);
+        return RecipeResource::collection($paginatedRecipes);
     }
 
     /**
