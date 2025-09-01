@@ -57,7 +57,10 @@ Route::prefix('v1')->group(function () {
     // --- Authenticated User Routes ---
     Route::middleware(['auth.token', 'role:User,Admin'])->group(function () {
         Route::get('auth/me', fn(Request $request) => response()->json($request->user()));
-        Route::get('my-recipes', [RecipeController::class, 'myRecipes']);
+        Route::get('my-recipes', function(Request $request) {
+            $request->merge(['mine' => true]);
+            return app(RecipeController::class)->index($request);
+        });
 
         // Recipes & Comments
         Route::apiResource('recipes', RecipeController::class)->only(['store', 'update', 'destroy']);
